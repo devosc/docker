@@ -21,11 +21,16 @@ Copy the `docker-compose.yml` file into the PHP project directory and set the bu
 build:
   context: ~/docker
 ```
-Also set the `container_name` and frontend `Host` variables to the name of the project in the `docker-compose.yml` file.
+Set the `container_name` and frontend `Host` variables to the name of the project in the `docker-compose.yml` file.
 ```
 container_name: mvc5playground
 labels:
   - traefik.frontend.rule=Host:mvc5playground
+```
+Mount the project directory path to `/var/www`. The web server document root is `/var/www/public`.
+```
+volumes:
+  - .:/var/www
 ```
 Start the project container and proxy service (Traefik).
 ```
