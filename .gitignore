@@ -1,0 +1,3 @@
+.idea
+./traefik/acme.json
+./traefik/traefik.toml

@@ -1,0 +1,21 @@
+version: '3.5'
+
+services:
+  proxy:
+    image: traefik
+    command: --api --docker
+    container_name: traefik
+    networks:
+      - webgateway
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/etc/traefik/traefik.toml
+      - ./acme.json:/acme.json
+
+networks:
+  webgateway:
+    driver: bridge

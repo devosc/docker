@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+export USER_ID=$(id -u)
+export GROUP_ID=$(id -g)
+
+docker-compose --file $(pwd)/docker-compose.yml down --remove-orphans
+
+if [ "-a" = "$1" ]; then
+    docker stop $(docker ps -aq)
+    docker rm $(docker ps -aq)
+fi

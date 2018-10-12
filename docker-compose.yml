@@ -1,0 +1,25 @@
+version: '3.5'
+
+networks:
+  public:
+    external:
+      name: traefik_webgateway
+
+services:
+  app:
+    build:
+      args:
+        - XDEBUG=false
+        - RELEASE_VERSION=apache
+        - USER_ID=${USER_ID}
+        - GROUP_ID=${USER_ID}
+      context: .
+    container_name: mvc5playground_docker
+    labels:
+      - traefik.docker.network=traefik_webgateway
+      - traefik.frontend.rule=Host:mvc5playground
+      - traefik.port=80
+    networks:
+      - public
+    volumes:
+      - ./www:/var/www

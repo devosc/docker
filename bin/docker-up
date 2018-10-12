@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if [ "-a" = "$1" ]; then
+    docker-traefik up
+fi
+
+export USER_ID=$(id -u)
+export GROUP_ID=$(id -g)
+
+docker-compose --file $(pwd)/docker-compose.yml up -d
