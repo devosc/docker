@@ -12,7 +12,7 @@ Add the project name to your `/etc/hosts` file.
 ```
 echo "127.0.0.1 mvc5playground" | sudo tee -a /etc/hosts
 ```
-Copy the `traefik.toml` file and set your `acme` email address in the `traefik.toml` file for Let's Encrypt SSL certificates. 
+Copy the `traefik.toml` sample file and set the `acme` email address for Let's Encrypt SSL certificates. 
 ```
 cp traefik/traefik.toml.sample traefik/traefik.toml
 ```
@@ -52,7 +52,7 @@ Each project has its own `docker-compose.yml` file and should use the same build
 - Logs: `docker-logs`
 
 ## Build Args
-To use a specific (Apache) PHP Docker image, set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug, set `XDEBUG` to true.
+To use a specific (Apache) [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug, set `XDEBUG` to true.
 ```
 args:
   - XDEBUG=false
