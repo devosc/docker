@@ -9,7 +9,7 @@ services:
   app:
     build:
       args:
-        - XDEBUG=false
+        - XDEBUG=true
         - RELEASE_VERSION=apache
         - USER_ID=${USER_ID}
         - GROUP_ID=${USER_ID}
