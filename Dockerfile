@@ -8,7 +8,6 @@ RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
 # App user
 ARG USER_ID=1000
 ARG GROUP_ID=1000
-ARG XDEBUG=false
 
 RUN if [ $(getent group $GROUP_ID | cut -d: -f1) ]; then groupdel $(getent group $GROUP_ID | cut -d: -f1) ; fi && \
     groupadd -r app -g $GROUP_ID && \
@@ -29,8 +28,8 @@ RUN apt-get update \
 RUN docker-php-ext-install opcache
 
 # Xdebug
-RUN if [ $XDEBUG = "true" ]; then pecl install xdebug && \
-    docker-php-ext-enable xdebug; fi
+ARG XDEBUG=false
+RUN if [ $XDEBUG = "true" ]; then pecl install xdebug && docker-php-ext-enable xdebug; fi
 
 # Composer
 ARG COMPOSER=true
