@@ -36,7 +36,9 @@ RUN if [ $XDEBUG = "true" ]; then pecl install xdebug && \
     docker-php-ext-enable xdebug; fi
 
 # Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+ARG COMPOSER=true
+RUN if [ $COMPOSER = "true" ]; then \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer; fi
 
 # NPM
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
