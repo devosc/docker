@@ -43,6 +43,8 @@ RUN apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 # Apache
+ARG DOCUMENT_ROOT=/var/www/public
+ENV APACHE2_DEFAULT_DOCUMENT_ROOT $DOCUMENT_ROOT
 WORKDIR /var/www
 RUN a2enmod rewrite
 COPY vhost.conf /etc/apache2/sites-available/000-default.conf
