@@ -15,17 +15,14 @@ RUN if [ $(getent group $GROUP_ID | cut -d: -f1) ]; then groupdel $(getent group
     useradd -u $USER_ID -r -l -g app -m -s /sbin/nologin -c "App user" app && \
     mkdir -p /var/www && chown -R app:app /var/www && rm -rf /var/www/html
 
-# PHP
+# Dependencies
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     curl \
-    nginx \
     zip \
     unzip \
     nano \
     gnupg \
-    build-essential \
-    libssl-dev \
   && rm -rf /var/lib/apt/lists/*
 
 # Opcache
