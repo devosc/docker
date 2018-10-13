@@ -8,11 +8,9 @@ RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
 # App user
 ARG USER_ID=1000
 ARG GROUP_ID=1000
-
 RUN if [ $(getent group $GROUP_ID | cut -d: -f1) ]; then groupdel $(getent group $GROUP_ID | cut -d: -f1) ; fi && \
     groupadd -r app -g $GROUP_ID && \
-    useradd -u $USER_ID -r -l -g app -m -s /sbin/nologin -c "App user" app && \
-    mkdir -p /var/www && chown -R app:app /var/www && rm -rf /var/www/html
+    useradd -u $USER_ID -r -l -g app -m -s /sbin/nologin -c "App user" app
 
 # Dependencies
 RUN apt-get update \
@@ -43,6 +41,10 @@ RUN apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 # Apache
+ARG WWW_USER=app
+ARG WWW_GROUP=app
+ENV APACHE_RUN_USER $WWW_USER
+ENV APACHE_RUN_GROUP $WWW_GROUP
 ARG DOCUMENT_ROOT=/var/www/public
 ENV APACHE2_DEFAULT_DOCUMENT_ROOT $DOCUMENT_ROOT
 WORKDIR /var/www
