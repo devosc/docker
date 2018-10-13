@@ -16,6 +16,7 @@ Copy the `traefik.toml` sample file and set the `acme` email address for Let's E
 ```
 cp traefik/traefik.toml.sample traefik/traefik.toml
 ```
+## Add Docker Compose File To PHP Project
 Copy the `docker-compose.yml` file into the PHP project directory and set the build `context` path to the location of the Docker directory.
 ```
 build:
@@ -27,34 +28,43 @@ container_name: mvc5playground
 labels:
   - traefik.frontend.rule=Host:mvc5playground
 ```
-Mount the project directory path to `/var/www`. The web server document root is `/var/www/public`.
+Mount the project directory path to `/var/www`. The web server document root is `/var/www/public` by default.
 ```
 volumes:
   - .:/var/www
 ```
-Start the project container and proxy service (Traefik).
+## Start Project Container
+Inside the project directory, start the project container and proxy service (Traefik).
 ```
 docker-up -a
 ```
 
 ## Project Commands
 Each project has its own `docker-compose.yml` file and should use the same build context, e.g `~/docker`.
-- Start: `docker-up`
-- Stop: `docker-down`
-- Start with services: `docker-up -a`   
-- Stop all services: `docker-down -a`
+- Start container: `docker-up`
+- Stop container: `docker-down`
+- Start container with services: `docker-up -a`   
+- Stop container and all services: `docker-down -a`
 - App User: `docker-app`
 - Root User: `docker-root`
 - Composer: `docker-composer`
-- NPM: `docker-npm`
+- npm: `docker-npm`
 - PHPUnit: `docker-phpunit`
 - Xdebug: `docker-xdebug [on|off]`
 - Logs: `docker-logs`
 
 ## Build Args
-To use a specific (Apache) [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug, set `XDEBUG` to true.
+To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug, set `XDEBUG` to true.
 ```
 args:
   - XDEBUG=false
   - RELEASE_VERSION=7.2-apache
+```
+There are other build arguments for Composer, npm and the web server document root. The user and group for the web server to use can also be configured.
+```
+  - COMPOSER=true
+  - NODE_JS=true
+  - DOCUMENT_ROOT=/var/www/html
+  - WWW_USER=app
+  - WWW_GROUP=app
 ```
