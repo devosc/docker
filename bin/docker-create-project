@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-docker-app rm -rf /var/www/public
+docker-app rm -rf public
 docker-composer create-project mvc5/mvc5-application .
