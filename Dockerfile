@@ -35,7 +35,7 @@ RUN if [ $COMPOSER = "true" ]; then \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer; fi
 
 # npm
-ARG NODE_JS=true
+ARG NODE_JS=false
 RUN if [ $NODE_JS = "true" ]; then \
     curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \

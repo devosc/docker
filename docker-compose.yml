@@ -10,6 +10,7 @@ services:
     build:
       args:
         - XDEBUG=true
+        - NODE_JS=true
         - RELEASE_VERSION=apache
         - USER_ID=${USER_ID}
         - GROUP_ID=${USER_ID}
