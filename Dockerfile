@@ -34,11 +34,12 @@ ARG COMPOSER=true
 RUN if [ $COMPOSER = "true" ]; then \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer; fi
 
-# NPM
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
-RUN apt-get install -y --no-install-recommends \
-    nodejs \
-  && rm -rf /var/lib/apt/lists/*
+# npm
+ARG NODE_JS=true
+RUN if [ $NODE_JS = "true" ]; then \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/*; fi
 
 # Apache
 ARG WWW_USER=app
