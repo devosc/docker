@@ -2,6 +2,9 @@ ARG RELEASE_VERSION=apache
 
 FROM php:$RELEASE_VERSION
 
+# Development settings
+RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
+
 # App user
 ARG USER_ID=1000
 ARG GROUP_ID=1000
@@ -24,9 +27,6 @@ RUN apt-get update \
     build-essential \
     libssl-dev \
   && rm -rf /var/lib/apt/lists/*
-
-# Development settings
-RUN cp  /usr/local/etc/php/php.ini-development  /usr/local/etc/php/php.ini
 
 # Opcache
 RUN docker-php-ext-install opcache
