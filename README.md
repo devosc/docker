@@ -22,7 +22,7 @@ Copy the `docker-compose.yml` file into the PHP project directory and set the bu
 build:
   context: ~/docker
 ```
-Set the `container_name` and frontend `Host` variables to the name of the project in the `docker-compose.yml` file.
+Set the `container_name` and frontend `Host` variables to the name of the project.
 ```
 container_name: mvc5playground
 labels:
