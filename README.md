@@ -60,7 +60,7 @@ args:
   - XDEBUG=false
   - RELEASE_VERSION=7.2-apache
 ```
-There are other build arguments for Composer, npm and the web server document root. The user and group for the web server to use can also be configured.
+There are other build arguments for Composer, npm and the web server document root. The user and group for the web server can also be configured.
 ```
   - COMPOSER=true
   - NODE_JS=true
@@ -68,3 +68,6 @@ There are other build arguments for Composer, npm and the web server document ro
   - WWW_USER=app
   - WWW_GROUP=app
 ```
+
+## Rebuild Images
+Use `docker-up --build` to rebuild an image after changing a project `docker-compose.yml` file. Use `docker-down --remove-images` to remove all local project images, and add `-a` at the end to stop the proxy service.

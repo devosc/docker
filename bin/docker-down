@@ -3,9 +3,25 @@
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 
-docker-compose --file $(pwd)/docker-compose.yml down --remove-orphans
+# remove image
+rmi=""
+if [ "--remove-images" = "$1" ]; then
+    images=$(docker-compose --file $(pwd)/docker-compose.yml images -q)
+    if [ "$images" != "" ]; then
+        rmi="--rmi local"
+    else
+        echo "No images"
+    fi
+    shift
+fi
 
+# stop containers
+docker-compose --file $(pwd)/docker-compose.yml down --remove-orphans $rmi;
+
+# stop all services
 if [ "-a" = "$1" ]; then
-    docker stop $(docker ps -aq)
-    docker rm $(docker ps -aq)
+    containers=$(docker ps -aq)
+    if [ "$containers" != "" ]; then \
+        docker stop $containers && \
+        docker rm $containers; fi
 fi
