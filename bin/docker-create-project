@@ -1,4 +1,27 @@
 #!/usr/bin/env bash
 
-docker-app rm -rf public
-docker-composer create-project mvc5/mvc5-application .
+# creates project in docker www directory (experimental).
+
+[ -d $( dirname "${BASH_SOURCE[0]}" )/../www/html ] && dir="html" || dir="public"
+
+docker-app find -type f -delete
+docker-app find -type l -delete
+docker-app find -type d -delete
+
+if [ "wordpress" = "$1" ]; then
+    wget https://wordpress.org/latest.tar.gz
+    tar -xzvf latest.tar.gz --directory  $( dirname "${BASH_SOURCE[0]}" )/../www
+    mv $( dirname "${BASH_SOURCE[0]}" )/../www/wordpress $( dirname "${BASH_SOURCE[0]}" )/../www/$dir
+    rm latest.tar.gz
+    #wp-config.php
+    #define('WP_DEBUG', false);
+    #if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+        # $_SERVER['HTTPS'] = 'on'; define('FORCE_SSL_ADMIN', true);
+    #}
+elif [ "laravel" = "$1" ]; then
+    docker-composer create-project --prefer-dist laravel/laravel .
+elif [ "symfony" = "$1" ]; then
+    docker-composer create-project --prefer-dist symfony/website-skeleton .
+else
+    docker-composer create-project mvc5/mvc5-application .
+fi
