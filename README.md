@@ -70,4 +70,4 @@ There are other build arguments for Composer, npm and the web server document ro
 ```
 
 ## Rebuild Images
-Use `docker-up --build` to rebuild an image after changing a project `docker-compose.yml` file. Use `docker-down --remove-images` to remove all local project images, and add `-a` at the end to stop the proxy service.
+After changing a Dockerfile or the `docker-compose.yml` file for a project, use `docker-up --build` to build the images before starting the containers. Use `docker-down --remove-images` to remove all local project images, and add `-a` at the end to stop the proxy service.
