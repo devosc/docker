@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-if [ "down" = "$1" ]; then
+if [ "ip-address" = "$1" ] || [ "ip" = "$1" ]; then
+    docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' traefik
+elif [ "down" = "$1" ]; then
     docker-compose --file $( dirname "${BASH_SOURCE[0]}" )/../traefik/docker-compose.yml down --remove-orphans
 else
     docker-compose --file $( dirname "${BASH_SOURCE[0]}" )/../traefik/docker-compose.yml up -d
