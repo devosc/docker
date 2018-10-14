@@ -14,16 +14,30 @@ RUN if [ $(getent group $GROUP_ID | cut -d: -f1) ]; then groupdel $(getent group
 
 # Dependencies
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-    curl \
-    zip \
-    unzip \
-    nano \
-    gnupg \
-  && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends \
+        git \
+        curl \
+        zip \
+        unzip \
+        nano \
+        gnupg \
+        libicu-dev \
+        libzip-dev \
+        libjpeg-dev \
+        libpng-dev \
+    && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+    && docker-php-ext-install pdo pdo_mysql mysqli intl zip gd \
+    && rm -rf /var/lib/apt/lists/*
 
 # Opcache
-RUN docker-php-ext-install opcache
+RUN docker-php-ext-install opcache && { \
+    echo 'opcache.memory_consumption=128'; \
+    echo 'opcache.interned_strings_buffer=8'; \
+    echo 'opcache.max_accelerated_files=4000'; \
+    echo 'opcache.revalidate_freq=2'; \
+    echo 'opcache.fast_shutdown=1'; \
+    echo 'opcache.enable_cli=1'; \
+} > /usr/local/etc/php/conf.d/opcache.ini
 
 # Xdebug
 ARG XDEBUG=false
@@ -49,5 +63,5 @@ ENV APACHE_RUN_GROUP $WWW_GROUP
 ARG DOCUMENT_ROOT=/var/www/public
 ENV APACHE_DOCUMENT_ROOT $DOCUMENT_ROOT
 WORKDIR /var/www
-RUN a2enmod rewrite
+RUN a2enmod rewrite expires
 COPY vhost.conf /etc/apache2/sites-available/000-default.conf
