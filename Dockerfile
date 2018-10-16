@@ -25,7 +25,9 @@ RUN apt-get update \
         libzip-dev \
         libjpeg-dev \
         libpng-dev \
+        ssmtp \
     && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+    && docker-php-ext-configure zip --with-libzip \
     && docker-php-ext-install pdo pdo_mysql mysqli intl zip gd \
     && rm -rf /var/lib/apt/lists/*
 
@@ -54,6 +56,14 @@ RUN if [ $NODE_JS = "true" ]; then \
     curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*; fi
+
+# Mail
+ARG MAIL=true
+ARG MAIL_HOST="mailhog:1025"
+RUN if [ $MAIL = "true" ]; then \
+    echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee /usr/local/etc/php/conf.d/mail.ini \
+    && sed -i "s/mailhub=mail/mailhub=$MAIL_HOST/g" /etc/ssmtp/ssmtp.conf \
+    && sed -i "s/#FromLineOverride=YES/FromLineOverride=YES/g" /etc/ssmtp/ssmtp.conf; fi
 
 # Apache
 ARG WWW_USER=app

@@ -1,0 +1,21 @@
+version: '3.5'
+
+networks:
+  public:
+    external:
+      name: traefik_webgateway
+
+# https://mailhog
+
+services:
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog
+    labels:
+      - traefik.docker.network=traefik_webgateway
+      - traefik.frontend.rule=Host:mailhog
+      - traefik.port=8025
+    networks:
+      - public
+    ports:
+      - 1025:1025
