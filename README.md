@@ -10,7 +10,7 @@ echo "export PATH=$PATH:$(pwd)/bin" | tee -a ~/.profile && source ~/.profile
 ```
 Add the project name to your `/etc/hosts` file.
 ```
-echo "127.0.0.1 mvc5playground" | sudo tee -a /etc/hosts
+echo "127.0.0.1 docker-project" | sudo tee -a /etc/hosts
 ```
 Copy the `traefik.toml` sample file and set the `acme` email address for Let's Encrypt SSL certificates. 
 ```
@@ -24,9 +24,9 @@ build:
 ```
 Set the `container_name` and frontend `Host` variables to the name of the project.
 ```
-container_name: mvc5playground
+container_name: docker-project
 labels:
-  - traefik.frontend.rule=Host:mvc5playground
+  - traefik.frontend.rule=Host:docker-project
 ```
 Mount the project directory path to `/var/www`. The web server document root is `/var/www/public` by default.
 ```
