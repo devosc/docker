@@ -1,0 +1,39 @@
+version: '3.5'
+
+volumes:
+  mariadb:
+
+networks:
+  private:
+  public:
+    external:
+      name: traefik_webgateway
+
+services:
+  # Use localhost as the hostname in MySQL Workbench
+  mariadb:
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_USER: app
+      MYSQL_PASSWORD: source
+    image: mariadb
+    networks:
+      - private
+      - public
+    ports:
+      - 3306:3306
+    restart: always
+    volumes:
+      - mariadb:/var/lib/mysql
+
+#  adminer:
+#    container_name: adminer
+#    image: adminer
+#    labels:
+#      - traefik.docker.network=traefik_webgateway
+#      - traefik.frontend.rule=Host:adminer
+#      - traefik.port=8080
+#    networks:
+#      - private
+#      - public

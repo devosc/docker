@@ -3,9 +3,10 @@
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 
+# start services
 if [ "-a" = "$1" ]; then
     shift
-    docker-traefik up
+    docker-services up
 fi
 
 # build images before starting containers

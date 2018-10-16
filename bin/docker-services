@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [ "down" = "$1" ]; then
+    docker-traefik down
+    docker-mariadb down
+else
+    docker-traefik up
+    docker-mariadb up
+fi
