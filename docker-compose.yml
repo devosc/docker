@@ -15,10 +15,10 @@ services:
         - USER_ID=${USER_ID}
         - GROUP_ID=${USER_ID}
       context: .
-    container_name: mvc5playground_docker
+    container_name: docker-project
     labels:
       - traefik.docker.network=traefik_webgateway
-      - traefik.frontend.rule=Host:mvc5playground
+      - traefik.frontend.rule=Host:docker-project
       - traefik.port=80
     networks:
       - public
