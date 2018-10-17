@@ -1,11 +1,3 @@
 #!/usr/bin/env bash
 
-if [ "down" = "$1" ]; then
-    docker-traefik down
-    docker-mariadb down
-    docker-mailhog down
-else
-    docker-traefik up
-    docker-mariadb up
-    docker-mailhog up
-fi
+cd "$(dirname "$0")/.." && ./services "$@"
