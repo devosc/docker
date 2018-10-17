@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#source docker-build-env
+
 # Paths for docker commands are relative to this file
 
 if [ "down" = "$1" ]; then
