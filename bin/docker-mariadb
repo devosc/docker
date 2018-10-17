@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source docker-load-env
+
 if [ "down" = "$1" ]; then
     docker-compose --file $( dirname "${BASH_SOURCE[0]}" )/../mariadb/docker-compose.yml down --remove-orphans
 else

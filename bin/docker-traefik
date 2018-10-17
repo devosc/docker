@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source docker-load-env
+
 if [ "ip-address" = "$1" ] || [ "ip" = "$1" ]; then
     docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' traefik
 elif [ "down" = "$1" ]; then

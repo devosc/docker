@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
+source docker-load-env
+
 if [ "on" = "$1" ]; then
     docker-root sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     docker-root apache2ctl -k graceful
-
 elif [ "off" = "$1" ]; then
     docker-root sed -i 's/zend_extension=/;zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     docker-root apache2ctl -k graceful
