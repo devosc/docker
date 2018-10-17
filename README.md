@@ -12,9 +12,13 @@ Add the project name to your `/etc/hosts` file.
 ```
 echo "127.0.0.1 docker-project" | sudo tee -a /etc/hosts
 ```
-Copy the `traefik.toml` sample file and set the `acme` email address for Let's Encrypt SSL certificates. 
+Copy the sample `traefik.toml` file and set the `acme` email address for Let's Encrypt SSL certificates. 
 ```
 cp traefik/traefik.toml.sample traefik/traefik.toml
+```
+Copy the sample `services` script file. This file can be edited to manage the shared services.
+```
+cp services.sample services
 ```
 ## Add Docker Compose File To PHP Project
 Copy the `docker-compose.yml` file into the PHP project directory and set the build `context` path to the location of the Docker directory.
