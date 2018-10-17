@@ -10,13 +10,13 @@ networks:
       name: traefik_webgateway
 
 services:
-  # Use localhost as the hostname in MySQL Workbench
+  # Use localhost as the hostname in client applications, e.g. MySQL Workbench.
   mariadb:
     container_name: mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_ROOT_PASSWORD: secret
       MYSQL_USER: app
-      MYSQL_PASSWORD: source
+      MYSQL_PASSWORD: secret
       TZ: ${TZ}
     image: mariadb
     networks:
