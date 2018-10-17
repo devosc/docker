@@ -20,7 +20,8 @@ docker-compose --file $(pwd)/docker-compose.yml down --remove-orphans $rmi;
 # stop all services
 if [ "-a" = "$1" ]; then
     containers=$(docker ps -aq)
-    if [ "$containers" != "" ]; then \
-        docker stop $containers && \
-        docker rm $containers; fi
+    if [ "$containers" != "" ]; then
+        docker stop $containers
+        docker rm $containers
+    fi
 fi
