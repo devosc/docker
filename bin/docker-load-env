@@ -3,22 +3,21 @@
 file="$( cd "$(dirname "$0")" ; pwd -P )/../.env"
 
 if [ ! -f  $file ]; then
-    {
-        echo "export USER_ID=$(id -u)";
-        echo "export GROUP_ID=$(id -g)";
-    } > $file
-
     if [ -z "$TZ" ]; then
         dir=$(pwd)
         cd /usr/share/zoneinfo
         TIME_ZONE="$(find * -type f -exec sh -c "diff -q /etc/localtime '{}' > /dev/null && echo {}" \;)"
         TIME_ZONE=($TIME_ZONE)
         TIME_ZONE="${TIME_ZONE[0]}"
-        echo "export TZ=$TIME_ZONE" | tee -a $file > /dev/null
+        TZ=$TIME_ZONE
         cd $dir
-    else
-        echo "export TZ=$TZ" | tee -a $file > /dev/null
     fi
+    {
+        echo "export USER_ID=$(id -u)";
+        echo "export GROUP_ID=$(id -g)";
+        echo "export TZ=$TZ";
+    } > $file
+
 fi
 
 source $file

@@ -7,8 +7,9 @@ ARG TZ=UTC
 RUN rm /etc/localtime && \
     ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
-# Development settings
-RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
+# PHP settings
+RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini && \
+    echo "date.timezone=$TZ" | tee /usr/local/etc/php/conf.d/timezone.ini
 
 # App user
 ARG USER_ID=1000
@@ -44,8 +45,7 @@ RUN docker-php-ext-install opcache && { \
     echo 'opcache.revalidate_freq=2'; \
     echo 'opcache.fast_shutdown=1'; \
     echo 'opcache.enable_cli=1'; \
-} > /usr/local/etc/php/conf.d/opcache.ini && \
-echo "date.timezone=$TZ" | tee /usr/local/etc/php/conf.d/timezone.ini
+} > /usr/local/etc/php/conf.d/opcache.ini
 
 # Xdebug
 ARG XDEBUG=false

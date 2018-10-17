@@ -13,7 +13,7 @@ services:
         - NODE_JS=true
         - RELEASE_VERSION=apache
         - USER_ID=${USER_ID}
-        - GROUP_ID=${USER_ID}
+        - GROUP_ID=${GROUP_ID}
         - TZ=${TZ}
       context: .
     container_name: docker-project
