@@ -7,7 +7,6 @@ ARG TZ=UTC
 RUN rm /etc/localtime && \
     ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
-
 # Development settings
 RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
 
