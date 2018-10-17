@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source docker-load-env
+source docker-build-env
 
 # start services
 if [ "-a" = "$1" ]; then

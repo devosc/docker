@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-source docker-load-env
+source docker-build-env
 
 docker-compose --file $(pwd)/docker-compose.yml exec --user=app app "${@:-bash}"

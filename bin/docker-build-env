@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-file="$( cd "$(dirname "$0")" ; pwd -P )/../.env"
+build_env_file="$( cd "$(dirname "$0")" ; pwd -P )/../.build.env"
 
-if [ ! -f  $file ]; then
+if [ ! -f  $build_env_file ]; then
     if [ -z "$TZ" ]; then
         dir=$(pwd)
         cd /usr/share/zoneinfo
@@ -17,8 +17,8 @@ if [ ! -f  $file ]; then
         echo "export USER_ID=$(id -u)";
         echo "export GROUP_ID=$(id -g)";
         echo "export TZ=$TZ";
-    } > $file
+    } > $build_env_file
 
 fi
 
-source $file
+source $build_env_file

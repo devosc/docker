@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source docker-load-env
+source docker-build-env
 
 if [ "down" = "$1" ]; then
     docker-compose --file $( dirname "${BASH_SOURCE[0]}" )/../mailhog/docker-compose.yml down --remove-orphans

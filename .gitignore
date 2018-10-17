@@ -1,5 +1,5 @@
 .idea
-.env
+.build.env
 ./services
 ./traefik/acme.json
 ./traefik/traefik.toml
