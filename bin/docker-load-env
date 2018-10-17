@@ -6,6 +6,7 @@ if [ ! -f  $file ]; then
     if [ -z "$TZ" ]; then
         dir=$(pwd)
         cd /usr/share/zoneinfo
+        #https://superuser.com/a/639096
         TIME_ZONE="$(find * -type f -exec sh -c "diff -q /etc/localtime '{}' > /dev/null && echo {}" \;)"
         TIME_ZONE=($TIME_ZONE)
         TIME_ZONE="${TIME_ZONE[0]}"
