@@ -65,15 +65,16 @@ args:
   - NODE_JS=true
   - RELEASE_VERSION=apache
 ```
-There are other build arguments available for Composer, npm, the web server document root, user and group.
+There are other build arguments available for Composer, WP-CLI, npm, the web server document root, user and group.
 ```
   - COMPOSER=true
+  - WP_CLI=false
   - DOCUMENT_ROOT=/var/www/html
   - WWW_USER=app
   - WWW_GROUP=app
 ```
 ## Build Environment Variables
-To match the file permissions and the time zone between the container and the host, use the environment variables `USER_ID`, `GROUP_ID` and `TZ`. These environment variables are automatically detected and stored in the file `.build.env` in the docker directory, if the file does not already exist. These environment variables are sourced prior to building a container or running any of the pseudo docker compose commands.
+To match the file permissions and time zone between the container and the host, use the environment variables `USER_ID`, `GROUP_ID` and `TZ`. These environment variables are automatically detected and stored in the file `.build.env` in the docker directory, if the file does not already exist. These environment variables are sourced prior to building a container and running any of the pseudo docker compose commands.
 ```
 args:
   - USER_ID=${USER_ID}
