@@ -16,7 +16,7 @@ Copy the sample `traefik.toml` file and set the `acme` email address for Let's E
 ```
 cp traefik/traefik.toml.sample traefik/traefik.toml
 ```
-Copy the sample `services` script file. This file can be edited to manage the shared services.
+Copy the sample `services` script file to manage the shared services, e.g. Traefik, MariaDB and MailHog.
 ```
 cp services.sample services
 ```
@@ -58,20 +58,27 @@ Each project has its own `docker-compose.yml` file and should use the same build
 - Logs: `docker-logs`
 
 ## Build Args
-To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug, set `XDEBUG` to true.
+To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
 ```
 args:
-  - XDEBUG=false
-  - RELEASE_VERSION=7.2-apache
+  - XDEBUG=true
+  - NODE_JS=true
+  - RELEASE_VERSION=apache
 ```
-There are other build arguments for Composer, npm and the web server document root. The user and group for the web server can also be configured.
+There are other build arguments available for Composer, npm, the web server document root, user and group.
 ```
   - COMPOSER=true
-  - NODE_JS=true
   - DOCUMENT_ROOT=/var/www/html
   - WWW_USER=app
   - WWW_GROUP=app
 ```
-
+## Build Environment Variables
+To match the file permissions and the time zone between the container and the host, use the environment variables `USER_ID`, `GROUP_ID` and `TZ`. These environment variables are automatically detected and stored in the file `.build.env` in the docker directory, if the file does not already exist. These environment variables are sourced prior to building a container or running any of the pseudo docker compose commands.
+```
+args:
+  - USER_ID=${USER_ID}
+  - GROUP_ID=${GROUP_ID}
+  - TZ=${TZ}
+```
 ## Rebuild Images
-After changing a Dockerfile or the `docker-compose.yml` file for a project, use `docker-up --build` to build the images before starting the containers. Use `docker-down --remove-images` to remove all local project images, and add `-a` at the end to stop the proxy service.
+After changing a `Dockerfile` or the `docker-compose.yml` file for a project, use `docker-up --build` to build the images before starting the containers. Use `docker-down --remove-images` to remove all the local project images and add `-a` at the end to stop the shared services.
