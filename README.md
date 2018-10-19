@@ -12,6 +12,13 @@ Add the project name to your `/etc/hosts` file.
 ```
 echo "127.0.0.1 docker-project" | sudo tee -a /etc/hosts
 ```
+#### Configuration Installer
+Run the `install` script to copy the `services` file and to configure the `traefik.toml` file.
+```
+./install --email hello@example.com
+```
+Or alternatively, manually copy and configure the files.
+#### Manual Configuration
 Copy the sample `traefik.toml` file and set the `acme` email address for Let's Encrypt SSL certificates. 
 ```
 cp traefik/traefik.toml.sample traefik/traefik.toml
