@@ -94,6 +94,6 @@ After changing a `Dockerfile` or the `docker-compose.yml` file for a project, us
 ## Demo Projects
 WordPress, Symfony, Laravel and Mvc5 demo applications can be installed into the docker `www` directory.
 ```
-docker-create-project [wordpress|symfony,laravel,mvc5]
+docker-create-project [wordpress|symfony|laravel|mvc5]
 ```
 The url is `https://docker-project`. WordPress requires additional code to be inserted into the `wp-config.php` file because it is behind a reverse proxy (the code is in the `docker-create-project` file). If necessary, use `docker-traefik ip-address` to get the i.p. address for the trusted proxy server configuration.
