@@ -10,7 +10,7 @@ networks:
       name: traefik_webgateway
 
 services:
-  # Use localhost as the hostname in client applications, e.g. MySQL Workbench.
+  # Use localhost as the hostname in client applications, e.g. MySQL Workbench, and mariadb in web apps.
   mariadb:
     container_name: mariadb
     environment:
