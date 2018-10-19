@@ -2,16 +2,18 @@
 
 # creates project in docker www directory (experimental).
 
-[ -d $( dirname "${BASH_SOURCE[0]}" )/../www/html ] && dir="html" || dir="public"
+project_dir="$( dirname "${BASH_SOURCE[0]}" )/../www"
 
-docker-app find -type f -delete
-docker-app find -type l -delete
-docker-app find -type d -delete
+[ -d $project_dir/html ] && document_root="$project_dir/html" || document_root="$project_dir/public"
+
+find $project_dir -type f -delete
+find $project_dir -type l -delete
+find $project_dir/* -type d -delete
 
 if [ "wordpress" = "$1" ]; then
     wget https://wordpress.org/latest.tar.gz
-    tar -xzvf latest.tar.gz --directory  $( dirname "${BASH_SOURCE[0]}" )/../www
-    mv $( dirname "${BASH_SOURCE[0]}" )/../www/wordpress $( dirname "${BASH_SOURCE[0]}" )/../www/$dir
+    tar -xzvf latest.tar.gz --directory $project_dir
+    mv $project_dir/wordpress $document_root
     rm latest.tar.gz
     #wp-config.php
     #define('WP_DEBUG', false);
@@ -22,6 +24,13 @@ elif [ "laravel" = "$1" ]; then
     docker-composer create-project --prefer-dist laravel/laravel .
 elif [ "symfony" = "$1" ]; then
     docker-composer create-project --prefer-dist symfony/website-skeleton .
+elif [ "phpinfo" = "$1" ]; then
+    mkdir -p $document_root
+    cat <<EOT >> $document_root/index.php
+<?php
+
+phpinfo();
+EOT
 else
     docker-composer create-project mvc5/mvc5-application .
 fi

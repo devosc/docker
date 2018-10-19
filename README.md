@@ -1,12 +1,13 @@
 # PHP Docker (Development) Environment
 
 ## Install
-Download the Docker project into your home directory and add the directory `~/docker/bin` to your system path. 
+Download or clone the Docker project into your home directory.
 ```
-cd ~/docker
+git clone git@github.com:devosc/docker.git
 ```
+Add the directory `~/docker/bin` to your system path. Change `.profile` to `.zshrc` if necessary.
 ```
-echo "export PATH=$PATH:$(pwd)/bin" | tee -a ~/.profile && source ~/.profile
+echo 'export PATH=$PATH:~/docker/bin' | tee -a ~/.profile && source ~/.profile
 ```
 Add the project name to your `/etc/hosts` file.
 ```
@@ -94,6 +95,6 @@ After changing a `Dockerfile` or the `docker-compose.yml` file for a project, us
 ## Demo Projects
 WordPress, Symfony, Laravel and Mvc5 demo applications can be installed into the docker `www` directory.
 ```
-docker-create-project [wordpress|symfony|laravel|mvc5]
+docker-create-project [wordpress|symfony|laravel|phpinfo|mvc5]
 ```
 The url is `https://docker-project`. WordPress requires additional code to be inserted into the `wp-config.php` file because it is behind a reverse proxy (the code is in the `docker-create-project` file). If necessary, use `docker-traefik ip-address` to get the i.p. address for the trusted proxy server configuration.
