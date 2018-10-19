@@ -1,0 +1,29 @@
+version: '3.5'
+
+volumes:
+  postgres:
+
+networks:
+  private:
+  public:
+    external:
+      name: traefik_webgateway
+
+services:
+  # Use localhost as the hostname in client applications, e.g. pgAdmin3, and postgres in web apps.
+  postgres:
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      TZ: ${TZ}
+      PGTZ: ${TZ}
+    image: postgres
+    networks:
+      - private
+      - public
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - postgres:/var/lib/mysql

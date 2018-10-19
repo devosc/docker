@@ -6,10 +6,12 @@
 
 if [ "down" = "$1" ]; then
     docker-mailhog down
+    docker-postgres down
     docker-mariadb down
     docker-traefik down
 else
     docker-traefik up
     docker-mariadb up
+    docker-postgres up
     docker-mailhog up
 fi

@@ -31,11 +31,12 @@ RUN apt-get update \
         libzip-dev \
         libjpeg-dev \
         libpng-dev \
+        libpq-dev \
         ssmtp \
         less \
     && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
     && docker-php-ext-configure zip --with-libzip \
-    && docker-php-ext-install pdo pdo_mysql mysqli intl zip gd \
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql mysqli intl zip gd \
     && rm -rf /var/lib/apt/lists/*
 
 # Opcache

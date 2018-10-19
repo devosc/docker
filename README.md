@@ -16,7 +16,7 @@ Copy the sample `traefik.toml` file and set the `acme` email address for Let's E
 ```
 cp traefik/traefik.toml.sample traefik/traefik.toml
 ```
-Copy the sample `services` script file to manage the shared services, e.g. Traefik, MariaDB and MailHog.
+Copy the sample `services` script file to manage the shared services, e.g. Traefik, MariaDB, Postgres and MailHog.
 ```
 cp services.sample services
 ```
@@ -75,7 +75,7 @@ There are other build arguments available for Composer, WP-CLI, npm, the web ser
   - WWW_GROUP=app
 ```
 ## Build Environment Variables
-To match the file permissions and time zone between the container and the host, use the environment variables `USER_ID`, `GROUP_ID` and `TZ`. These environment variables are automatically detected and stored in the file `.build.env` in the docker directory, if the file does not already exist. These environment variables are sourced prior to building a container and running any of the directory project commands.
+To match the file permissions and time zone between the container and the host, use the environment variables `USER_ID`, `GROUP_ID` and `TZ`. These environment variables are automatically detected and stored in the file `.build.env` in the docker directory, if the file does not already exist. These environment variables are sourced prior to building a container and running any of the project commands.
 ```
 args:
   - USER_ID=${USER_ID}
