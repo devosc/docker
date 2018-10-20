@@ -2,24 +2,36 @@
 
 # creates project in docker www directory (experimental).
 
-project_dir="$( dirname "${BASH_SOURCE[0]}" )/../www"
+project_dir="$( cd "$(dirname "$0")/../www" ; pwd -P )"
 
 [ -d $project_dir/html ] && document_root="$project_dir/html" || document_root="$project_dir/public"
 
-find $project_dir -type f -delete
-find $project_dir -type l -delete
-find $project_dir/* -type d -delete
+cd $project_dir
+
+find . -type f -delete
+find . -type l -delete
+find . -type d -name '*' -delete
+
+cd $project_dir/..
 
 if [ "wordpress" = "$1" ]; then
     wget https://wordpress.org/latest.tar.gz
     tar -xzvf latest.tar.gz --directory $project_dir
+    rm -rf $document_root
     mv $project_dir/wordpress $document_root
     rm latest.tar.gz
-    #wp-config.php
-    #define('WP_DEBUG', false);
-    #if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-        # $_SERVER['HTTPS'] = 'on'; define('FORCE_SSL_ADMIN', true);
-    #}
+
+    proxy="\\
+\\
+// https://codex.wordpress.org/Administration_Over_SSL \\
+define('FORCE_SSL_ADMIN', true); \\
+\\
+if (strpos(\$_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false)\\
+    \$_SERVER['HTTPS']='on';"
+
+    sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$proxy#g" "$document_root/wp-config-sample.php"
+    rm "$document_root/wp-config-sample.php.bak"
+
 elif [ "laravel" = "$1" ]; then
     docker-composer create-project --prefer-dist laravel/laravel .
 elif [ "symfony" = "$1" ]; then
