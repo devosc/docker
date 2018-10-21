@@ -1,0 +1,17 @@
+version: '3.5'
+
+networks:
+  public:
+    external:
+      name: traefik_webgateway
+
+services:
+  adminer:
+    container_name: adminer
+    image: adminer
+    labels:
+      - traefik.docker.network=traefik_webgateway
+      - traefik.frontend.rule=Host:adminer
+      - traefik.port=8080
+    networks:
+      - public
