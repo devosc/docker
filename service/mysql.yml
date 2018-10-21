@@ -1,0 +1,29 @@
+version: '3.5'
+
+volumes:
+  mysql:
+
+networks:
+  private:
+  public:
+    external:
+      name: traefik_webgateway
+
+services:
+  # Use localhost as the hostname in client applications, e.g. MySQL Workbench, and mysql in web apps.
+  mysql:
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_USER: app
+      MYSQL_PASSWORD: secret
+      TZ: ${TZ}
+    image: mysql
+    networks:
+      - private
+      - public
+    ports:
+      - 3306:3306
+    restart: always
+    volumes:
+      - mysql:/var/lib/mysql
