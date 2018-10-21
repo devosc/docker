@@ -26,4 +26,4 @@ services:
       - 5432:5432
     restart: always
     volumes:
-      - postgres:/var/lib/mysql
+      - postgres:/var/lib/postgresql/data
