@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-source docker-build-env
-
-if [ "down" = "$1" ]; then
-    docker-compose --file $( dirname "${BASH_SOURCE[0]}" )/../postgres/docker-compose.yml down --remove-orphans
-else
-    docker-compose --file $( dirname "${BASH_SOURCE[0]}" )/../postgres/docker-compose.yml up -d
-fi

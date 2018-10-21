@@ -1,3 +1,26 @@
 #!/usr/bin/env bash
 
-cd "$( cd "$(dirname "$0")" ; pwd -P )/.." && ./services "$@"
+source docker-build-env
+
+if [ -z "$1" ] || [ "up" = "$1" ] || [ "down" = "$1" ]; then
+    cd "$( cd "$(dirname "$0")" ; pwd -P )/.."
+    ./services "$@"
+else
+    name="$( basename "$1" )"
+    src="$( dirname "${BASH_SOURCE[0]}" )/../service/$name"
+
+    if [ -d "$src" ]; then
+        file="$src/docker-compose.yml"
+    elif [ -f "$src.yml" ]; then
+        file="$src.yml"
+    else
+        echo "Service: $name not found"
+        exit 1
+    fi
+
+    if [ "down" = "$2" ]; then
+        docker-compose --project-name $name --file $file down --remove-orphans
+    else
+        docker-compose --project-name $name --file $file up -d
+    fi
+fi

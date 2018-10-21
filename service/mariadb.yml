@@ -27,14 +27,3 @@ services:
     restart: always
     volumes:
       - mariadb:/var/lib/mysql
-
-#  adminer:
-#    container_name: adminer
-#    image: adminer
-#    labels:
-#      - traefik.docker.network=traefik_webgateway
-#      - traefik.frontend.rule=Host:adminer
-#      - traefik.port=8080
-#    networks:
-#      - private
-#      - public

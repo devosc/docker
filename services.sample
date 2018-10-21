@@ -5,13 +5,13 @@
 # Paths for docker commands are relative to this file
 
 if [ "down" = "$1" ]; then
-    docker-mailhog down
-    docker-postgres down
-    docker-mariadb down
+    docker-services mailhog down
+    docker-services postgres down
+    docker-services mariadb down
     docker-traefik down
 else
     docker-traefik up
-    docker-mariadb up
-    docker-postgres up
-    docker-mailhog up
+    docker-services mariadb up
+    docker-services postgres up
+    docker-services mailhog up
 fi
