@@ -92,7 +92,7 @@ args:
 ```
 ## Rebuild Images
 After changing a `Dockerfile` or the `docker-compose.yml` file for a project, use `docker-up --build` to build the images before starting the containers. Use `docker-down --remove-images` to remove all the local project images and add `-a` at the end to stop the shared services.
-## Demo Projects
+## Demo Applications
 WordPress, Symfony, Laravel and Mvc5 demo applications can be installed into the docker `www` directory.
 ```
 docker-create-project [wordpress|symfony|laravel|phpinfo|mvc5]
