@@ -14,8 +14,6 @@ services:
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: secret
-      MYSQL_USER: app
-      MYSQL_PASSWORD: secret
       TZ: ${TZ}
     image: mysql
     networks:
