@@ -7,12 +7,18 @@ if [ -z "$1" ] || [ "up" = "$1" ] || [ "down" = "$1" ]; then
     ./services "$@"
 else
     name="$( basename "$1" )"
-    src="$( dirname "${BASH_SOURCE[0]}" )/../service/$name"
+    root="$( dirname "${BASH_SOURCE[0]}" )/.."
+    local="$root/local/$name"
+    service="$root/service/$name"
 
-    if [ -d "$src" ]; then
-        file="$src/docker-compose.yml"
-    elif [ -f "$src.yml" ]; then
-        file="$src.yml"
+    if [ -f "$local.yml" ]; then
+        file="$local.yml"
+    elif [ -d "$local" ]; then
+        file="$local/docker-compose.yml"
+    elif [ -f "$service.yml" ]; then
+        file="$service.yml"
+    elif [ -d "$service" ]; then
+        file="$service/docker-compose.yml"
     else
         echo "Service: $name not found"
         exit 1
