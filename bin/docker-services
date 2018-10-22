@@ -19,8 +19,26 @@ else
     fi
 
     if [ "down" = "$2" ]; then
-        docker-compose --project-name $name --file $file down --remove-orphans
+        # remove images
+        rmi=""
+        if [ "--remove-images" = "$3" ]; then
+            images=$(docker-compose --file $(pwd)/docker-compose.yml images -q)
+            if [ "$images" != "" ]; then
+                rmi="--rmi local"
+            else
+                echo "No images"
+            fi
+            shift
+        fi
+
+        docker-compose --project-name $name --file $file down --remove-orphans $rmi
     else
-        docker-compose --project-name $name --file $file up -d
+        # build images before starting containers
+        build=""
+        if [ "--build" = "$3" ]; then
+            build="$3";
+        fi
+
+        docker-compose --project-name $name --file $file up -d $build
     fi
 fi
