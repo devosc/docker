@@ -5,7 +5,7 @@
 # Paths for docker commands are relative to this file
 
 if [ "down" = "$1" ]; then
-#    docker-services adminer down
+    docker-services adminer down
     docker-services mailhog down
     docker-services postgres down
     docker-services mariadb down
@@ -17,5 +17,5 @@ else
 #    docker-services mysql up
     docker-services postgres up
     docker-services mailhog up
-#    docker-services adminer up
+    docker-services adminer up
 fi

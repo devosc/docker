@@ -18,13 +18,13 @@ Run the `install` script to copy the `services` file and to configure the `traef
 ```
 ./install --email hello@example.com
 ```
-Or alternatively, manually copy and configure the files.
+Or manually copy and configure the files.
 #### Manual Configuration
 Copy the sample `traefik.toml` file and set the `acme` email address for Let's Encrypt SSL certificates. 
 ```
 cp traefik/traefik-sample.toml traefik/traefik.toml
 ```
-Copy the sample `services` script file to manage the shared services, e.g. Traefik, MariaDB, Postgres and MailHog.
+Copy the sample `services` script file to manage the shared services, e.g. Traefik, MariaDB, PostgreSQL, MailHog and Adminer.
 ```
 cp services-sample services
 ```
@@ -73,7 +73,7 @@ args:
   - NODE_JS=true
   - RELEASE_VERSION=apache
 ```
-There are other build arguments available for Composer, WP-CLI, npm, the web server document root, user and group. Trailing url slashes can also be removed.
+There are other build arguments available for Composer, WP-CLI, the web server document root, user and group. Trailing url slashes can also be removed.
 ```
   - COMPOSER=true
   - WP_CLI=false
