@@ -22,7 +22,7 @@ else
 fi
 
 if [ ! -f services ]; then
-    cp services.sample services
+    cp services-sample services
     echo "Created services file."
 else
     echo "Services file already exists."

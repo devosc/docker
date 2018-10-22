@@ -26,7 +26,7 @@ cp traefik/traefik.toml.sample traefik/traefik.toml
 ```
 Copy the sample `services` script file to manage the shared services, e.g. Traefik, MariaDB, Postgres and MailHog.
 ```
-cp services.sample services
+cp services-sample services
 ```
 ## Add Docker Compose File To PHP Project
 Copy the `docker-compose.yml` file into the PHP project directory and set the build `context` path to the location of the Docker directory.
