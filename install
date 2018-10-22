@@ -11,7 +11,7 @@ if [ ! -f traefik/traefik.toml ]; then
         read email
     fi
 
-    cp traefik/traefik.toml.sample traefik/traefik.toml
+    cp traefik/traefik-sample.toml traefik/traefik.toml
 
     sed -i.bak "s/your-email@address/$email/g"  traefik/traefik.toml
     rm traefik/traefik.toml.bak

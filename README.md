@@ -22,7 +22,7 @@ Or alternatively, manually copy and configure the files.
 #### Manual Configuration
 Copy the sample `traefik.toml` file and set the `acme` email address for Let's Encrypt SSL certificates. 
 ```
-cp traefik/traefik.toml.sample traefik/traefik.toml
+cp traefik/traefik-sample.toml traefik/traefik.toml
 ```
 Copy the sample `services` script file to manage the shared services, e.g. Traefik, MariaDB, Postgres and MailHog.
 ```
