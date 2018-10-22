@@ -5,6 +5,8 @@ networks:
     external:
       name: traefik_webgateway
 
+# https://adminer
+
 services:
   adminer:
     container_name: adminer
