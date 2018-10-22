@@ -4,7 +4,6 @@ volumes:
   postgres:
 
 networks:
-  private:
   public:
     external:
       name: traefik_webgateway
@@ -20,7 +19,6 @@ services:
       PGTZ: ${TZ}
     image: postgres
     networks:
-      - private
       - public
     ports:
       - 5432:5432
