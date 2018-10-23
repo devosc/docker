@@ -20,7 +20,7 @@ else
     elif [ -d "$service" ]; then
         file="$service/docker-compose.yml"
     else
-        echo -e "\x1B[1;31mService: $name not found\x1B[0m"
+        echo -e "Service: $name not found"
         exit 1
     fi
 
@@ -32,7 +32,7 @@ else
             if [ "$images" != "" ]; then
                 rmi="--rmi local"
             else
-                echo -e "\x1B[1;31mNo images\x1B[0m"
+                echo -e "No images"
             fi
             shift
         fi
