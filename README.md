@@ -63,6 +63,8 @@ Each project has its own `docker-compose.yml` file and should use the same build
 - npm: `docker-npm`
 - PHPUnit: `docker-phpunit`
 - Xdebug: `docker-xdebug [on|off]`
+- WP-CLI: `docker-wp`
+- Artisan: `docker-artisan`
 - Logs: `docker-logs`
 
 ## Build Args
@@ -91,10 +93,10 @@ args:
   - TZ=${TZ}
 ```
 ## Rebuild Images
-After changing a `Dockerfile` or the `docker-compose.yml` file for a project, use `docker-up --build` to build the images before starting the containers. Use `docker-down --remove-images` to remove all the local project images and add `-a` at the end to stop the shared services.
+After changing a `Dockerfile` or the `docker-compose.yml` file for a project, use `docker-up --build` to build the images before starting the containers. Use `docker-down --remove-images` to remove all the local project images and add `-a` to stop the shared services.
 ## Demo Applications
 WordPress, Symfony, Laravel and Mvc5 demo applications can be installed into the docker `www` directory.
 ```
 docker-create-project [wordpress|symfony|laravel|phpinfo|mvc5]
 ```
-The url is `https://docker-project`. To get the i.p. address for the trusted proxy server configurations use `docker-traefik ip-address` .
+The url is `https://docker-project`. Use `docker-traefik ip-address` to get the i.p. address for trusted proxy server configurations .
