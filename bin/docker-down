@@ -12,7 +12,7 @@ if [ -f $file ]; then
         if [ "$images" != "" ]; then
             rmi="--rmi local"
         else
-            echo -e "\e[1;31mNo project images\e[0m"
+            echo -e "\x1B[1;31mNo project images\x1B[0m"
         fi
     fi
 
@@ -20,7 +20,7 @@ if [ -f $file ]; then
     docker-compose --file $file down --remove-orphans $rmi;
 
 else
-    echo -e "\e[1;31mProject not found\e[0m"
+    echo -e "\x1B[1;31mProject not found\x1B[0m"
 fi
 
 # stop all containers
@@ -28,10 +28,10 @@ fi
 if [ "-a" = "$1" ] || [ "-a" = "$2" ]; then
     containers=$(docker ps -aq)
     if [ "$containers" != "" ]; then
-        echo -e "\e[1;32mRemoving containers\e[0m"
+        echo -e "\x1B[1;32mRemoving containers\x1B[0m"
         docker stop $containers
         docker rm $containers
     else
-        echo -e "\e[1;31mNo containers\e[0m"
+        echo -e "\x1B[1;31mNo containers\x1B[0m"
     fi
 fi
