@@ -4,14 +4,14 @@ source docker-build-env
 
 # start services
 if [ "-a" = "$1" ] || [ "-a" = "$2" ]; then
-    echo -e "Starting services"
+    echo "Starting services"
     docker-services up
 fi
 
 file="$(pwd)/docker-compose.yml"
 
 if [ -f $file ]; then
-    echo -e "Starting project"
+    echo "Starting project"
 
     # build images before starting containers
     build=""
@@ -21,5 +21,5 @@ if [ -f $file ]; then
 
     docker-compose --file $file up -d $build
 else
-    echo -e "Project not found"
+    echo "Project not found"
 fi

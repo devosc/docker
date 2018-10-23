@@ -32,7 +32,7 @@ else
             if [ "$images" != "" ]; then
                 rmi="--rmi local"
             else
-                echo -e "No images"
+                echo "No images"
             fi
             shift
         fi
