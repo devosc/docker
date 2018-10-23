@@ -3,15 +3,23 @@
 source docker-build-env
 
 # start services
-if [ "-a" = "$1" ]; then
-    shift
+if [ "-a" = "$1" ] || [ "-a" = "$2" ]; then
+    echo -e "\e[1;32mStarting services\e[0m"
     docker-services up
 fi
 
-# build images before starting containers
-args=""
-if [ "--build" = "$1" ]; then
-    args="$1";
-fi
+file="$(pwd)/docker-compose.yml"
 
-docker-compose --file $(pwd)/docker-compose.yml up -d $args
+if [ -f $file ]; then
+    echo -e "\e[1;32mStarting project\e[0m"
+
+    # build images before starting containers
+    build=""
+    if [ "--build" = "$1" ] || [ "--build" = "$2" ]; then
+        build="--build";
+    fi
+
+    docker-compose --file $file up -d $build
+else
+    echo -e "\e[1;31mProject not found\e[0m"
+fi

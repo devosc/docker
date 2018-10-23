@@ -2,26 +2,36 @@
 
 source docker-build-env
 
-# remove image
-rmi=""
-if [ "--remove-images" = "$1" ]; then
-    images=$(docker-compose --file $(pwd)/docker-compose.yml images -q)
-    if [ "$images" != "" ]; then
-        rmi="--rmi local"
-    else
-        echo "No images"
+file="$(pwd)/docker-compose.yml"
+
+if [ -f $file ]; then
+    # remove images
+    rmi=""
+    if [ "--remove-images" = "$1" ] || [ "--remove-images" = "$2" ]; then
+        images=$(docker-compose --file $file images -q)
+        if [ "$images" != "" ]; then
+            rmi="--rmi local"
+        else
+            echo -e "\e[1;31mNo project images\e[0m"
+        fi
     fi
-    shift
+
+    # stop project
+    docker-compose --file $file down --remove-orphans $rmi;
+
+else
+    echo -e "\e[1;31mProject not found\e[0m"
 fi
 
-# stop containers
-docker-compose --file $(pwd)/docker-compose.yml down --remove-orphans $rmi;
+# stop all containers
 
-# stop all services
-if [ "-a" = "$1" ]; then
+if [ "-a" = "$1" ] || [ "-a" = "$2" ]; then
     containers=$(docker ps -aq)
     if [ "$containers" != "" ]; then
+        echo -e "\e[1;32mRemoving containers\e[0m"
         docker stop $containers
         docker rm $containers
+    else
+        echo -e "\e[1;31mNo containers\e[0m"
     fi
 fi
