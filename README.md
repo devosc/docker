@@ -45,6 +45,11 @@ Mount the project directory path to `/var/www`. The web server document root is 
 volumes:
   - .:/var/www
 ```
+[ Optional ] To use your `ssh` keys to connect to a git repository, mount your `.ssh` directory to the `app` user's home directory.
+```
+volumes:
+  - ~/.ssh:/home/app/.ssh
+```
 ## Start Project Container
 Inside the project directory, start the project container and the shared services.
 ```
@@ -98,9 +103,9 @@ args:
 ## Rebuild Images
 After changing a `Dockerfile` or the `docker-compose.yml` file for a project, use `docker-up --build` to build the images before starting the containers. Use `docker-down --remove-images` to remove all the local project images and add `-a` to stop the shared services.
 ## Shared Services
-Shared services, such as Traefik and MailHog, are automatically started using `docker-up -a`. The `-a` switch runs `docker-services up` which calls the `services` script that manages which services to start. To stop all services, it is easier to stop and remove all containers using `docker-down -a`, because there can be multiple services connected to a shared service. If there are no projects running, then it is possible to use `docker-services down`. An individual service can be targeted by specifying its name, e.g. `docker-services adminer up` and the image for the service can be built before starting its container using the `--build` switch, e.g. `docker-services adminer up --build`. Similarly, the image for a service can be removed when stopping the service, e.g `docker-services adminer down --remove-images`.
+Shared services, such as Traefik and MailHog, are automatically started using `docker-up -a`. The `-a` switch runs `docker-services up` which calls the `services` script that manages which services to start. To stop all services, it is easier to stop and remove all containers using `docker-down -a`, this is because there can be multiple services connected to a shared service. If there are no projects running, then it is possible to use `docker-services down`. An individual service can be targeted by specifying its name, e.g. `docker-services adminer up`, and the image for the service can be built before starting its container using the `--build` switch, e.g. `docker-services adminer up --build`. Similarly, the image for a service can be removed when stopping the service, e.g `docker-services adminer down --remove-images`.
 ## Local Services
-Other services can be added to the local directory and registered in the `services` script. A `local` service will be used instead of a core service, if it exists. A service can be defined in a docker compose file matching the name of the service, e.g. `mysql.yml`. Alternatively, a service can be a directory, matching the name of the service, containing a `docker-compose.yml` file.
+Other services can be added to the local directory and registered in the `services` script. A `local` service will be used instead of a core service, if it exists. A service can be defined in a docker compose file matching the name of the service, e.g. `mysql.yml`. Alternatively, a service can be a directory matching the name of the service, containing a `docker-compose.yml` file.
 ## Demo Applications
 WordPress, Symfony, Laravel and Mvc5 demo applications can be installed into the docker `www` directory.
 ```
