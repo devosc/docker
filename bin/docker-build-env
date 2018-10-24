@@ -19,6 +19,7 @@ if [ ! -f  $build_env_file ]; then
         echo "export TZ=$TZ";
     } > $build_env_file
 
+    echo "Created .build.env file"
 fi
 
 source $build_env_file

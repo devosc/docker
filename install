@@ -30,7 +30,6 @@ fi
 
 if [ ! -f .build.env ]; then
     docker-build-env
-    echo "Created .build.env file."
 else
-    echo ".build.env file already exists."
+    echo "File .build.env already exists."
 fi
