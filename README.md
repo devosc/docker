@@ -66,6 +66,7 @@ Each project has its own `docker-compose.yml` file and should use the same build
 - WP-CLI: `docker-wp`
 - Artisan: `docker-artisan`
 - Symfony: `docker-symfony [phpunit]`
+- Git: `docker-git`
 - Logs: `docker-logs`
 
 ## Build Args
