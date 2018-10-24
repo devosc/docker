@@ -65,7 +65,7 @@ Each project has its own `docker-compose.yml` file and should use the same build
 - Xdebug: `docker-xdebug [on|off]`
 - WP-CLI: `docker-wp`
 - Artisan: `docker-artisan`
-- Symfony: `docker-symfony`
+- Symfony: `docker-symfony [phpunit]`
 - Logs: `docker-logs`
 
 ## Build Args

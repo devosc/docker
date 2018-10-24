@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 
-docker-app bin/console "$@"
+if [ "$1" = "phpunit" ]; then
+    shift
+    docker-app bin/phpunit "$@"
+else
+    docker-app bin/console "$@"
+fi
