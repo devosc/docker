@@ -81,6 +81,7 @@ There are other build arguments available for Composer, WP-CLI, the web server d
   - COMPOSER=true
   - WP_CLI=false
   - DOCUMENT_ROOT=/var/www/html
+  - APACHE_LOG_LEVEL=debug
   - REDIRECT_TRAILING_SLASH=false
   - WWW_USER=app
   - WWW_GROUP=app
