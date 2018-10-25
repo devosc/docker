@@ -15,7 +15,7 @@ find . -type d -name '*' -delete
 cd $project_dir/..
 
 if [ "wordpress" = "$1" ]; then
-    wget https://wordpress.org/latest.tar.gz
+    curl -O https://wordpress.org/latest.tar.gz
     tar -xzvf latest.tar.gz --directory $project_dir
     rm -rf $document_root
     mv $project_dir/wordpress $document_root
