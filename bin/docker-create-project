@@ -26,7 +26,7 @@ if [ "wordpress" = "$1" ]; then
 // https://codex.wordpress.org/Administration_Over_SSL \\
 define('FORCE_SSL_ADMIN', true); \\
 \\
-if (strpos(\$_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false)\\
+if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     \$_SERVER['HTTPS']='on';"
 
     sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$proxy#g" "$document_root/wp-config-sample.php"
