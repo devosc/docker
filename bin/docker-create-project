@@ -43,6 +43,16 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$proxy#g" "$document_root/wp-config-sample.php"
     rm "$document_root/wp-config-sample.php.bak"
 
+    echo "Create default database? [no/yes]"
+
+    read create_database
+
+    if [ "$create_database" = "yes" ]; then
+        docker exec mariadb sh -c 'mysqladmin -uroot -psecret drop wordpress --force'
+        docker exec mariadb sh -c 'mysqladmin -uroot -psecret create wordpress'
+        echo "host: mariadb database: wordpress user: root password: secret"
+    fi
+
 elif [ "laravel" = "$1" ]; then
     reset_project_dir
     docker-composer create-project --prefer-dist laravel/laravel .
