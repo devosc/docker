@@ -30,6 +30,8 @@ if [ "wordpress" = "$1" ]; then
     mv $project_dir/wordpress $document_root
     rm latest.tar.gz
 
+    cp favicon.ico "$document_root/favicon.ico"
+
     proxy="\\
 \\
 // https://codex.wordpress.org/Administration_Over_SSL \\
@@ -47,9 +49,11 @@ elif [ "laravel" = "$1" ]; then
 elif [ "symfony" = "$1" ]; then
     reset_project_dir
     docker-composer create-project --prefer-dist symfony/website-skeleton .
+    cp favicon.ico "$document_root/favicon.ico"
 elif [ "phpinfo" = "$1" ]; then
     reset_project_dir
     mkdir -p $document_root
+    cp favicon.ico "$document_root/favicon.ico"
     cat <<EOT >> $document_root/index.php
 <?php
 
