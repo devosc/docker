@@ -6,15 +6,24 @@ project_dir="$( cd "$(dirname "$0")/../www" ; pwd -P )"
 
 [ -d $project_dir/html ] && document_root="$project_dir/html" || document_root="$project_dir/public"
 
-cd $project_dir
+function reset_project_dir()
+{
+    if [ -d $project_dir ]; then
 
-find . -type f -delete
-find . -type l -delete
-find . -type d -name '*' -delete
+        cd $project_dir
 
-cd $project_dir/..
+        find . -type f -delete
+        find . -type l -delete
+        find . -type d -name '*' -delete
+
+    fi
+
+    cd $project_dir/..
+}
 
 if [ "wordpress" = "$1" ]; then
+    reset_project_dir
+
     curl -O https://wordpress.org/latest.tar.gz
     tar -xzvf latest.tar.gz --directory $project_dir
     rm -rf $document_root
@@ -33,10 +42,13 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     rm "$document_root/wp-config-sample.php.bak"
 
 elif [ "laravel" = "$1" ]; then
+    reset_project_dir
     docker-composer create-project --prefer-dist laravel/laravel .
 elif [ "symfony" = "$1" ]; then
+    reset_project_dir
     docker-composer create-project --prefer-dist symfony/website-skeleton .
 elif [ "phpinfo" = "$1" ]; then
+    reset_project_dir
     mkdir -p $document_root
     cat <<EOT >> $document_root/index.php
 <?php
@@ -44,5 +56,6 @@ elif [ "phpinfo" = "$1" ]; then
 phpinfo();
 EOT
 else
+    reset_project_dir
     docker-composer create-project mvc5/mvc5-application .
 fi
