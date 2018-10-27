@@ -59,7 +59,11 @@ elif [ "phpinfo" = "$1" ]; then
 
 phpinfo();
 EOT
-else
+elif [ "mvc5" = "$1" ]; then
     reset_project_dir
     docker-composer create-project mvc5/mvc5-application .
+else
+    echo "Project not found. Choose from laravel, mvc5, multisite-convert, phpinfo, symfony, wordpress"
 fi
+
+echo "Project URL: https://docker-project"
