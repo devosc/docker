@@ -17,5 +17,3 @@ services:
       - traefik.port=8025
     networks:
       - public
-    ports:
-      - 1025:1025
