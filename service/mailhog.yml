@@ -17,3 +17,4 @@ services:
       - traefik.port=8025
     networks:
       - public
+    restart: always
