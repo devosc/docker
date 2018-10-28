@@ -57,30 +57,34 @@ elif [ "multisite-convert" = "$1" ]; then
 
     docker-wp core multisite-convert --subdomains
 
-    cookie_domain="\\
+    if [ $? = 0 ]; then
+        cookie_domain="\\
 \\
 define('COOKIE_DOMAIN', false);"
 
-    sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$cookie_domain#g" "$document_root/wp-config.php"
-    rm "$document_root/wp-config.php.bak"
+        sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$cookie_domain#g" "$document_root/wp-config.php"
+        rm "$document_root/wp-config.php.bak"
 
-    cat << 'EOF' > $document_root/.htaccess
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-    RewriteRule ^index\.php$ - [L]
+        cat << 'EOF' > $document_root/.htaccess
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteBase /
+        RewriteRule ^index\.php$ - [L]
 
-    # add a trailing slash to /wp-admin
-    RewriteRule ^wp-admin$ wp-admin/ [R=301,L]
+        # add a trailing slash to /wp-admin
+        RewriteRule ^wp-admin$ wp-admin/ [R=301,L]
 
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
-    RewriteRule ^(wp-(content|admin|includes).*) $1 [L]
-    RewriteRule ^(.*\.php)$ $1 [L]
-    RewriteRule . index.php [L]
-</IfModule>
+        RewriteCond %{REQUEST_FILENAME} -f [OR]
+        RewriteCond %{REQUEST_FILENAME} -d
+        RewriteRule ^ - [L]
+        RewriteRule ^(wp-(content|admin|includes).*) $1 [L]
+        RewriteRule ^(.*\.php)$ $1 [L]
+        RewriteRule . index.php [L]
+    </IfModule>
 EOF
+
+        echo "Updated wp-config.php and .htaccess files."
+    fi
 
 elif [ "laravel" = "$1" ]; then
     reset_project_dir
