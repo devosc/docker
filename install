@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+cd "$(dirname "$0")"
+
 if [ ! -f traefik/traefik.toml ]; then
     email=""
 
@@ -29,7 +31,25 @@ else
 fi
 
 if [ ! -f .build.env ]; then
-    docker-build-env
+    if [ -z "$TZ" ]; then
+        echo "Finding time zone."
+        dir=$(pwd)
+        cd /usr/share/zoneinfo
+        #https://superuser.com/a/639096
+        TIME_ZONE="$(find * -type f -exec sh -c "diff -q /etc/localtime '{}' > /dev/null && echo {}" \;)"
+        TIME_ZONE=($TIME_ZONE)
+        TIME_ZONE="${TIME_ZONE[0]}"
+        TZ=$TIME_ZONE
+        echo "Time zone is: ${TZ}"
+        cd $dir
+    fi
+    {
+        echo "export USER_ID=$(id -u)";
+        echo "export GROUP_ID=$(id -g)";
+        echo "export TZ=$TZ";
+    } > .build.env
+
+    printf "\nCreated .build.env file.\n"
 else
-    echo "File .build.env already exists."
+    echo "Build environment file (.build.env) already exists."
 fi

@@ -1,25 +1,11 @@
 #!/usr/bin/env bash
 
-build_env_file="$( cd "$(dirname "$0")" ; pwd -P )/../.build.env"
+install_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
+build_env_file="$install_dir/.build.env"
 
 if [ ! -f  $build_env_file ]; then
-    if [ -z "$TZ" ]; then
-        dir=$(pwd)
-        cd /usr/share/zoneinfo
-        #https://superuser.com/a/639096
-        TIME_ZONE="$(find * -type f -exec sh -c "diff -q /etc/localtime '{}' > /dev/null && echo {}" \;)"
-        TIME_ZONE=($TIME_ZONE)
-        TIME_ZONE="${TIME_ZONE[0]}"
-        TZ=$TIME_ZONE
-        cd $dir
-    fi
-    {
-        echo "export USER_ID=$(id -u)";
-        echo "export GROUP_ID=$(id -g)";
-        echo "export TZ=$TZ";
-    } > $build_env_file
-
-    echo "Created .build.env file"
+    echo -e "Error: $build_env_file file not found. Run the installation script to generate it."
+    exit 1
 fi
 
 source $build_env_file
