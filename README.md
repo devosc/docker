@@ -109,6 +109,6 @@ Other services can be added to the local directory and registered in the `servic
 ## Demo Applications
 WordPress, Symfony, Laravel and Mvc5 demo applications can be installed into the docker `www` directory.
 ```
-docker-create-project [wordpress|symfony|laravel|phpinfo|mvc5]
+docker-create-project [wordpress|multisite-convert|symfony|laravel|phpinfo|mvc5]
 ```
 The url is `https://docker-project`. Use `docker-traefik ip-address` to get the i.p. address for trusted proxy server configurations .
