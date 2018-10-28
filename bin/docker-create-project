@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source docker-build-env
+
 # creates project in docker www directory (experimental).
 
 project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
@@ -56,14 +58,12 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$proxy#g" "$document_root/wp-config-sample.php"
     rm "$document_root/wp-config-sample.php.bak"
 
-    echo "Create default database? [no/yes]"
+    read -p "Create default database? [no|yes] " create_database
 
-    read create_database
-
-    if [ "$create_database" = "yes" ]; then
-        docker exec mariadb sh -c 'mysqladmin -uroot -psecret drop wordpress --force'
-        docker exec mariadb sh -c 'mysqladmin -uroot -psecret create wordpress'
-        echo "host: mariadb database: wordpress user: root password: secret"
+    if [ "$create_database" = "yes" ] ||  [ "$create_database" = "y" ]; then
+        echo "host: mariadb database: wordpress user: root"
+        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} drop wordpress --force"
+        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} create wordpress"
     fi
 
 elif [ "multisite-convert" = "$1" ]; then

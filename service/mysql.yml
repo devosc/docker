@@ -13,7 +13,7 @@ services:
   mysql:
     container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
       TZ: ${TZ}
     image: mysql
     networks:

@@ -13,7 +13,7 @@ services:
   mariadb:
     container_name: mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
       TZ: ${TZ}
     image: mariadb
     networks:

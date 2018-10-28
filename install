@@ -8,9 +8,7 @@ if [ ! -f traefik/traefik.toml ]; then
     if [ "$1" = "--email" ] && [ "$2" != "" ]; then
         email=$2
     else
-        echo "Enter email address for Let's Encrypt SSL certificates:"
-
-        read email
+        read -p "Enter email address for Let's Encrypt SSL certificates: " email
     fi
 
     cp traefik/traefik-sample.toml traefik/traefik.toml
@@ -43,10 +41,18 @@ if [ ! -f .build.env ]; then
         echo "Time zone is: ${TZ}"
         cd $dir
     fi
+
+    read -sp 'Enter the database root user password [secret]: ' password
+
+    if [ "$password" = "" ]; then
+        password="secret"
+    fi
+
     {
         echo "export USER_ID=$(id -u)";
         echo "export GROUP_ID=$(id -g)";
         echo "export TZ=$TZ";
+        echo -e "export DATABASE_ROOT_PASSWORD=$password"
     } > .build.env
 
     printf "\nCreated .build.env file.\n"

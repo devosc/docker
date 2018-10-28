@@ -14,7 +14,7 @@ services:
     container_name: postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
+      POSTGRES_PASSWORD: ${DATABASE_ROOT_PASSWORD}
       TZ: ${TZ}
       PGTZ: ${TZ}
     image: postgres
