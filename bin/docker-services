@@ -24,7 +24,9 @@ else
         exit 1
     fi
 
-    if [ "down" = "$2" ]; then
+    if [ "ip" = "$2" ] || [ "ip-address" = "$2" ]; then
+        docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $name
+    elif [ "down" = "$2" ]; then
         # remove images
         rmi=""
         if [ "--remove-images" = "$3" ]; then
