@@ -2,32 +2,37 @@
 
 # creates project in docker www directory (experimental).
 
-project_dir="$( cd "$(dirname "$0")/../www" ; pwd -P )"
+project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
 
-[ -d $project_dir/html ] && document_root="$project_dir/html" || document_root="$project_dir/public"
+www_dir="$project_dir/www"
+
+if [ ! -d "$www_dir" ]; then
+    echo "Error: www directory does not exist."
+    exit
+fi
+
+cd $project_dir
+
+[ -d $www_dir/html ] && document_root="$www_dir/html" || document_root="$www_dir/public"
 
 function reset_project_dir()
 {
-    if [ -d $project_dir ]; then
+    cd $www_dir
 
-        cd $project_dir
+    find . -type f -delete
+    find . -type l -delete
+    find . -type d -name '*' -delete
 
-        find . -type f -delete
-        find . -type l -delete
-        find . -type d -name '*' -delete
-
-    fi
-
-    cd $project_dir/..
+    cd $project_dir
 }
 
 if [ "wordpress" = "$1" ]; then
     reset_project_dir
 
     curl -O https://wordpress.org/latest.tar.gz
-    tar -xzvf latest.tar.gz --directory $project_dir
+    tar -xzvf latest.tar.gz --directory $www_dir
     rm -rf $document_root
-    mv $project_dir/wordpress $document_root
+    mv $www_dir/wordpress $document_root
     rm latest.tar.gz
 
     cp favicon.ico "$document_root/favicon.ico"
