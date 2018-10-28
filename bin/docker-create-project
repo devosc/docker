@@ -10,7 +10,7 @@ www_dir="$project_dir/www"
 
 if [ ! -d "$www_dir" ]; then
     echo "Error: www directory does not exist."
-    exit
+    exit 1
 fi
 
 cd $project_dir
