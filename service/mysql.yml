@@ -9,7 +9,7 @@ networks:
       name: traefik_webgateway
 
 services:
-  # Use localhost as the hostname in client applications, e.g. MySQL Workbench, and mysql in web apps.
+  # Use mysql as the hostname in web apps.
   mysql:
     container_name: mysql
     environment:
@@ -18,8 +18,6 @@ services:
     image: mysql
     networks:
       - public
-    ports:
-      - 3306:3306
     restart: always
     volumes:
       - mysql:/var/lib/mysql
