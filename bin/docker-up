@@ -2,23 +2,47 @@
 
 source docker-build-env
 
+build=""
+directory="$(pwd)"
+start_services=false
+
+usage()
+{
+    echo "usage: docker-up [[--project-directory path][--build][-a]]"
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        # start services
+        -a )                    start_services=true
+                                ;;
+        # build images before starting containers
+        --build )               build="--build"
+                                ;;
+        # directory containing docker-compose.yml file
+        --project-directory )   directory="$2"
+                                shift
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     usage
+                                exit 1
+    esac
+
+    shift
+done
+
 # start services
-if [ "-a" = "$1" ] || [ "-a" = "$2" ]; then
+if $start_services ; then
     echo "Starting services"
     docker-services up
 fi
 
-file="$(pwd)/docker-compose.yml"
+file="${directory}/docker-compose.yml"
 
 if [ -f $file ]; then
     echo "Starting project"
-
-    # build images before starting containers
-    build=""
-    if [ "--build" = "$1" ] || [ "--build" = "$2" ]; then
-        build="--build";
-    fi
-
     docker-compose --file $file up -d $build
 else
     echo "Project not found"

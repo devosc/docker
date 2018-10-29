@@ -2,12 +2,42 @@
 
 source docker-build-env
 
-file="$(pwd)/docker-compose.yml"
+directory="$(pwd)"
+remove_images=false
+stop_services=false
+
+usage()
+{
+    echo "usage: docker-down [[--project-directory path][--remove-images][-a]]"
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        # stop services
+        -a )                    stop_services=true
+                                ;;
+        # remove local images
+        --remove-images )       remove_images=true
+                                ;;
+        # directory containing docker-compose.yml file
+        --project-directory )   directory="$2"
+                                shift
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     usage
+                                exit 1
+    esac
+    shift
+done
+
+file="${directory}/docker-compose.yml"
 
 if [ -f $file ]; then
     # remove images
     rmi=""
-    if [ "--remove-images" = "$1" ] || [ "--remove-images" = "$2" ]; then
+    if $remove_images ; then
         images=$(docker-compose --file $file images -q)
         if [ "$images" != "" ]; then
             rmi="--rmi local"
@@ -25,7 +55,7 @@ fi
 
 # stop all containers
 
-if [ "-a" = "$1" ] || [ "-a" = "$2" ]; then
+if $stop_services ; then
     containers=$(docker ps -aq)
     if [ "$containers" != "" ]; then
         echo "Removing containers"
