@@ -14,7 +14,7 @@ Add the project name to your `/etc/hosts` file.
 echo "127.0.0.1 docker-project" | sudo tee -a /etc/hosts
 ```
 #### Configuration Installer
-Run the `install` script to create the `.build.env`,  `services` and `traefik.toml` file.
+Run the `install` script to create the `.build.env`,  `services` and `traefik.toml` files.
 ```
 ./install --email hello@example.com
 ```
