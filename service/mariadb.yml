@@ -9,7 +9,8 @@ networks:
       name: traefik_webgateway
 
 services:
-  # Use mariadb as the hostname in web apps.
+  # Use mariadb as the hostname in web apps. Use `docker-services mariadb ip-address` to retrieve the i.p. address
+  # to use as the host in client applications such as MySQL Workbench.
   mariadb:
     container_name: mariadb
     environment:

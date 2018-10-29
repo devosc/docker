@@ -9,7 +9,8 @@ networks:
       name: traefik_webgateway
 
 services:
-  # Use mysql as the hostname in web apps.
+  # Use mysql as the hostname in web apps. Use `docker-services mysql ip-address` to retrieve the i.p. address
+  # to use as the host in client applications such as MySQL Workbench.
   mysql:
     container_name: mysql
     environment:
