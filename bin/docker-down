@@ -8,7 +8,7 @@ stop_services=false
 
 usage()
 {
-    echo "usage: docker-down [[--project-directory path][--remove-images][-a]]"
+    echo "Usage: docker-down [[--project-directory path][--remove-images][-a]]"
 }
 
 while [ "$1" != "" ]; do

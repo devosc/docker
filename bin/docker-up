@@ -8,7 +8,7 @@ start_services=false
 
 usage()
 {
-    echo "usage: docker-up [[--project-directory path][--build][-a]]"
+    echo "Usage: docker-up [[--project-directory path][--build][-a]]"
 }
 
 while [ "$1" != "" ]; do

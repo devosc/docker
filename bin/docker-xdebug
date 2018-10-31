@@ -2,10 +2,43 @@
 
 source docker-build-env
 
-if [ "on" = "$1" ]; then
-    docker-root sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-    docker-root apache2ctl -k graceful
-elif [ "off" = "$1" ]; then
-    docker-root sed -i 's/zend_extension=/;zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-    docker-root apache2ctl -k graceful
+directory="$(pwd)"
+enable=false
+
+usage()
+{
+    echo "Usage: docker-xdebug [--project-directory path] on|off"
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        # enable
+        on )                    enable=true
+                                ;;
+        # disable
+        off )                   enable=false
+                                ;;
+        # directory containing docker-compose.yml file
+        --project-directory )   directory="$2"
+                                shift
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     usage
+                                exit 1
+    esac
+
+    shift
+done
+
+if [ $enable ]; then
+    docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    docker-root --project-directory "$directory" apache2ctl -k graceful
+elif [ ! $enable ]; then
+    docker-root --project-directory "$directory" sed -i 's/zend_extension=/;zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    docker-root --project-directory "$directory" apache2ctl -k graceful
+else
+    usage
+    exit 1
 fi
