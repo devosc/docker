@@ -9,8 +9,7 @@ networks:
       name: traefik_webgateway
 
 services:
-  # Use postgres as the hostname in web apps. Use `docker-services postgres ip-address` to retrieve the i.p. address
-  # to use as the host in client applications such as pgAdmin.
+  # Use localhost as the hostname in client applications, e.g. pgAdmin, and postgres in web apps.
   postgres:
     container_name: postgres
     environment:
@@ -21,6 +20,8 @@ services:
     image: postgres
     networks:
       - public
+    ports:
+      - 5432:5432
     restart: always
     volumes:
       - postgres:/var/lib/postgresql/data
