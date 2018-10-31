@@ -1,5 +1,11 @@
 version: '3.5'
 
+networks:
+  webgateway:
+    driver: bridge
+
+# https://traefik
+
 services:
   proxy:
     image: traefik
@@ -17,7 +23,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.toml:/etc/traefik/traefik.toml
       - ./acme.json:/acme.json
-
-networks:
-  webgateway:
-    driver: bridge
