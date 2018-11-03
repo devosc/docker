@@ -4,19 +4,41 @@ cd "$(dirname "$0")"
 
 if [ ! -f traefik/traefik.toml ]; then
     email=""
+    cert=""
 
     if [ "$1" = "--email" ] && [ "$2" != "" ]; then
         email=$2
+    elif [ "$1" = "--create-cert" ]; then
+        cert="yes"
     else
-        read -p "Enter email address for Let's Encrypt SSL certificates: " email
+        read -p "Create a self signed certificate: (no/yes) " cert
+        if [ "$cert" != "y" ] && [ "$cert" != "yes" ]; then
+            read -p "Enter email address for Let's Encrypt SSL certificates: " email
+        fi
     fi
 
-    cp traefik/traefik-sample.toml traefik/traefik.toml
+    if [ "$cert" = "y" ] || [ "$cert" = "yes" ]; then
+        if [ ! -f traefik/cert/traefik.crt ] || [ ! -f traefik/cert/traefik.key ]; then
+            rm -f traefik/cert/traefik.crt
+            rm -f traefik/cert/traefik.key
+            traefik/create-cert
+            echo "Created a self signed certificate."
+        else
+            echo "Self signed certificate file already exist."
+        fi
+        cp traefik/traefik-sample-cert.toml traefik/traefik.toml
+        echo "Created Traefik configuration file."
+    elif [ -n "$email" ]; then
+        cp traefik/traefik-sample.toml traefik/traefik.toml
 
-    sed -i.bak "s/your-email@address/$email/g"  traefik/traefik.toml
-    rm traefik/traefik.toml.bak
+        sed -i.bak "s/your-email@address/$email/g"  traefik/traefik.toml
+        rm traefik/traefik.toml.bak
 
-    echo "Created Traefik configuration file."
+        echo "Created Traefik configuration file."
+    else
+        echo "Error: create a self signed certificate or enter an email address for Let's Encrypt SSL certificates."
+        exit 1
+    fi
 else
     echo "Traefik configuration file already exists."
 fi
