@@ -113,7 +113,7 @@ Other services can be added to the local directory and registered in the `servic
 ## Trusted Proxy Server Configuration
 If necessary, use `docker-traefik ip-address` to get the i.p. address for trusted proxy server configurations.
 ## Demo Applications
-WordPress, Symfony, Laravel and Mvc5 demo applications can be installed into the docker `www` directory.
+CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the docker `www` directory.
 ```
 docker-create-project [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress]
 ```
