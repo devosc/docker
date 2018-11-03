@@ -87,14 +87,26 @@ define('COOKIE_DOMAIN', false);"
     </IfModule>
 EOF
 
-        echo "Updated wp-config.php and .htaccess files."
+    echo "Updated wp-config.php and .htaccess files.
+
+After creating a new site in wp-admin, the following steps are required:
+
+    - Add site to your /etc/hosts file.
+        e.g. 127.0.0.1 site1.docker-project
+
+    - Add site to the traefik.frontend.rule in the docker compose file.
+        e.g. traefik.frontend.rule=Host:docker-project, site1.docker-project
+
+    - Build container
+        docker-up --build
+"
 
         project_url
     else
         echo "
 An error occurred. Check the following:
     - Multisite may already be installed.
-    - WP-CLI is enabled in the docker compose file."
+    - WP-CLI must be enabled in the docker compose file."
         exit 1
     fi
 }
