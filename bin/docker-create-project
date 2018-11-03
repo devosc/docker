@@ -31,6 +31,7 @@ function cakephp()
         echo "
 An error occurred. Check the following:
     - Working directory must be: ${document_root}"
+        exit 1
     fi
 }
 
@@ -52,6 +53,7 @@ function laravel()
         echo "
 An error occurred. Check the following:
     - Working directory must be: ${www_dir}"
+        exit 1
     fi
 }
 
@@ -93,6 +95,7 @@ EOF
 An error occurred. Check the following:
     - Multisite may already be installed.
     - WP-CLI is enabled in the docker compose file."
+        exit 1
     fi
 }
 
@@ -107,6 +110,7 @@ function mvc5()
         echo "
 An error occurred. Check the following:
     - Working directory must be: ${www_dir}"
+        exit 1
     fi
 }
 
@@ -153,6 +157,7 @@ function symfony()
         echo "
 An error occurred. Check the following:
     - Working directory must be: ${www_dir}"
+        exit 1
     fi
 }
 
@@ -231,6 +236,6 @@ Options:
         'phpinfo' ) phpinfo ;;
         'symfony' ) symfony ;;
         'wordpress' ) wordpress ;;
-        * ) echo "Invalid or no selection made.";
+        * ) echo "Invalid or no selection made."; exit 1;
     esac
 fi
