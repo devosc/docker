@@ -68,15 +68,16 @@ Each project has its own `docker-compose.yml` file and should use the same build
 - Stop container and all services: `docker-down -a`
 - App User: `docker-app`
 - Root User: `docker-root`
-- Composer: `docker-composer`
-- npm: `docker-npm`
-- PHPUnit: `docker-phpunit`
-- Xdebug: `docker-xdebug [on|off]`
-- WP-CLI: `docker-wp`
 - Artisan: `docker-artisan`
-- Symfony: `docker-symfony [phpunit]`
+- CakePHP: `docker-cakephp`
+- Composer: `docker-composer`
 - Git: `docker-git`
 - Logs: `docker-logs`
+- npm: `docker-npm`
+- PHPUnit: `docker-phpunit`
+- Symfony: `docker-symfony [phpunit]`
+- WP-CLI: `docker-wp`
+- Xdebug: `docker-xdebug [on|off]`
 
 ## Build Args
 To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
