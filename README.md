@@ -16,12 +16,13 @@ echo "127.0.0.1 docker-project" | sudo tee -a /etc/hosts
 #### Configuration Installer
 Run the `install` script to create the `.build.env`,  `services` and `traefik.toml` files.
 ```
-./install --email hello@example.com
+./install
 ```
 Or manually copy and configure the files.
 #### Manual Configuration
-Copy the sample `traefik.toml` file and set the `acme` email address for Let's Encrypt SSL certificates. 
+Create a self signed SSL certificate and copy the sample `traefik.toml` file.
 ```
+traefik/create-cert && \
 cp traefik/traefik-sample.toml traefik/traefik.toml
 ```
 Copy the sample `services` script file to manage the shared services, e.g. Traefik, MariaDB, PostgreSQL, MailHog and Adminer.

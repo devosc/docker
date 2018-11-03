@@ -3,41 +3,33 @@
 cd "$(dirname "$0")"
 
 if [ ! -f traefik/traefik.toml ]; then
-    email=""
-    cert=""
+    cp traefik/traefik-sample.toml traefik/traefik.toml
 
-    if [ "$1" = "--email" ] && [ "$2" != "" ]; then
-        email=$2
-    elif [ "$1" = "--create-cert" ]; then
-        cert="yes"
-    else
-        read -p "Create a self signed certificate: (no/yes) " cert
-        if [ "$cert" != "y" ] && [ "$cert" != "yes" ]; then
-            read -p "Enter email address for Let's Encrypt SSL certificates: " email
+    echo "Created traefik.toml file."
+
+    cert_filename="traefik"
+
+    if [ "$1" = "--cert-filename" ]; then
+        if [ -n "$2" ]; then
+            cert_filename="$2"
+        else
+            echo "Error: SSL certificate file name is required."
+            exit 1
         fi
     fi
 
-    if [ "$cert" = "y" ] || [ "$cert" = "yes" ]; then
-        if [ ! -f traefik/cert/traefik.crt ] || [ ! -f traefik/cert/traefik.key ]; then
-            rm -f traefik/cert/traefik.crt
-            rm -f traefik/cert/traefik.key
-            traefik/create-cert
-            echo "Created a self signed certificate."
-        else
-            echo "Self signed certificate file already exist."
-        fi
-        cp traefik/traefik-sample-cert.toml traefik/traefik.toml
-        echo "Created Traefik configuration file."
-    elif [ -n "$email" ]; then
-        cp traefik/traefik-sample.toml traefik/traefik.toml
-
-        sed -i.bak "s/your-email@address/$email/g"  traefik/traefik.toml
-        rm traefik/traefik.toml.bak
-
-        echo "Created Traefik configuration file."
+    if [ -f "traefik/cert/${cert_filename}.key" ]; then
+        echo "SSL certificate already exists."
     else
-        echo "Error: create a self signed certificate or enter an email address for Let's Encrypt SSL certificates."
-        exit 1
+        traefik/create-cert --cert-filename "${cert_filename}"
+
+        if [ "${cert_filename}" != "traefik" ]; then
+            sed -i.bak "s/traefik.crt/${cert_filename}.crt/g" "traefik/traefik.toml"
+            sed -i.bak "s/traefik.key/${cert_filename}.key/g" "traefik/traefik.toml"
+            rm "traefik/traefik.toml.bak"
+        fi
+
+        echo "Created SSL certificate."
     fi
 else
     echo "Traefik configuration file already exists."
@@ -64,7 +56,7 @@ if [ ! -f .build.env ]; then
         cd $dir
     fi
 
-    read -sp 'Enter the database root user password [secret]: ' password
+    read -sp 'Enter the database root user password: (secret) ' password
 
     if [ "$password" = "" ]; then
         password="secret"
