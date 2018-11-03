@@ -115,6 +115,6 @@ If necessary, use `docker-traefik ip-address` to get the i.p. address for truste
 ## Demo Applications
 WordPress, Symfony, Laravel and Mvc5 demo applications can be installed into the docker `www` directory.
 ```
-docker-create-project [wordpress|multisite-convert|symfony|laravel|phpinfo|mvc5]
+docker-create-project [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress]
 ```
 The url is `https://docker-project`.
