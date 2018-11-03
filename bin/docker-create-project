@@ -17,15 +17,21 @@ cd $project_dir
 
 [ -d $www_dir/html ] && document_root="$www_dir/html" || document_root="$www_dir/public"
 
-function reset_project_dir()
+function cakephp()
 {
-    cd $www_dir
+    echo "Working directory: ${document_root}"
 
-    find . -type f -delete
-    find . -type l -delete
-    find . -type d -name '*' -delete
+    reset_project_dir
+    mkdir -p $document_root
+    docker-composer create-project --prefer-dist cakephp/app .
 
-    cd $project_dir
+    if [ $? = 0 ]; then
+        project_url
+    else
+        echo "
+An error occurred. Check the following:
+    - Working directory must be: ${document_root}"
+    fi
 }
 
 function favicon()
@@ -36,38 +42,21 @@ function favicon()
     fi
 }
 
-if [ "wordpress" = "$1" ]; then
+function laravel()
+{
     reset_project_dir
-
-    curl -O https://wordpress.org/latest.tar.gz
-    tar -xzvf latest.tar.gz --directory $www_dir
-    rm -rf $document_root
-    mv $www_dir/wordpress $document_root
-    rm latest.tar.gz
-
-    favicon
-
-    proxy="\\
-\\
-// https://codex.wordpress.org/Administration_Over_SSL \\
-define('FORCE_SSL_ADMIN', true); \\
-\\
-if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
-    \$_SERVER['HTTPS']='on';"
-
-    sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$proxy#g" "$document_root/wp-config-sample.php"
-    rm "$document_root/wp-config-sample.php.bak"
-
-    read -p "Create default database? [no|yes] " create_database
-
-    if [ "$create_database" = "yes" ] ||  [ "$create_database" = "y" ]; then
-        echo "host: mariadb database: wordpress user: root"
-        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} drop wordpress --force"
-        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} create wordpress"
+    docker-composer create-project --prefer-dist laravel/laravel .
+    if [ $? = 0 ]; then
+        project_url
+    else
+        echo "
+An error occurred. Check the following:
+    - Working directory must be: ${www_dir}"
     fi
+}
 
-elif [ "multisite-convert" = "$1" ]; then
-
+function multisite()
+{
     docker-wp core multisite-convert --subdomains
 
     if [ $? = 0 ]; then
@@ -97,29 +86,151 @@ define('COOKIE_DOMAIN', false);"
 EOF
 
         echo "Updated wp-config.php and .htaccess files."
-    fi
 
-elif [ "laravel" = "$1" ]; then
+        project_url
+    else
+        echo "
+An error occurred. Check the following:
+    - Multisite may already be installed.
+    - WP-CLI is enabled in the docker compose file."
+    fi
+}
+
+function mvc5()
+{
     reset_project_dir
-    docker-composer create-project --prefer-dist laravel/laravel .
-elif [ "symfony" = "$1" ]; then
-    reset_project_dir
-    docker-composer create-project --prefer-dist symfony/website-skeleton .
-    favicon
-elif [ "phpinfo" = "$1" ]; then
+    docker-composer create-project mvc5/mvc5-application .
+
+    if [ $? = 0 ]; then
+        project_url
+    else
+        echo "
+An error occurred. Check the following:
+    - Working directory must be: ${www_dir}"
+    fi
+}
+
+function phpinfo()
+{
     reset_project_dir
     mkdir -p $document_root
-    favicon
+
     cat <<EOT >> $document_root/index.php
 <?php
 
 phpinfo();
 EOT
-elif [ "mvc5" = "$1" ]; then
-    reset_project_dir
-    docker-composer create-project mvc5/mvc5-application .
-else
-    echo "Project not found. Choose from laravel, mvc5, multisite-convert, phpinfo, symfony, wordpress"
-fi
 
-echo "Project URL: https://docker-project"
+    favicon
+    project_url
+}
+
+function project_url()
+{
+    echo "Project URL: https://docker-project"
+}
+
+function reset_project_dir()
+{
+    cd $www_dir
+
+    find . -type f -delete
+    find . -type l -delete
+    find . -type d -name '*' -delete
+
+    cd $project_dir
+}
+
+function symfony()
+{
+    reset_project_dir
+    docker-composer create-project --prefer-dist symfony/website-skeleton .
+
+    if [ $? = 0 ]; then
+        favicon
+        project_url
+    else
+        echo "
+An error occurred. Check the following:
+    - Working directory must be: ${www_dir}"
+    fi
+}
+
+function wordpress()
+{
+    echo "Working directory must be: ${document_root}"
+
+    reset_project_dir
+
+    curl -O https://wordpress.org/latest.tar.gz
+    tar -xzvf latest.tar.gz --directory $www_dir
+    rm -rf $document_root
+    mv $www_dir/wordpress $document_root
+    rm latest.tar.gz
+
+    proxy="\\
+\\
+// https://codex.wordpress.org/Administration_Over_SSL \\
+define('FORCE_SSL_ADMIN', true); \\
+\\
+if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
+    \$_SERVER['HTTPS']='on';"
+
+    sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$proxy#g" "$document_root/wp-config-sample.php"
+    rm "$document_root/wp-config-sample.php.bak"
+
+    read -p "Create default database? [no|yes] " create_database
+
+    if [ "$create_database" = "yes" ] ||  [ "$create_database" = "y" ]; then
+        echo "host: mariadb database: wordpress user: root"
+        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} drop wordpress --force"
+        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} create wordpress"
+    fi
+
+    favicon
+    project_url
+}
+
+if [ "cakephp" = "$1" ]; then
+    cakephp
+elif [ "laravel" = "$1" ]; then
+    laravel
+elif [ "multisite-convert" = "$1" ]; then
+    multisite
+elif [ "mvc5" = "$1" ]; then
+    mvc5
+elif [ "phpinfo" = "$1" ]; then
+    phpinfo
+elif [ "symfony" = "$1" ]; then
+    symfony
+elif [ "wordpress" = "$1" ]; then
+    wordpress
+else
+    echo "Create a demo application."
+    echo "Project directory: ${www_dir}"
+    echo "Document Root: ${document_root}"
+
+    selection=
+    echo "
+Options:
+    cakephp           - CakePHP
+    laravel           - Laravel
+    mvc5              - Mvc5
+    multisite-convert - Convert WordPress to a multisite network
+    phpinfo           - PHP Info
+    symfony           - Symfony
+    wordpress         - WordPress
+"
+    read -p "Enter selection: " selection
+
+    case $selection in
+        'cakephp' ) cakephp ;;
+        'laravel' ) laravel ;;
+        'mvc5' ) mvc5 ;;
+        'multisite-convert' ) multisite ;;
+        'phpinfo' ) phpinfo ;;
+        'symfony' ) symfony ;;
+        'wordpress' ) wordpress ;;
+        * ) echo "Invalid or no selection made.";
+    esac
+fi
