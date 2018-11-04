@@ -5,40 +5,28 @@ source docker-build-env
 directory="$(pwd)"
 enable=false
 
-usage()
-{
-    echo "Usage: docker-xdebug [--project-directory path] on|off"
-}
+if [ -z "$1" ] || [ "$1" = "on" ]; then
+    enable=true
+elif [ "$1" != "off" ]; then
+    echo "Usage: docker-xdebug on|off [--project-directory path]"
+    exit 1
+fi
 
-while [ "$1" != "" ]; do
-    case $1 in
-        # enable
-        on )                    enable=true
-                                ;;
-        # disable
-        off )                   enable=false
-                                ;;
-        # directory containing docker-compose.yml file
-        --project-directory )   directory="$2"
-                                shift
-                                ;;
-        -h | --help )           usage
-                                exit
-                                ;;
-        * )                     usage
-                                exit 1
-    esac
+if [ "$2" = "--project-directory" ]; then
+    if [ -z "$3" ]; then
+        echo "Error: project directory cannot be empty."
+        exit 1
+    fi
 
-    shift
-done
+    directory="$3"
+fi
 
-if [ $enable ]; then
+if $enable ; then
     docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     docker-root --project-directory "$directory" apache2ctl -k graceful
-elif [ ! $enable ]; then
+    echo "Xdebug has been turned on."
+else
     docker-root --project-directory "$directory" sed -i 's/zend_extension=/;zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     docker-root --project-directory "$directory" apache2ctl -k graceful
-else
-    usage
-    exit 1
+    echo "Xdebug has been turned off."
 fi
