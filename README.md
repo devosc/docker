@@ -99,11 +99,12 @@ There are other build arguments available for Composer, WP-CLI, the web server d
   - WWW_GROUP=app
 ```
 ## Build Environment Variables
-To match the file permissions and time zone between the container and the host, use the environment variables `USER_ID`, `GROUP_ID` and `TZ`. These environment variables are automatically detected and stored in the file `.build.env` in the docker directory by the `install` script. These environment variables are sourced prior to building a container and running the project commands.
+To match the file permissions, locale and time zone between the container and the host, use the variables `USER_ID`, `GROUP_ID`, `LOCALE` and `TZ`. These variables are automatically detected and stored in the file `.build.env` in the docker directory by the `install` script. These environment variables are sourced prior to building a container and running the project commands.
 ```
 args:
   - USER_ID=${USER_ID}
   - GROUP_ID=${GROUP_ID}
+  - LOCALE=${LOCALE}
   - TZ=${TZ}
 ```
 ## Rebuild Images

@@ -21,6 +21,7 @@ RUN if [ $(getent group $GROUP_ID | cut -d: -f1) ]; then groupdel $(getent group
 # Dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        locales-all \
         git \
         curl \
         zip \
@@ -39,6 +40,10 @@ RUN apt-get update \
     && docker-php-ext-configure zip --with-libzip \
     && docker-php-ext-install pdo pdo_mysql pdo_pgsql mysqli intl zip gd \
     && rm -rf /var/lib/apt/lists/*
+
+# Locale
+ARG LOCALE
+ENV LANG ${LOCALE}
 
 # Opcache
 RUN docker-php-ext-install opcache && { \
