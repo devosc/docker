@@ -226,15 +226,13 @@ else
     echo "Create a demo application."
     echo "Project directory: ${www_dir}"
     echo "Document Root: ${document_root}"
-
-    selection=
     echo "
 Options:
     cakephp           - CakePHP
     laravel           - Laravel
     mvc5              - Mvc5
     multisite-convert - Convert WordPress to a multisite network
-    phpinfo           - PHP Info
+    phpinfo           - PHP info
     symfony           - Symfony
     wordpress         - WordPress
 "
