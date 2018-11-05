@@ -15,8 +15,8 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DATABASE_ROOT_PASSWORD}
-      TZ: ${TZ}
-      PGTZ: ${TZ}
+      TZ: ${TIME_ZONE}
+      PGTZ: ${TIME_ZONE}
     image: postgres
     networks:
       - public

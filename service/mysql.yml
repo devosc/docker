@@ -14,7 +14,7 @@ services:
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
-      TZ: ${TZ}
+      TZ: ${TIME_ZONE}
     image: mysql
     networks:
       - public
