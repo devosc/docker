@@ -16,7 +16,7 @@ services:
         - USER_ID=${USER_ID}
         - GROUP_ID=${GROUP_ID}
         - LOCALE=${LOCALE}
-        - TZ=${TZ}
+        - TIME_ZONE=${TIME_ZONE}
       context: .
     container_name: docker-project
     labels:

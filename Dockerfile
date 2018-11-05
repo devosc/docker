@@ -3,13 +3,13 @@ ARG RELEASE_VERSION=apache
 FROM php:$RELEASE_VERSION
 
 # Time Zone
-ARG TZ=UTC
+ARG TIME_ZONE=UTC
 RUN rm /etc/localtime && \
-    ln -s /usr/share/zoneinfo/$TZ /etc/localtime
+    ln -s /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime
 
 # PHP settings
 RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini && \
-    echo "date.timezone=$TZ" | tee /usr/local/etc/php/conf.d/timezone.ini
+    echo "date.timezone=${TIME_ZONE}" | tee /usr/local/etc/php/conf.d/timezone.ini
 
 # App user
 ARG USER_ID=1000

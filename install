@@ -65,9 +65,9 @@ if [ ! -f .build.env ]; then
     {
         echo "export USER_ID=$(id -u)";
         echo "export GROUP_ID=$(id -g)";
-        echo "export TZ=$TZ";
-        echo "export LOCALE=$LANG"
-        echo -e "export DATABASE_ROOT_PASSWORD=$password"
+        echo "export TIME_ZONE=${TZ}";
+        echo "export LOCALE=${LANG}"
+        echo -e "export DATABASE_ROOT_PASSWORD=${password}"
     } > .build.env
 
     printf "\nCreated .build.env file.\n"
