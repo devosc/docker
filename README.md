@@ -29,7 +29,7 @@ Copy the sample `services` script file to manage the shared services, e.g. Traef
 ```
 cp services-sample services
 ```
-Copy the sample `.build.env` file and set the time zone and database root password.
+Copy the sample `.build.env` file, set the user id, group id, locale, time zone and database root password.
 ```
 cp .build-sample.env .build.env
 ```
