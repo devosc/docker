@@ -8,8 +8,8 @@ RUN rm /etc/localtime && \
     ln -s /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime
 
 # PHP settings
-RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini && \
-    echo "date.timezone=${TIME_ZONE}" | tee /usr/local/etc/php/conf.d/timezone.ini
+RUN cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini && \
+    echo "date.timezone=${TIME_ZONE}" | tee $PHP_INI_DIR/conf.d/timezone.ini
 
 # App user
 ARG USER_ID=1000
@@ -53,7 +53,7 @@ RUN docker-php-ext-install opcache && { \
     echo 'opcache.revalidate_freq=2'; \
     echo 'opcache.fast_shutdown=1'; \
     echo 'opcache.enable_cli=1'; \
-} > /usr/local/etc/php/conf.d/opcache.ini
+} > $PHP_INI_DIR/conf.d/opcache.ini
 
 # Xdebug
 ARG XDEBUG=false
@@ -75,7 +75,7 @@ RUN if [ $NODE_JS = "true" ]; then \
 ARG MAIL=true
 ARG MAIL_HOST="mailhog:1025"
 RUN if [ $MAIL = "true" ]; then \
-    echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee /usr/local/etc/php/conf.d/mail.ini \
+    echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee $PHP_INI_DIR/conf.d/mail.ini \
     && sed -i "s/mailhub=mail/mailhub=$MAIL_HOST/g" /etc/ssmtp/ssmtp.conf \
     && sed -i "s/#FromLineOverride=YES/FromLineOverride=YES/g" /etc/ssmtp/ssmtp.conf; fi
 
