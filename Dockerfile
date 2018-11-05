@@ -38,7 +38,7 @@ RUN apt-get update \
         openssh-client \
     && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
     && docker-php-ext-configure zip --with-libzip \
-    && docker-php-ext-install pdo pdo_mysql pdo_pgsql mysqli intl zip gd \
+    && docker-php-ext-install -j$(nproc) pdo pdo_mysql pdo_pgsql mysqli intl zip gd pcntl \
     && rm -rf /var/lib/apt/lists/*
 
 # Locale
