@@ -17,6 +17,9 @@ services:
         - GROUP_ID=${GROUP_ID}
         - LOCALE=${LOCALE}
         - TIME_ZONE=${TIME_ZONE}
+        #- BUILD_DEPS=${BUILD_DEPS}
+        #- PHP_EXT_CONFIGURE=${PHP_EXT_CONFIGURE}
+        #- PHP_EXT_INSTALL=${PHP_EXT_INSTALL}
       context: .
     container_name: docker-project
     labels:

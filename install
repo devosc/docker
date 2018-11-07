@@ -66,8 +66,11 @@ if [ ! -f .build.env ]; then
         echo "export USER_ID=$(id -u)";
         echo "export GROUP_ID=$(id -g)";
         echo "export TIME_ZONE=${TZ}";
-        echo "export LOCALE=${LANG}"
-        echo -e "export DATABASE_ROOT_PASSWORD=${password}"
+        echo "export LOCALE=${LANG}";
+        echo -e "export DATABASE_ROOT_PASSWORD=${password}";
+        echo "export BUILD_DEPS=\"\"";
+        echo "export PHP_EXT_CONFIGURE=\"\"";
+        echo "export PHP_EXT_INSTALL=\"\"";
     } > .build.env
 
     printf "\nCreated .build.env file.\n"

@@ -19,7 +19,10 @@ RUN if [ $(getent group $GROUP_ID | cut -d: -f1) ]; then groupdel $(getent group
     useradd -u $USER_ID -r -l -g app -m -s /sbin/nologin -c "App user" app
 
 # Dependencies
-RUN apt-get update \
+ARG BUILD_DEPS
+ARG PHP_EXT_CONFIGURE
+ARG PHP_EXT_INSTALL
+RUN set -ex && apt-get update \
     && apt-get install -y --no-install-recommends \
         locales-all \
         git \
@@ -36,9 +39,15 @@ RUN apt-get update \
         ssmtp \
         less \
         openssh-client \
+        ${BUILD_DEPS} \
     && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
     && docker-php-ext-configure zip --with-libzip \
-    && docker-php-ext-install -j$(nproc) pdo pdo_mysql pdo_pgsql mysqli intl zip gd pcntl \
+    && echo "$PHP_EXT_CONFIGURE" | while read ext ; do \
+            if [ -n "${ext}" ]; then \
+                docker-php-ext-configure ${ext}; \
+            fi \
+        done \
+    && docker-php-ext-install -j$(nproc) pdo pdo_mysql pdo_pgsql mysqli intl zip gd pcntl ${PHP_EXT_INSTALL} \
     && rm -rf /var/lib/apt/lists/*
 
 # Locale
