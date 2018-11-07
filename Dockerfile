@@ -42,7 +42,7 @@ RUN set -ex && apt-get update \
         ${BUILD_DEPS} \
     && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
     && docker-php-ext-configure zip --with-libzip \
-    && echo "$PHP_EXT_CONFIGURE" | while read ext ; do \
+    && echo "$PHP_EXT_CONFIGURE" | tr ";" "\n" | while read ext ; do \
             if [ -n "${ext}" ]; then \
                 docker-php-ext-configure ${ext}; \
             fi \
