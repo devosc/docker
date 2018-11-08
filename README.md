@@ -107,6 +107,14 @@ args:
   - LOCALE=${LOCALE}
   - TIME_ZONE=${TIME_ZONE}
 ```
+## PHP Build Variables
+The following variables are available to customize the PHP build for a container. They can be configured in the project compose file or in the `.build.env` file. A semicolon can be used to separate the arguments for multiple `docker-php-ext-configure` commands:
+```
+args:
+  - BUILD_DEPS=${BUILD_DEPS}
+  - PHP_EXT_CONFIGURE=${PHP_EXT_CONFIGURE}
+  - PHP_EXT_INSTALL=${PHP_EXT_INSTALL}
+```
 ## Rebuild Images
 After changing a `Dockerfile` or the `docker-compose.yml` file for a project, use `docker-up --build` to build the images before starting the containers. Use `docker-down --remove-images` to remove the local project images and add `-a` to stop the shared services.
 ## Shared Services
