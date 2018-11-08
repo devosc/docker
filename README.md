@@ -108,7 +108,7 @@ args:
   - TIME_ZONE=${TIME_ZONE}
 ```
 ## PHP Build Variables
-The following variables are available to customize the PHP build for a container. They can be configured in the project compose file or in the `.build.env` file. A semicolon can be used to separate the arguments for multiple `docker-php-ext-configure` commands:
+The following variables are available to customize the PHP build for a container. The variables can be configured in the project compose file or the `.build.env` file. A semicolon can be used to separate the arguments for multiple `docker-php-ext-configure` commands.
 ```
 args:
   - BUILD_DEPS=${BUILD_DEPS}
