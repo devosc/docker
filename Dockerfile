@@ -24,21 +24,21 @@ ARG PHP_EXT_CONFIGURE
 ARG PHP_EXT_INSTALL
 RUN set -ex && apt-get update \
     && apt-get install -y --no-install-recommends \
-        locales-all \
-        git \
-        curl \
-        zip \
-        unzip \
-        nano \
-        gnupg \
         libicu-dev \
-        libzip-dev \
         libjpeg-dev \
         libpng-dev \
         libpq-dev \
-        ssmtp \
+        libzip-dev \
+        curl \
+        git \
+        gnupg \
         less \
+        locales-all \
+        nano \
         openssh-client \
+        ssmtp \
+        unzip \
+        zip \
         ${BUILD_DEPS} \
     && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
     && docker-php-ext-configure zip --with-libzip \
@@ -47,7 +47,7 @@ RUN set -ex && apt-get update \
                 docker-php-ext-configure ${ext}; \
             fi \
         done \
-    && docker-php-ext-install -j$(nproc) pdo pdo_mysql pdo_pgsql mysqli intl zip gd pcntl ${PHP_EXT_INSTALL} \
+    && docker-php-ext-install -j$(nproc) bcmath gd intl mysqli pcntl pdo pdo_mysql pdo_pgsql zip ${PHP_EXT_INSTALL} \
     && rm -rf /var/lib/apt/lists/*
 
 # Locale
