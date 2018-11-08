@@ -1,5 +1,5 @@
-# PHP Docker (Development) Environment
-
+# PHP Docker Project
+The `PHP Docker Project` is a toolkit for developing PHP web applications using Docker. Each project contains a compose file that uses the same build context and provides its own container build arguments, e.g. which version of PHP to use and which development tools to install. In order to run multiple projects at the same time, [Traefik](https://traefik.io/) is used as a reverse proxy service. Other services, such as Adminer, MailHog and PostgreSQL can be started at the same time as a project container using the command `docker-up -a`. Other commands are available to provide a convenient way to work with a PHP project and Docker, e.g. `docker-app`, `docker-artisan` and `docker-xdebug`.
 ## Install
 Download or clone the Docker project into your home directory.
 ```
@@ -62,7 +62,6 @@ docker-up -a
 ```
 
 ## Project Commands
-Each project has its own `docker-compose.yml` file and should use the same build context, e.g. `~/docker`.
 - Start container: `docker-up`
 - Stop container: `docker-down`
 - Start container with services: `docker-up -a`   
