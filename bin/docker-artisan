@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
-docker-app php artisan "$@"
+if [ "$1" = "update-trusted-proxy" ]; then
+    docker-app sed -i "s/APP_TRUSTED_PROXY=.*/APP_TRUSTED_PROXY=$(docker-traefik ip-address)/" .env
+else
+    docker-app php artisan "$@"
+fi
