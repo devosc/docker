@@ -34,7 +34,7 @@ Copy the sample `.build.env` file, set the user id, group id, locale, time zone 
 cp .build-sample.env .build.env
 ```
 ## Add Docker Compose File To PHP Project
-Copy the `docker-compose.yml` file into the PHP project directory and set the build `context` path to the location of the `docker` directory.
+Copy the `docker-compose.yml` file into the PHP project directory and set the build `context` path to the location of the `~/docker` directory.
 ```
 build:
   context: ~/docker
@@ -87,7 +87,7 @@ args:
   - NODE_JS=true
   - RELEASE_VERSION=apache
 ```
-There are other build arguments available for Composer, WP-CLI, the web server document root, user and group. Trailing url slashes can be removed and the Apache log level can be set to debug.
+There are other build arguments available for Composer, WP-CLI, the document root, user and group. Trailing URL slashes can be removed and the Apache log level can be set to debug.
 ```
   - COMPOSER=true
   - WP_CLI=false
@@ -98,7 +98,7 @@ There are other build arguments available for Composer, WP-CLI, the web server d
   - WWW_GROUP=app
 ```
 ## Build Environment Variables
-To match the file permissions, locale and time zone between the container and the host, use the variables `USER_ID`, `GROUP_ID`, `LOCALE` and `TIME_ZONE`. The variables are automatically detected and stored in the file `.build.env` in the `docker` directory by the `install` script. These environment variables are sourced prior to building a container and running the project commands.
+Use the variables `USER_ID`, `GROUP_ID`, `LOCALE` and `TIME_ZONE` to match the file permissions, locale and time zone between the container and the host. The variables are automatically detected and stored in the file `.build.env` in the `~/docker` directory by the `install` script. These environment variables are sourced prior to building a container and running the project commands.
 ```
 args:
   - USER_ID=${USER_ID}
@@ -115,16 +115,16 @@ args:
   - PHP_EXT_INSTALL=${PHP_EXT_INSTALL}
 ```
 ## Rebuild Images
-After changing a `Dockerfile` or the `docker-compose.yml` file for a project, use `docker-up --build` to build the images before starting the containers. Use `docker-down --remove-images` to remove the local project images and add `-a` to stop the shared services.
+Use `docker-up --build` to build the images after changing a `Dockerfile` or the `docker-compose.yml` file. Use `docker-down --remove-images` to remove the project images.
 ## Shared Services
-Shared services, such as Traefik and MailHog, are automatically started using `docker-up -a`. The `-a` switch runs `docker-services up` which calls the `services` script that manages which services to start. To stop all services, it is easier to stop and remove all containers using `docker-down -a`, this is because there can be multiple services connected to a shared service. If there are no projects running, then it is possible to use `docker-services down`. An individual service can be targeted by specifying its name, e.g. `docker-services adminer up`, and the image for the service can be built before starting its container using the `--build` switch, e.g. `docker-services adminer up --build`. Similarly, the image for a service can be removed when stopping the service, e.g `docker-services adminer down --remove-images`. The i.p. address for a particular service can also be retrieved, e.g. `docker-services mariadb ip-address`.
+Shared services, such as Traefik and MailHog, are automatically started using `docker-up -a`. The `-a` switch runs `docker-services up` which calls the `services` script that manages the services to start. To stop all services, it is easier to stop and remove all containers using `docker-down -a`, this is because multiple services can be connected to a shared service. If there are no projects running, then it is possible to use `docker-services down`. An individual service can be targeted by specifying its name, e.g. `docker-services adminer up`, and the image for the service can be built before starting its container using the `--build` switch, e.g. `docker-services adminer up --build`. Similarly, the image for a service can be removed when stopping the service, e.g `docker-services adminer down --remove-images`. The i.p. address for a particular service can also be retrieved, e.g. `docker-services mariadb ip-address`.
 ## Local Services
 Other services can be added to the `local` directory and registered in the `services` script. A `local` service will be used instead of a core service, if it exists. A service can be defined in a Compose file matching the name of the service, e.g. `mysql.yml`. Alternatively, a service can be a directory matching the name of the service, containing a `docker-compose.yml` file.
 ## Trusted Proxy Server Configuration
-If necessary, use `docker-traefik ip-address` to get the i.p. address for trusted proxy server configurations.
+If necessary, use `docker-traefik ip-address` to return the i.p. address for trusted proxy server configurations.
 ## Demo Applications
-CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the `docker/www` directory.
+CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the `~/docker/www` directory.
 ```
 docker-create-project [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress]
 ```
-The url is `https://docker-project`.
+The URL is `https://docker-project`.
