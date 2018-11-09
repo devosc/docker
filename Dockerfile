@@ -4,11 +4,11 @@ FROM php:$RELEASE_VERSION
 
 # Time Zone
 ARG TIME_ZONE=UTC
-RUN rm /etc/localtime && \
+RUN set -ex && rm /etc/localtime && \
     ln -s /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime
 
 # PHP settings
-RUN cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini && \
+RUN set -ex && cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini && \
     echo "date.timezone=${TIME_ZONE}" | tee $PHP_INI_DIR/conf.d/timezone.ini
 
 # App user
