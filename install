@@ -56,6 +56,10 @@ if [ ! -f .build.env ]; then
         cd $dir
     fi
 
+    if [ -z "$LANG" ]; then
+        echo "Warning: the environment variable LANG is not set!";
+    fi
+
     read -sp 'Enter the database root user password: (secret) ' password
 
     if [ "$password" = "" ]; then
