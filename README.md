@@ -1,5 +1,5 @@
 # PHP Docker Project
-The `PHP Docker Project` is a toolkit for developing PHP web applications using Docker. Each project contains a compose file that uses the same build context and provides its own container build arguments, e.g. which version of PHP to use and which development tools to install. In order to run multiple projects at the same time, [Traefik](https://traefik.io/) is used as a reverse proxy service. Other services, such as Adminer, MailHog and PostgreSQL can be started at the same time as a project container using the command `docker-up -a`. Other commands are available to provide a convenient way to work with a PHP project and Docker, e.g. `docker-app`, `docker-artisan` and `docker-xdebug`.
+The `PHP Docker Project` is a toolkit for developing PHP web applications using Docker. Each project contains a Compose file that uses the same build context and provides its own container build arguments, e.g. the version of PHP to use and the development tools to install. In order to run multiple projects at the same time, [Traefik](https://traefik.io/) is used as a reverse proxy. Shared services, such as Adminer, MailHog and PostgreSQL, can be started at the same time as a project container using the command `docker-up -a`. Other commands are available to provide a convenient way to work with a PHP project and Docker, e.g. `docker-app`, `docker-artisan` and `docker-xdebug`.
 ## Install
 Download or clone the Docker project into your home directory.
 ```
@@ -34,7 +34,7 @@ Copy the sample `.build.env` file, set the user id, group id, locale, time zone 
 cp .build-sample.env .build.env
 ```
 ## Add Docker Compose File To PHP Project
-Copy the `docker-compose.yml` file into the PHP project directory and set the build `context` path to the location of the Docker directory.
+Copy the `docker-compose.yml` file into the PHP project directory and set the build `context` path to the location of the `docker` directory.
 ```
 build:
   context: ~/docker
@@ -45,7 +45,7 @@ container_name: docker-project
 labels:
   - traefik.frontend.rule=Host:docker-project
 ```
-Mount the project directory path to `/var/www`. The web server document root is `/var/www/public`.
+Mount the project directory path to `/var/www`. The document root is `/var/www/public`.
 ```
 volumes:
   - .:/var/www
@@ -98,7 +98,7 @@ There are other build arguments available for Composer, WP-CLI, the web server d
   - WWW_GROUP=app
 ```
 ## Build Environment Variables
-To match the file permissions, locale and time zone between the container and the host, use the variables `USER_ID`, `GROUP_ID`, `LOCALE` and `TIME_ZONE`. These variables are automatically detected and stored in the file `.build.env` in the docker directory by the `install` script. These environment variables are sourced prior to building a container and running the project commands.
+To match the file permissions, locale and time zone between the container and the host, use the variables `USER_ID`, `GROUP_ID`, `LOCALE` and `TIME_ZONE`. The variables are automatically detected and stored in the file `.build.env` in the `docker` directory by the `install` script. These environment variables are sourced prior to building a container and running the project commands.
 ```
 args:
   - USER_ID=${USER_ID}
@@ -107,7 +107,7 @@ args:
   - TIME_ZONE=${TIME_ZONE}
 ```
 ## PHP Build Variables
-The following variables are available to customize the PHP build for a container. The variables can be configured in the project compose file or the `.build.env` file. A semicolon can be used to separate the arguments for multiple `docker-php-ext-configure` commands.
+The following variables are available to customize the PHP build for a container. The variables can be configured in the project Compose file or the `.build.env` file. A semicolon can be used to separate the arguments for multiple `docker-php-ext-configure` commands.
 ```
 args:
   - BUILD_DEPS=${BUILD_DEPS}
@@ -119,11 +119,11 @@ After changing a `Dockerfile` or the `docker-compose.yml` file for a project, us
 ## Shared Services
 Shared services, such as Traefik and MailHog, are automatically started using `docker-up -a`. The `-a` switch runs `docker-services up` which calls the `services` script that manages which services to start. To stop all services, it is easier to stop and remove all containers using `docker-down -a`, this is because there can be multiple services connected to a shared service. If there are no projects running, then it is possible to use `docker-services down`. An individual service can be targeted by specifying its name, e.g. `docker-services adminer up`, and the image for the service can be built before starting its container using the `--build` switch, e.g. `docker-services adminer up --build`. Similarly, the image for a service can be removed when stopping the service, e.g `docker-services adminer down --remove-images`. The i.p. address for a particular service can also be retrieved, e.g. `docker-services mariadb ip-address`.
 ## Local Services
-Other services can be added to the local directory and registered in the `services` script. A `local` service will be used instead of a core service, if it exists. A service can be defined in a docker compose file matching the name of the service, e.g. `mysql.yml`. Alternatively, a service can be a directory matching the name of the service, containing a `docker-compose.yml` file.
+Other services can be added to the `local` directory and registered in the `services` script. A `local` service will be used instead of a core service, if it exists. A service can be defined in a Compose file matching the name of the service, e.g. `mysql.yml`. Alternatively, a service can be a directory matching the name of the service, containing a `docker-compose.yml` file.
 ## Trusted Proxy Server Configuration
 If necessary, use `docker-traefik ip-address` to get the i.p. address for trusted proxy server configurations.
 ## Demo Applications
-CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the docker `www` directory.
+CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the `docker/www` directory.
 ```
 docker-create-project [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress]
 ```
