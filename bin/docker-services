@@ -43,10 +43,16 @@ else
     else
         # build images before starting containers
         build=""
-        if [ "--build" = "$3" ]; then
-            build="$3";
+        if [ "--build" = "$3" ] || [ "--build" = "$4" ]; then
+            build="--build";
         fi
 
-        docker-compose --project-name $name --file $file up -d $build
+        # attach container
+        detach="-d"
+        if [ "--attach" = "$3" ] || [ "--attach" = "$4" ]; then
+            detach="";
+        fi
+
+        docker-compose --project-name $name --file $file up $detach $build
     fi
 fi
