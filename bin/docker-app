@@ -15,4 +15,4 @@ for ((i=0; i < "${#args[@]}"; ++i)); do
     esac
 done
 
-docker-compose --file "${directory}/docker-compose.yml" exec --user=app app "${args[@]:-bash}"
+docker-compose --file "${directory}/docker-compose.yml" exec --user ${USER_ID}:${GROUP_ID} app "${args[@]:-bash}"
