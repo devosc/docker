@@ -3,6 +3,7 @@
 source docker-build-env
 
 build=""
+detached="-d"
 directory="$(pwd)"
 start_services=false
 
@@ -18,6 +19,9 @@ while [ "$1" != "" ]; do
                                 ;;
         # build images before starting containers
         --build )               build="--build"
+                                ;;
+        # attached container
+        --attached )            detached=""
                                 ;;
         # directory containing docker-compose.yml file
         --project-directory )   directory="$2"
@@ -43,7 +47,7 @@ file="${directory}/docker-compose.yml"
 
 if [ -f $file ]; then
     echo "Starting project"
-    docker-compose --file $file up -d $build
+    docker-compose --file $file up $detached $build
 else
     echo "Project not found"
 fi
