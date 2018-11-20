@@ -3,30 +3,76 @@
 source docker-build-env
 
 directory="$(pwd)"
-enable=false
+enable=true
+session=""
 
-if [ -z "$1" ] || [ "$1" = "on" ]; then
-    enable=true
-elif [ "$1" != "off" ]; then
-    echo "Usage: docker-xdebug on|off [--project-directory path]"
-    exit 1
-fi
+usage()
+{
+    echo "Usage: docker-xdebug on|off [[--project-directory path][--session-start][--session-stop]]"
+}
 
-if [ "$2" = "--project-directory" ]; then
-    if [ -z "$3" ]; then
-        echo "Error: project directory cannot be empty."
-        exit 1
+while [ "$1" != "" ]; do
+    case $1 in
+        on )                    enable=true
+                                ;;
+        off )                   enable=false
+                                ;;
+        --project-directory )   directory="$2"
+                                shift
+                                ;;
+        --session-start )       session=true
+                                ;;
+        --session-stop )        session=false
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     usage
+                                exit 1
+                                ;;
+    esac
+
+    shift
+done
+
+if [ "$enable" = "true" ]; then
+    docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+    remote_msg=""
+    if [ "$session" = "true" ]; then
+        #https://stackoverflow.com/a/13322549
+        ip=($(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'))
+
+        session_settings="
+xdebug.remote_enable=1
+xdebug.remote_autostart=1
+xdebug.idekey=DEBUG
+xdebug.remote_host=${ip[-1]}
+"
+        docker-root --project-directory "$directory" bash -c "echo \"${session_settings}\" > /usr/local/etc/php/conf.d/xdebug-remote.ini"
+
+        remote_msg="Remote debugging session has been started:
+${session_settings}"
+
+    elif [ "$session" = "false" ]; then
+
+        docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-remote.ini
+
+        remote_msg="Remote debugging session has been stopped."
+
     fi
 
-    directory="$3"
-fi
+    docker-root --project-directory "$directory" apache2ctl -k graceful
 
-if $enable ; then
-    docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-    docker-root --project-directory "$directory" apache2ctl -k graceful
     echo "Xdebug has been turned on."
+    echo "${remote_msg}"
+
 else
+
     docker-root --project-directory "$directory" sed -i 's/^zend_extension=/;zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-remote.ini
     docker-root --project-directory "$directory" apache2ctl -k graceful
+
     echo "Xdebug has been turned off."
+
 fi
