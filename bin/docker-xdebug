@@ -51,14 +51,14 @@ xdebug.remote_host=${ip[@]: -1}
 "
         docker-root --project-directory "$directory" bash -c "echo \"${session_settings}\" > /usr/local/etc/php/conf.d/xdebug-remote.ini"
 
-        remote_msg="Remote debugging session has been started:
+        remote_msg="Remote debugging session has started:
 ${session_settings}"
 
     elif [ "$session" = "false" ]; then
 
         docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-remote.ini
 
-        remote_msg="Remote debugging session has been stopped."
+        remote_msg="Remote debugging session has stopped."
 
     fi
 
