@@ -8,7 +8,7 @@ session=""
 
 usage()
 {
-    echo "Usage: docker-xdebug on|off [[--project-directory path][--session-start][--session-stop]]"
+    echo "Usage: docker-xdebug on|off [[--project-directory path][--session-start|--session-stop]]"
 }
 
 while [ "$1" != "" ]; do
@@ -47,7 +47,7 @@ if [ "$enable" = "true" ]; then
 xdebug.remote_enable=1
 xdebug.remote_autostart=1
 xdebug.idekey=DEBUG
-xdebug.remote_host=${ip[-1]}
+xdebug.remote_host=${ip[@]: -1}
 "
         docker-root --project-directory "$directory" bash -c "echo \"${session_settings}\" > /usr/local/etc/php/conf.d/xdebug-remote.ini"
 
