@@ -5,11 +5,23 @@ source docker-build-env
 directory="$(pwd)"
 enable=true
 idekey="DEBUG"
+profiler=""
+profiler_output_dir="/tmp"
 session=""
 
 usage()
 {
-    echo "Usage: docker-xdebug on|off [[--project-directory path][--session-start|--session-stop][--idekey]]"
+    echo "Usage: docker-xdebug on|off [OPTIONS]
+Options:
+    --project-directory PATH            Alternative working directory, default is current directory.
+    --session-start                     Start remote debugging session.
+    --sessition-stop                    Stop remote debugging session.
+    --idekey SESSION_NAME               E.g. project-name, default is DEBUG.
+    --profiler-off                      Turn profiler on.
+    --profiler-on                       Turn profiler off.
+    --profiler-output-directory PATH    E.g. /var/www/tmp, default is /tmp.
+"
+
 }
 
 while [ "$1" != "" ]; do
@@ -19,6 +31,13 @@ while [ "$1" != "" ]; do
         off )                   enable=false
                                 ;;
         --idekey )              idekey="$2"
+                                shift
+                                ;;
+        --profiler-on )         profiler=true
+                                ;;
+        --profiler-off )        profiler=false
+                                ;;
+        --profiler-output-dir ) profiler_output_dir="$2"
                                 shift
                                 ;;
         --project-directory )   directory="$2"
@@ -42,6 +61,8 @@ done
 if [ "$enable" = "true" ]; then
     docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
+    profiler_msg=""
+    profiler_settings=""
     remote_msg=""
     session_settings=""
 
@@ -68,6 +89,24 @@ xdebug.remote_port=9000
 
     fi
 
+    if [ "$profiler" = "true" ]; then
+        profiler_settings="
+xdebug.profiler_enable=1
+xdebug.profiler_output_dir=${profiler_output_dir}
+"
+
+        docker-root --project-directory "$directory" bash -c "echo \"${profiler_settings}\" > /usr/local/etc/php/conf.d/xdebug-profiler.ini"
+
+        profiler_msg="Profiler started:"
+
+    elif [ "$profiler" = "false" ]; then
+
+        docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-profiler.ini
+
+        profiler_msg="Profiler stopped."
+
+    fi
+
     docker-root --project-directory "$directory" apache2ctl -k graceful
 
     echo "Xdebug has been turned on."
@@ -78,6 +117,14 @@ xdebug.remote_port=9000
 
     if [ -n "${session_settings}" ]; then
         echo "${session_settings}"
+    fi
+
+    if [ -n "${profiler_msg}" ]; then
+        echo "${profiler_msg}"
+    fi
+
+    if [ -n "${profiler_settings}" ]; then
+        echo "${profiler_settings}"
     fi
 
 else
