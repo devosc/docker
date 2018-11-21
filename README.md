@@ -77,7 +77,7 @@ docker-up -a
 - PHPUnit: `docker-phpunit`
 - Symfony: `docker-symfony [phpunit]`
 - WP-CLI: `docker-wp`
-- Xdebug: `docker-xdebug on|off`
+- Xdebug: `docker-xdebug [on|off]`
     - Start remote debugging session `--session-start`
     - Stop remote debugging session `--session-stop`
     - IDE key `--idekey NAME`
