@@ -47,22 +47,24 @@ RUN set -ex && apt-get update \
                 docker-php-ext-configure ${ext}; \
             fi \
         done \
-    && docker-php-ext-install -j$(nproc) bcmath gd intl mysqli pcntl pdo pdo_mysql pdo_pgsql opcache zip ${PHP_EXT_INSTALL} \
+    && docker-php-ext-install -j$(nproc) bcmath gd intl mysqli opcache pcntl pdo pdo_mysql pdo_pgsql zip ${PHP_EXT_INSTALL} \
     && rm -rf /var/lib/apt/lists/*
 
 # Locale
 ARG LOCALE
 ENV LANG ${LOCALE}
 
-# Opcache settings
-RUN set -ex && { \
+# Opcache default settings
+ARG OPCACHE_DEFAULTS=true
+RUN set -ex && if [ $OPCACHE_DEFAULTS = "true" ]; then \
+{ \
     echo 'opcache.memory_consumption=128'; \
     echo 'opcache.interned_strings_buffer=8'; \
     echo 'opcache.max_accelerated_files=4000'; \
     echo 'opcache.revalidate_freq=2'; \
     echo 'opcache.fast_shutdown=1'; \
     echo 'opcache.enable_cli=1'; \
-} > $PHP_INI_DIR/conf.d/opcache.ini
+} > $PHP_INI_DIR/conf.d/opcache.ini; fi
 
 # Xdebug
 ARG XDEBUG=false
