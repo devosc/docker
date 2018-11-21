@@ -83,7 +83,7 @@ docker-up -a
     - IDE key `--idekey NAME`
     - Profiler on `--profiler-on`
     - Profiler off `--profiler-off`
-    - Profiler output directory `--profiler-output-dir`
+    - Profiler output directory `--profiler-output-dir PATH`
 
 ## Build Args
 To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
