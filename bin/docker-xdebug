@@ -11,15 +11,15 @@ session=""
 
 usage()
 {
-    echo "Usage: docker-xdebug on|off [OPTIONS]
+    echo "Usage: docker-xdebug [on|off] [OPTIONS]
 Options:
     --project-directory PATH            Alternative working directory, default is current directory.
     --session-start                     Start remote debugging session.
     --sessition-stop                    Stop remote debugging session.
-    --idekey SESSION_NAME               E.g. project-name, default is DEBUG.
+    --idekey NAME                       E.g. project-name, default is DEBUG.
     --profiler-off                      Turn profiler on.
     --profiler-on                       Turn profiler off.
-    --profiler-output-directory PATH    E.g. /var/www/tmp, default is /tmp.
+    --profiler-output-dir PATH          E.g. /var/www/tmp, default is /tmp.
 "
 
 }
@@ -131,6 +131,7 @@ else
 
     docker-root --project-directory "$directory" sed -i 's/^zend_extension=/;zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-remote.ini
+    docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-profiler.ini
     docker-root --project-directory "$directory" apache2ctl -k graceful
 
     echo "Xdebug has been turned off."
