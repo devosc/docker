@@ -77,7 +77,13 @@ docker-up -a
 - PHPUnit: `docker-phpunit`
 - Symfony: `docker-symfony [phpunit]`
 - WP-CLI: `docker-wp`
-- Xdebug: `docker-xdebug [on|off] [--session-start|--session-stop][--idekey NAME][--profiler-on|--profiler-off][--profiler-output-dir]`
+- Xdebug: `docker-xdebug on|off`
+    - Start remote debugging session `--session-start`.
+    - Stop remote debugging session `--session-stop`.
+    - IDE key `--idekey NAME`.
+    - Profiler on `--profiler-on`.
+    - Profiler off `--profiler-off`.
+    - Profiler output directory `--profiler-output-dir`.
 
 ## Build Args
 To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
