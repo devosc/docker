@@ -4,11 +4,12 @@ source docker-build-env
 
 directory="$(pwd)"
 enable=true
+idekey="DEBUG"
 session=""
 
 usage()
 {
-    echo "Usage: docker-xdebug on|off [[--project-directory path][--session-start|--session-stop]]"
+    echo "Usage: docker-xdebug on|off [[--project-directory path][--session-start|--session-stop][--idekey]]"
 }
 
 while [ "$1" != "" ]; do
@@ -16,6 +17,9 @@ while [ "$1" != "" ]; do
         on )                    enable=true
                                 ;;
         off )                   enable=false
+                                ;;
+        --idekey )              idekey="$2"
+                                shift
                                 ;;
         --project-directory )   directory="$2"
                                 shift
@@ -39,6 +43,8 @@ if [ "$enable" = "true" ]; then
     docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
     remote_msg=""
+    session_settings=""
+
     if [ "$session" = "true" ]; then
         #https://stackoverflow.com/a/13322549
         ip=($(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'))
@@ -46,13 +52,13 @@ if [ "$enable" = "true" ]; then
         session_settings="
 xdebug.remote_enable=1
 xdebug.remote_autostart=1
-xdebug.idekey=DEBUG
+xdebug.idekey=${idekey}
 xdebug.remote_host=${ip[@]: -1}
+xdebug.remote_port=9000
 "
         docker-root --project-directory "$directory" bash -c "echo \"${session_settings}\" > /usr/local/etc/php/conf.d/xdebug-remote.ini"
 
-        remote_msg="Remote debugging session has started:
-${session_settings}"
+        remote_msg="Remote debugging session has started:"
 
     elif [ "$session" = "false" ]; then
 
@@ -65,7 +71,14 @@ ${session_settings}"
     docker-root --project-directory "$directory" apache2ctl -k graceful
 
     echo "Xdebug has been turned on."
-    echo "${remote_msg}"
+
+    if [ -n "${remote_msg}" ]; then
+        echo "${remote_msg}"
+    fi
+
+    if [ -n "${session_settings}" ]; then
+        echo "${session_settings}"
+    fi
 
 else
 
