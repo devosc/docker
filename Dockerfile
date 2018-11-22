@@ -109,5 +109,8 @@ ENV APACHE_LOG_LEVEL $APACHE_LOG_LEVEL
 ARG REDIRECT_TRAILING_SLASH=false
 ENV REDIRECT_TRAILING_SLASH=$REDIRECT_TRAILING_SLASH
 WORKDIR /var/www
-RUN a2enmod rewrite expires
-COPY vhost.conf /etc/apache2/sites-available/000-default.conf
+RUN set -ex && echo "ServerName localhost" > ${APACHE_CONFDIR}/conf-available/server-name.conf \
+    && a2enconf server-name \
+    && a2enmod rewrite expires
+
+COPY vhost.conf ${APACHE_CONFDIR}/sites-available/000-default.conf
