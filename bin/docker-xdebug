@@ -2,6 +2,7 @@
 
 source docker-build-env
 
+conf_dir='/usr/local/etc/php/conf.d'
 directory="$(pwd)"
 enable=true
 idekey="DEBUG"
@@ -57,7 +58,7 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$enable" = "true" ]; then
-    docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' ${conf_dir}/docker-php-ext-xdebug.ini
 
     if [ $? != 0 ]; then
         echo "An error occurred. Check the following:
@@ -81,13 +82,13 @@ xdebug.idekey=${idekey}
 xdebug.remote_host=${ip[@]: -1}
 xdebug.remote_port=9000
 "
-        docker-root --project-directory "$directory" bash -c "echo \"${session_settings}\" > /usr/local/etc/php/conf.d/xdebug-remote.ini"
+        docker-root --project-directory "$directory" bash -c "echo \"${session_settings}\" > ${conf_dir}/xdebug-remote.ini"
 
         remote_msg="Remote debugging session has started:"
 
     elif [ "$session" = "false" ]; then
 
-        docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-remote.ini
+        docker-root --project-directory "$directory" rm -f ${conf_dir}/xdebug-remote.ini
 
         remote_msg="Remote debugging session has stopped."
 
@@ -99,13 +100,13 @@ xdebug.profiler_enable=1
 xdebug.profiler_output_dir=${profiler_output_dir}
 "
 
-        docker-root --project-directory "$directory" bash -c "echo \"${profiler_settings}\" > /usr/local/etc/php/conf.d/xdebug-profiler.ini"
+        docker-root --project-directory "$directory" bash -c "echo \"${profiler_settings}\" > ${conf_dir}/xdebug-profiler.ini"
 
         profiler_msg="Profiler on:"
 
     elif [ "$profiler" = "false" ]; then
 
-        docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-profiler.ini
+        docker-root --project-directory "$directory" rm -f ${conf_dir}/xdebug-profiler.ini
 
         profiler_msg="Profiler off."
 
@@ -133,9 +134,9 @@ xdebug.profiler_output_dir=${profiler_output_dir}
 
 else
 
-    docker-root --project-directory "$directory" sed -i 's/^zend_extension=/;zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-    docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-remote.ini
-    docker-root --project-directory "$directory" rm -f /usr/local/etc/php/conf.d/xdebug-profiler.ini
+    docker-root --project-directory "$directory" sed -i 's/^zend_extension=/;zend_extension=/g' ${conf_dir}/docker-php-ext-xdebug.ini
+    docker-root --project-directory "$directory" rm -f ${conf_dir}/xdebug-remote.ini
+    docker-root --project-directory "$directory" rm -f ${conf_dir}/xdebug-profiler.ini
     docker-root --project-directory "$directory" apache2ctl -k graceful
 
     echo "Xdebug has been turned off."
