@@ -17,10 +17,9 @@ Options:
     --session-start                     Start remote debugging session.
     --session-stop                      Stop remote debugging session.
     --idekey NAME                       E.g. project-name, default is DEBUG.
-    --profiler-off                      Turn profiler on.
-    --profiler-on                       Turn profiler off.
-    --profiler-output-dir PATH          E.g. /var/www/tmp, default is /tmp.
-"
+    --profiler-on                       Turn profiler on.
+    --profiler-off                      Turn profiler off.
+    --profiler-output-dir PATH          E.g. /var/www/tmp, default is /tmp."
 }
 
 while [ "$1" != "" ]; do
@@ -59,6 +58,12 @@ done
 
 if [ "$enable" = "true" ]; then
     docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+    if [ $? != 0 ]; then
+        echo "An error occurred. Check the following:
+    - Project container must be running."
+        exit 1
+    fi
 
     profiler_msg=""
     profiler_settings=""
