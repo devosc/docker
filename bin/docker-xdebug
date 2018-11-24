@@ -8,6 +8,7 @@ enable=true
 idekey="DEBUG"
 profiler=""
 profiler_output_dir="/tmp"
+remote_port="9000"
 session=""
 
 usage()
@@ -18,6 +19,7 @@ Options:
     --session-start                     Start remote debugging session.
     --session-stop                      Stop remote debugging session.
     --idekey NAME                       E.g. project-name, default is DEBUG.
+    --remote-port PORT                  Default is 9000.
     --profiler-on                       Turn profiler on.
     --profiler-off                      Turn profiler off.
     --profiler-output-dir PATH          E.g. /var/www/tmp, default is /tmp."
@@ -40,6 +42,9 @@ while [ "$1" != "" ]; do
                                 shift
                                 ;;
         --project-directory )   directory="$2"
+                                shift
+                                ;;
+        --remote-port )         remote_port="$2"
                                 shift
                                 ;;
         --session-start )       session=true
@@ -80,7 +85,7 @@ xdebug.remote_enable=1
 xdebug.remote_autostart=1
 xdebug.idekey=${idekey}
 xdebug.remote_host=${ip[@]: -1}
-xdebug.remote_port=9000
+xdebug.remote_port=${remote_port}
 "
         docker-root --project-directory "$directory" bash -c "echo \"${session_settings}\" > ${conf_dir}/xdebug-remote.ini"
 

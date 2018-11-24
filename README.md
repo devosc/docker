@@ -81,6 +81,7 @@ docker-up -a
     - Start remote debugging session `--session-start`
     - Stop remote debugging session `--session-stop`
     - IDE key `--idekey NAME`
+    - Remote port `--remote-port PORT`
     - Profiler on `--profiler-on`
     - Profiler off `--profiler-off`
     - Profiler output directory `--profiler-output-dir PATH`
