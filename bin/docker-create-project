@@ -208,6 +208,22 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     project_url
 }
 
+build=""
+if [ "$1" = "--build" ]; then
+    build="--build"
+    shift
+elif [ "$2" = "--build" ]; then
+    build="--build"
+fi
+
+if [ -n "$build" ] || [ -z "$(docker-compose top)" ]; then
+    docker-up $build -a
+    if [ $? != 0 ]; then
+        echo "An error occurred."
+        exit 1
+    fi
+fi
+
 if [ "cakephp" = "$1" ]; then
     cakephp
 elif [ "laravel" = "$1" ]; then
