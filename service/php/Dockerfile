@@ -1,6 +1,6 @@
-ARG RELEASE_VERSION=cli
+ARG CLI_RELEASE_VERSION=cli
 
-FROM php:$RELEASE_VERSION
+FROM php:$CLI_RELEASE_VERSION
 
 # Time Zone
 ARG TIME_ZONE=UTC
@@ -65,10 +65,6 @@ RUN set -ex && if [ $OPCACHE_DEFAULTS = "true" ]; then \
     echo 'opcache.fast_shutdown=1'; \
     echo 'opcache.enable_cli=1'; \
 } > $PHP_INI_DIR/conf.d/opcache.ini; fi
-
-# Xdebug
-ARG XDEBUG=false
-RUN if [ $XDEBUG = "true" ]; then pecl install xdebug && docker-php-ext-enable xdebug; fi
 
 # Mail
 ARG MAIL=true
