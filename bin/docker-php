@@ -17,6 +17,7 @@ Commands:
     php-config
     phpdbg
     phpize
+    phar
 Options:
     --build                     Build image from Dockerfile.
     --project-directory PATH    Alternative working directory, default is current directory."
@@ -50,7 +51,6 @@ fi
 
 image="${name}:${tag}"
 volume="${directory}:${working_dir}"
-
 
 if [ -n "$build" ] || [ "$(docker images -q ${image} 2> /dev/null)" == "" ]; then
     php_docker_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
