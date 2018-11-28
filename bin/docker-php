@@ -23,9 +23,14 @@ Options:
     exit
 fi
 
-if [ "$1" = "php" ] || [ "$1" = "php-config" ] || [ "$1" = "phpdbg" ] || [ "$1" = "phpize" ]; then
-    cmd="$1"
-    shift
+if [ "$1" = "" ] && [ -z "$2" ]; then
+    cmd=""
+else
+    case "$1" in
+        php|php-config|phpdbg|phpize|phar )    cmd="$1"
+                                               shift
+                                               ;;
+    esac
 fi
 
 if [ "$1" = "--build" ]; then
