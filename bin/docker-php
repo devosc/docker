@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+source docker-build-env
+
+directory="$(pwd)"
+
+if [ "$1" = "--project-directory" ]; then
+    directory="$2"
+    shift
+    shift
+fi
+
+volume="${directory}:/app"
+php_docker_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
+build_env_file="${php_docker_dir}/.build.env"
+dockerfile="${php_docker_dir}/service/php/Dockerfile"
+name="php-docker-project-cli"
+image="$name:latest"
+user="${USER_ID}:${GROUP_ID}"
+
+build=""
+if [ "$1" = "--build" ]; then
+    build="--build"
+fi
+
+if [ -n "$build" ] || [ "$(docker images -q ${image} 2> /dev/null)" == "" ]; then
+    build_arg=""
+
+    while read line ; do
+        build_arg="${build_arg} --build-arg ${line/export /}"
+    done < "${build_env_file}"
+
+    docker build --no-cache ${build_arg} -t "${image}" -f "${dockerfile}" "${php_docker_dir}"
+fi
+
+if [ "$1" = "php" ] || [ "$1" = "php-config" ] || [ "$1" = "phpdbg" ] || [ "$1" = "phpize" ]; then
+    cmd="$1"
+    shift
+else
+    cmd='php'
+fi
+
+docker run -it --rm --name "${name}" -v "${volume}" -w /app --user "${user}" "${image}" $cmd "$@"
