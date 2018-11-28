@@ -2,30 +2,57 @@
 
 source docker-build-env
 
+build=""
+cmd="php"
 directory="$(pwd)"
+name="php-docker-project-cli"
+working_dir="/app"
+tag="latest"
+user="${USER_ID}:${GROUP_ID}"
+
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    echo "Usage: docker-php [cmd] [options] [args...]
+Commands:
+    php
+    php-config
+    phpdbg
+    phpize
+Options:
+    --build                     Build image from Dockerfile.
+    --project-directory PATH    Alternative working directory, default is current directory."
+    exit
+fi
+
+if [ "$1" = "php" ] || [ "$1" = "php-config" ] || [ "$1" = "phpdbg" ] || [ "$1" = "phpize" ]; then
+    cmd="$1"
+    shift
+fi
+
+if [ "$1" = "--build" ]; then
+    build="--build"
+    shift
+fi
 
 if [ "$1" = "--project-directory" ]; then
     directory="$2"
-    shift
-    shift
+    shift 2
+
+    if [ "$1" = "--build" ]; then
+        build="--build"
+        shift
+    fi
 fi
 
-volume="${directory}:/app"
-php_docker_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
-build_env_file="${php_docker_dir}/.build.env"
-dockerfile="${php_docker_dir}/service/php/Dockerfile"
-name="php-docker-project-cli"
-image="$name:latest"
-user="${USER_ID}:${GROUP_ID}"
+image="${name}:${tag}"
+volume="${directory}:${working_dir}"
 
-build=""
-if [ "$1" = "--build" ]; then
-    build="--build"
-fi
 
 if [ -n "$build" ] || [ "$(docker images -q ${image} 2> /dev/null)" == "" ]; then
-    build_arg=""
+    php_docker_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
+    build_env_file="${php_docker_dir}/.build.env"
+    dockerfile="${php_docker_dir}/service/php/Dockerfile"
 
+    build_arg=""
     while read line ; do
         build_arg="${build_arg} --build-arg ${line/export /}"
     done < "${build_env_file}"
@@ -33,11 +60,4 @@ if [ -n "$build" ] || [ "$(docker images -q ${image} 2> /dev/null)" == "" ]; the
     docker build --no-cache ${build_arg} -t "${image}" -f "${dockerfile}" "${php_docker_dir}"
 fi
 
-if [ "$1" = "php" ] || [ "$1" = "php-config" ] || [ "$1" = "phpdbg" ] || [ "$1" = "phpize" ]; then
-    cmd="$1"
-    shift
-else
-    cmd='php'
-fi
-
-docker run -it --rm --name "${name}" -v "${volume}" -w /app --user "${user}" "${image}" $cmd "$@"
+docker run -it --rm --name "${name}" -v "${volume}" -w "${working_dir}" --user "${user}" "${image}" $cmd "$@"
