@@ -52,6 +52,10 @@ if [ -n "$build" ] || [ "$(docker images -q ${image} 2> /dev/null)" == "" ]; the
     build_env_file="${php_docker_dir}/.build.env"
     dockerfile="${php_docker_dir}/service/php/Dockerfile"
 
+    if [ -f "${php_docker_dir}/.build-cli.env" ]; then
+        build_env_file="${php_docker_dir}/.build-cli.env"
+    fi
+
     build_arg=""
     while read line ; do
         build_arg="${build_arg} --build-arg ${line/export /}"
