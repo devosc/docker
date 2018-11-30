@@ -75,6 +75,7 @@ if [ ! -f .build.env ]; then
         echo "export BUILD_DEPS=\"\"";
         echo "export PHP_EXT_CONFIGURE=\"\"";
         echo "export PHP_EXT_INSTALL=\"\"";
+        echo "";
     } > .build.env
 
     printf "\nCreated .build.env file.\n"
