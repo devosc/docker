@@ -66,6 +66,11 @@ RUN set -ex && if [ $OPCACHE_DEFAULTS = "true" ]; then \
     echo 'opcache.enable_cli=1'; \
 } > $PHP_INI_DIR/conf.d/opcache.ini; fi
 
+# Composer
+ARG COMPOSER=true
+RUN if [ $COMPOSER = "true" ]; then \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer; fi
+
 # Mail
 ARG MAIL=true
 ARG MAIL_HOST="mailhog:1025"
