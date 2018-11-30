@@ -7,13 +7,14 @@ build=""
 cmd="php"
 directory="$(pwd)"
 name="php-docker-project-cli"
+no_cache=""
 ssh_dir=""
 tag="latest"
 user="${USER_ID}:${GROUP_ID}"
 working_dir="/app"
 
 if [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]]; then
-    echo "Usage: docker-php [cmd] [options] [args...]
+    echo "Usage: docker-php [options] [cmd] [args...]
 Commands:
     composer
     git
@@ -24,6 +25,7 @@ Commands:
     phar
 Options:
     --build                     Build image from Dockerfile.
+    --no-cache                  Do not use cache when building the image.
     --project-directory PATH    Alternative working directory, default is current directory.
     --ssh-keys                  Mount user ssh directory."
     exit
@@ -38,7 +40,10 @@ for ((i=0; i < "$#"; ++i)); do
                                 unset "args[i]" "args[i+1]"
                                 i=$(expr $i + 1)
                                 ;;
-        --ssh-keys )            ssh_dir="-v $( cd "$(dirname ~/.ssh)" ; pwd -P ):/home/app/.ssh"
+        --no-cache )            no_cache="--no-cache"
+                                unset "args[i]"
+                                ;;
+        --ssh-keys )            ssh_dir="-v ${HOME}/.ssh:/home/app/.ssh"
                                 unset "args[i]"
                                 ;;
     esac
@@ -46,11 +51,15 @@ done
 
 args=("${args[@]}")
 
-case "${args[0]}" in
-    composer|git|php|php-config|phpdbg|phpize|phar|git )    cmd="${args[0]}"
+if [[ -z "${args[0]}" ]]; then
+    args=("-a")
+else
+    case "${args[0]}" in
+        composer|git|php|php-config|phpdbg|phpize|phar )    cmd="${args[0]}"
                                                             unset "args[0]"
                                                             ;;
-esac
+    esac
+fi
 
 image="${name}:${tag}"
 volume="${directory}:${working_dir}"
@@ -78,9 +87,10 @@ if [[ -n "$build" ]] || [[ "$(docker images -q ${image} 2> /dev/null)" == "" ]];
     fi
 
     echo "Building image
-    Dockerfile: ${dockerfile}."
+    Args: ${build_env_file}
+    Dockerfile: ${dockerfile}"
 
-    docker build --no-cache ${build_arg} -t "${image}" -f "${dockerfile}" "${php_docker_dir}"
+    docker build ${no_cache} ${build_arg} -t "${image}" -f "${dockerfile}" "${php_docker_dir}"
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
