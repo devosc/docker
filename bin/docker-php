@@ -67,11 +67,6 @@ if [[ -n "$build" ]] || [[ "$(docker images -q ${image} 2> /dev/null)" == "" ]];
     php_docker_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
     dockerfile="${php_docker_dir}/lib/php/Dockerfile"
 
-    if [[ ! -f "${dockerfile}" ]]; then
-        echo "Dockerfile does not exist: ${dockerfile}"
-        exit 1
-    fi
-
     if [[ -f "${php_docker_dir}/.build-cli.env" ]]; then
         build_env_file="${php_docker_dir}/.build-cli.env"
     else
