@@ -66,6 +66,10 @@ RUN set -ex && if [ $OPCACHE_DEFAULTS = "true" ]; then \
     echo 'opcache.enable_cli=1'; \
 } > $PHP_INI_DIR/conf.d/opcache.ini; fi
 
+# Xdebug
+ARG XDEBUG=false
+RUN if [ $XDEBUG = "true" ]; then pecl install xdebug && docker-php-ext-enable xdebug; fi
+
 # Composer
 ARG COMPOSER=true
 RUN if [ $COMPOSER = "true" ]; then \
