@@ -11,18 +11,18 @@ no_cache=""
 ssh_dir=""
 tag="latest"
 user="${USER_ID}:${GROUP_ID}"
-working_dir="/app"
+work_dir="/app"
 
 if [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]]; then
     echo "Usage: docker-php [options] [cmd] [args...]
 Commands:
     composer
     git
+    phar
     php
-    php-config
     phpdbg
     phpize
-    phar
+    php-config
 Options:
     --build                     Build image from Dockerfile.
     --no-cache                  Do not use cache when building the image.
@@ -55,18 +55,22 @@ if [[ -z "${args[0]}" ]]; then
     args=("-a")
 else
     case "${args[0]}" in
-        composer|git|php|php-config|phpdbg|phpize|phar )    cmd="${args[0]}"
+        composer|git|phar|php|phpdbg|phpize|php-config )    cmd="${args[0]}"
                                                             unset "args[0]"
                                                             ;;
     esac
 fi
 
 image="${name}:${tag}"
-volume="${directory}:${working_dir}"
 
 if [[ -n "$build" ]] || [[ "$(docker images -q ${image} 2> /dev/null)" == "" ]]; then
     php_docker_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
     dockerfile="${php_docker_dir}/lib/php/Dockerfile"
+
+    if [[ ! -f "${dockerfile}" ]]; then
+        echo "Dockerfile does not exist: ${dockerfile}"
+        exit 1
+    fi
 
     if [[ -f "${php_docker_dir}/.build-cli.env" ]]; then
         build_env_file="${php_docker_dir}/.build-cli.env"
@@ -81,11 +85,6 @@ if [[ -n "$build" ]] || [[ "$(docker images -q ${image} 2> /dev/null)" == "" ]];
         fi
     done < "${build_env_file}"
 
-    if [[ ! -f "${dockerfile}" ]]; then
-        echo "Dockerfile does not exist: ${dockerfile}"
-        exit 1
-    fi
-
     echo "Building image
     Args: ${build_env_file}
     Dockerfile: ${dockerfile}"
@@ -98,4 +97,6 @@ if [[ -n "$build" ]] || [[ "$(docker images -q ${image} 2> /dev/null)" == "" ]];
     fi
 fi
 
-docker run -it --rm --name "${name}" -v "${volume}" ${ssh_dir} -w "${working_dir}" --user "${user}" "${image}" ${cmd} "${args[@]}"
+volume="${directory}:${work_dir}"
+
+docker run -it --rm --name "${name}" -v "${volume}" ${ssh_dir} -w "${work_dir}" -u "${user}" "${image}" ${cmd} "${args[@]}"
