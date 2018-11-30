@@ -2,17 +2,21 @@
 
 source docker-build-env
 
+args=("$@")
 build=""
 cmd="php"
 directory="$(pwd)"
 name="php-docker-project-cli"
-working_dir="/app"
+ssh_dir=""
 tag="latest"
 user="${USER_ID}:${GROUP_ID}"
+working_dir="/app"
 
-if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+if [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]]; then
     echo "Usage: docker-php [cmd] [options] [args...]
 Commands:
+    composer
+    git
     php
     php-config
     phpdbg
@@ -20,53 +24,68 @@ Commands:
     phar
 Options:
     --build                     Build image from Dockerfile.
-    --project-directory PATH    Alternative working directory, default is current directory."
+    --project-directory PATH    Alternative working directory, default is current directory.
+    --ssh-keys                  Mount user ssh directory."
     exit
 fi
 
-if [ "$1" = "" ] && [ -z "$2" ]; then
-    cmd=""
-else
-    case "$1" in
-        php|php-config|phpdbg|phpize|phar )    cmd="$1"
-                                               shift
-                                               ;;
+for ((i=0; i < "$#"; ++i)); do
+    case "${args[i]}" in
+        --build )               build="--build"
+                                unset "args[i]"
+                                ;;
+        --project-directory )   directory="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr $i + 1)
+                                ;;
+        --ssh-keys )            ssh_dir="-v $( cd "$(dirname ~/.ssh)" ; pwd -P ):/home/app/.ssh"
+                                unset "args[i]"
+                                ;;
     esac
-fi
+done
 
-if [ "$1" = "--build" ]; then
-    build="--build"
-    shift
-fi
+args=("${args[@]}")
 
-if [ "$1" = "--project-directory" ]; then
-    directory="$2"
-    shift 2
-
-    if [ "$1" = "--build" ]; then
-        build="--build"
-        shift
-    fi
-fi
+case "${args[0]}" in
+    composer|git|php|php-config|phpdbg|phpize|phar|git )    cmd="${args[0]}"
+                                                            unset "args[0]"
+                                                            ;;
+esac
 
 image="${name}:${tag}"
 volume="${directory}:${working_dir}"
 
-if [ -n "$build" ] || [ "$(docker images -q ${image} 2> /dev/null)" == "" ]; then
+if [[ -n "$build" ]] || [[ "$(docker images -q ${image} 2> /dev/null)" == "" ]]; then
     php_docker_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
-    build_env_file="${php_docker_dir}/.build.env"
-    dockerfile="${php_docker_dir}/service/php/Dockerfile"
+    dockerfile="${php_docker_dir}/lib/php/Dockerfile"
 
-    if [ -f "${php_docker_dir}/.build-cli.env" ]; then
+    if [[ -f "${php_docker_dir}/.build-cli.env" ]]; then
         build_env_file="${php_docker_dir}/.build-cli.env"
+    else
+        build_env_file="${php_docker_dir}/.build.env"
     fi
 
     build_arg=""
     while read line ; do
-        build_arg="${build_arg} --build-arg ${line/export /}"
+        if [[ -n "${line}" ]] && [[ ! "$line" =~ "#" ]]; then
+            build_arg="${build_arg} --build-arg ${line/export /}"
+        fi
     done < "${build_env_file}"
 
+    if [[ ! -f "${dockerfile}" ]]; then
+        echo "Dockerfile does not exist: ${dockerfile}"
+        exit 1
+    fi
+
+    echo "Building image
+    Dockerfile: ${dockerfile}."
+
     docker build --no-cache ${build_arg} -t "${image}" -f "${dockerfile}" "${php_docker_dir}"
+
+    if [[ $? != 0 ]]; then
+        echo "An error occurred."
+        exit 1
+    fi
 fi
 
-docker run -it --rm --name "${name}" -v "${volume}" -w "${working_dir}" --user "${user}" "${image}" $cmd "$@"
+docker run -it --rm --name "${name}" -v "${volume}" ${ssh_dir} -w "${working_dir}" --user "${user}" "${image}" ${cmd} "${args[@]}"
