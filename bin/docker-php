@@ -14,12 +14,17 @@ user="${USER_ID}:${GROUP_ID}"
 work_dir="/app"
 
 if [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]]; then
-    echo "Usage: docker-php [options] [cmd] [args...]
+    echo "A command line interface for PHP, Composer and Git.
+
+Usage: docker-php [options] [cmd] [args...]
+
+Runs an interactive shell when no arguments exist.
+
 Commands:
     composer
     git
     phar
-    php
+  * php
     phpdbg
     phpize
     php-config
