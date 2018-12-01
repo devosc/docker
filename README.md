@@ -86,6 +86,9 @@ docker-up -a
     - Profiler off `--profiler-off`
     - Profiler output directory `--profiler-output-dir PATH`
 
+## PHP Command
+The `docker-php` command provides a command line interface for PHP, Composer and Git. PHP is the default command and it runs an interactive shell when no arguments exist. Use `docker-php PATH` to execute a file relative to the project directory and use `--ssh-keys` to mount your `.ssh` directory when using Composer and Git. Use the `CLI_RELEASE_VERSION` build argument to change the PHP Docker image version. To install Xdebug, set `XDEBUG=true` in the `.build.env` file, or create a separate `.build-cli.env`.
+
 ## Build Args
 To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
 ```
