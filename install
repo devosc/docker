@@ -2,15 +2,15 @@
 
 cd "$(dirname "$0")"
 
-if [ ! -f traefik/traefik.toml ]; then
+if [[ ! -f traefik/traefik.toml ]]; then
     cp traefik/traefik-sample.toml traefik/traefik.toml
 
     echo "Created traefik.toml file."
 
     cert_filename="traefik"
 
-    if [ "$1" = "--cert-filename" ]; then
-        if [ -n "$2" ]; then
+    if [[ "$1" = "--cert-filename" ]]; then
+        if [[ -n "$2" ]]; then
             cert_filename="$2"
         else
             echo "Error: SSL certificate file name is required."
@@ -18,12 +18,12 @@ if [ ! -f traefik/traefik.toml ]; then
         fi
     fi
 
-    if [ -f "traefik/cert/${cert_filename}.key" ]; then
+    if [[ -f "traefik/cert/${cert_filename}.key" ]]; then
         echo "SSL certificate already exists."
     else
         traefik/create-cert --cert-filename "${cert_filename}"
 
-        if [ "${cert_filename}" != "traefik" ]; then
+        if [[ "${cert_filename}" != "traefik" ]]; then
             sed -i.bak "s/traefik.crt/${cert_filename}.crt/g" "traefik/traefik.toml"
             sed -i.bak "s/traefik.key/${cert_filename}.key/g" "traefik/traefik.toml"
             rm "traefik/traefik.toml.bak"
@@ -35,15 +35,15 @@ else
     echo "Traefik configuration file already exists."
 fi
 
-if [ ! -f services ]; then
+if [[ ! -f services ]]; then
     cp services-sample services
     echo "Created services file."
 else
     echo "Services file already exists."
 fi
 
-if [ ! -f .build.env ]; then
-    if [ -z "$TZ" ]; then
+if [[ ! -f .build.env ]]; then
+    if [[ -z "$TZ" ]]; then
         echo "Finding time zone."
         dir=$(pwd)
         cd /usr/share/zoneinfo
@@ -56,13 +56,13 @@ if [ ! -f .build.env ]; then
         cd $dir
     fi
 
-    if [ -z "$LANG" ]; then
+    if [[ -z "$LANG" ]]; then
         echo "Warning: the environment variable LANG is not set!";
     fi
 
     read -sp 'Enter the database root user password: (secret) ' password
 
-    if [ "$password" = "" ]; then
+    if [[ "$password" = "" ]]; then
         password="secret"
     fi
 
@@ -72,10 +72,10 @@ if [ ! -f .build.env ]; then
         echo "export TIME_ZONE=${TZ}";
         echo "export LOCALE=${LANG}";
         echo -e "export DATABASE_ROOT_PASSWORD=${password}";
-        echo "export BUILD_DEPS=\"\"";
-        echo "export PHP_EXT_CONFIGURE=\"\"";
-        echo "export PHP_EXT_INSTALL=\"\"";
-        echo "";
+        echo "export BUILD_DEPS=";
+        echo "export PHP_EXT_CONFIGURE=";
+        echo "export PHP_EXT_INSTALL=";
+        echo "export XDEBUG=false";
     } > .build.env
 
     printf "\nCreated .build.env file.\n"
