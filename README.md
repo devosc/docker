@@ -87,7 +87,7 @@ docker-up -a
     - Profiler output directory `--profiler-output-dir PATH`
 
 ## PHP Command
-The `docker-php` command provides a command line interface for PHP, Composer and Git. PHP is the default command and it runs an interactive shell when no arguments exist. Use `docker-php PATH` to execute a file relative to the project directory and use `--ssh-keys` to mount your `.ssh` directory when using Composer and Git. Use the `CLI_RELEASE_VERSION` build argument to change the PHP Docker image version. To install Xdebug, set `XDEBUG=true` in the `.build.env` file, or create a separate `.build-cli.env`.
+The `docker-php` command provides a command line interface for PHP, Composer and Git. PHP is the default command and it runs an interactive shell when no arguments exist. Use `docker-php PATH` to execute a file relative to the project directory and use `--ssh-keys` to mount your `.ssh` directory when using Composer and Git. Use the `CLI_RELEASE_VERSION` build argument to change the PHP Docker image version. To install Xdebug, set `XDEBUG=true` in the `.build.env` file, or create a separate `.build-cli.env` file.
 
 ## Build Args
 To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
@@ -135,6 +135,6 @@ If necessary, use `docker-traefik ip-address` to return the i.p. address for tru
 ## Demo Applications
 CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the `~/docker/www` directory.
 ```
-docker-create-project [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress]
+docker-create-demo [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress]
 ```
 The URL is `https://docker-project`.

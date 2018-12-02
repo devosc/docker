@@ -8,24 +8,24 @@ project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
 
 www_dir="$project_dir/www"
 
-if [ ! -d "$www_dir" ]; then
+if [[ ! -d "$www_dir" ]]; then
     echo "Error: www directory does not exist."
     exit 1
 fi
 
-cd $project_dir
+cd ${project_dir}
 
-[ -d $www_dir/html ] && document_root="$www_dir/html" || document_root="$www_dir/public"
+[[ -d ${www_dir}/html ]] && document_root="$www_dir/html" || document_root="$www_dir/public"
 
 function cakephp()
 {
     echo "Working directory: ${document_root}"
 
     reset_project_dir
-    mkdir -p $document_root
+    mkdir -p ${document_root}
     docker-composer create-project --prefer-dist cakephp/app .
 
-    if [ $? = 0 ]; then
+    if [[ $? = 0 ]]; then
         project_url
     else
         echo "
@@ -37,7 +37,7 @@ An error occurred. Check the following:
 
 function favicon()
 {
-    if [ ! -f "$document_root/favicon.ico" ]; then
+    if [[ ! -f "$document_root/favicon.ico" ]]; then
         cp favicon.ico "$document_root/favicon.ico"
         echo "Created favicon.ico file."
     fi
@@ -47,7 +47,7 @@ function laravel()
 {
     reset_project_dir
     docker-composer create-project --prefer-dist laravel/laravel .
-    if [ $? = 0 ]; then
+    if [[ $? = 0 ]]; then
         project_url
     else
         echo "
@@ -61,7 +61,7 @@ function multisite()
 {
     docker-wp core multisite-convert --subdomains
 
-    if [ $? = 0 ]; then
+    if [[ $? = 0 ]]; then
         cookie_domain="\\
 \\
 define('COOKIE_DOMAIN', false);"
@@ -116,7 +116,7 @@ function mvc5()
     reset_project_dir
     docker-composer create-project mvc5/mvc5-application .
 
-    if [ $? = 0 ]; then
+    if [[ $? = 0 ]]; then
         project_url
     else
         echo "
@@ -129,9 +129,9 @@ An error occurred. Check the following:
 function phpinfo()
 {
     reset_project_dir
-    mkdir -p $document_root
+    mkdir -p ${document_root}
 
-    cat <<EOT >> $document_root/index.php
+    cat <<EOT >> ${document_root}/index.php
 <?php
 
 phpinfo();
@@ -148,13 +148,13 @@ function project_url()
 
 function reset_project_dir()
 {
-    cd $www_dir
+    cd ${www_dir}
 
     find . -type f -delete
     find . -type l -delete
     find . -type d -name '*' -delete
 
-    cd $project_dir
+    cd ${project_dir}
 }
 
 function symfony()
@@ -162,7 +162,7 @@ function symfony()
     reset_project_dir
     docker-composer create-project --prefer-dist symfony/website-skeleton .
 
-    if [ $? = 0 ]; then
+    if [[ $? = 0 ]]; then
         favicon
         project_url
     else
@@ -180,9 +180,9 @@ function wordpress()
     reset_project_dir
 
     curl -O https://wordpress.org/latest.tar.gz
-    tar -xzvf latest.tar.gz --directory $www_dir
-    rm -rf $document_root
-    mv $www_dir/wordpress $document_root
+    tar -xzvf latest.tar.gz --directory ${www_dir}
+    rm -rf ${document_root}
+    mv ${www_dir}/wordpress ${document_root}
     rm latest.tar.gz
 
     proxy="\\
@@ -198,7 +198,7 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
 
     read -p "Create default database? [no|yes] " create_database
 
-    if [ "$create_database" = "yes" ] ||  [ "$create_database" = "y" ]; then
+    if [[ "$create_database" = "yes" ]] ||  [[ "$create_database" = "y" ]]; then
         echo "host: mariadb database: wordpress user: root"
         docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} drop wordpress --force"
         docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} create wordpress"
@@ -209,34 +209,34 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
 }
 
 build=""
-if [ "$1" = "--build" ]; then
+if [[ "$1" = "--build" ]]; then
     build="--build"
     shift
-elif [ "$2" = "--build" ]; then
+elif [[ "$2" = "--build" ]]; then
     build="--build"
 fi
 
-if [ -n "$build" ] || [ -z "$(docker-compose top)" ]; then
+if [[ -n "$build" ]] || [[ -z "$(docker-compose top)" ]]; then
     docker-up $build -a
-    if [ $? != 0 ]; then
+    if [[ $? != 0 ]]; then
         echo "An error occurred."
         exit 1
     fi
 fi
 
-if [ "cakephp" = "$1" ]; then
+if [[ "cakephp" = "$1" ]]; then
     cakephp
-elif [ "laravel" = "$1" ]; then
+elif [[ "laravel" = "$1" ]]; then
     laravel
-elif [ "multisite-convert" = "$1" ]; then
+elif [[ "multisite-convert" = "$1" ]]; then
     multisite
-elif [ "mvc5" = "$1" ]; then
+elif [[ "mvc5" = "$1" ]]; then
     mvc5
-elif [ "phpinfo" = "$1" ]; then
+elif [[ "phpinfo" = "$1" ]]; then
     phpinfo
-elif [ "symfony" = "$1" ]; then
+elif [[ "symfony" = "$1" ]]; then
     symfony
-elif [ "wordpress" = "$1" ]; then
+elif [[ "wordpress" = "$1" ]]; then
     wordpress
 else
     echo "Create a demo application."
@@ -254,7 +254,7 @@ Options:
 "
     read -p "Enter selection: " selection
 
-    case $selection in
+    case ${selection} in
         'cakephp' ) cakephp ;;
         'laravel' ) laravel ;;
         'mvc5' ) mvc5 ;;
