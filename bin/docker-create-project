@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+
+args=("$@")
+callback=""
+create_directory=""
+directory="${PWD}"
+docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
+match="docker-project"
+name=""
+options=""
+project=""
+
+function usage()
+{
+    echo "Usage: docker-create-project [options] application
+Application:
+    laravel
+    mvc5
+    symfony
+Options:
+    --project-directory PATH        Path to project directory. Created if it does not exist.
+    --name                          Host name and container name for Compose file.
+                                    Default is project directory basename."
+}
+
+if [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]]; then
+    usage
+    exit
+fi
+
+for ((i=0; i < "$#"; ++i)); do
+    case "${args[i]}" in
+        --name )                name="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+        --project-directory )   directory="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+    esac
+done
+
+args=("${args[@]}")
+
+if [[ -d "${directory}" ]]; then
+    if [[ "${directory}" != "${PWD}" ]]; then
+        echo "Error: Directory already exists."
+        echo "Path: ${directory}"
+        exit 1
+    elif [[ -n "$(ls -A ${directory})" ]]; then
+        echo "Error: Directory is not empty."
+        echo "Path: ${directory}"
+        exit 1
+    fi
+else
+    create_directory=true
+fi
+
+[[ -z "${name}" ]] && name="$( basename "${directory}" )"
+
+function composer_create_project()
+{
+    local directory="$1"
+    local name="$2"
+    local options="$3"
+    local package="$4"
+    local match="$5"
+
+    echo "Creating Project: ${name}"
+    echo "Directory: ${directory}"
+
+    docker-php --project-directory ${directory} composer ${options} create-project ${package} .
+
+    if [[ $? != 0 ]]; then
+        echo "An error occurred."
+        exit 1
+    fi
+
+    create_docker_compose_file ${directory} ${name} ${match}
+
+    favicon ${directory}
+    start_project ${directory} ${name}
+}
+
+function create_docker_compose_file()
+{
+    local directory="$1"
+    local name="$2"
+    local match="$3"
+
+    if [[ ! -f "${directory}/docker-compose.yml" ]]; then
+        echo "Creating Docker Compose file: ${directory}/docker-compose.yml"
+        cp "${docker_project_dir}/docker-compose.yml" "${directory}/docker-compose.yml"
+        sed -i.bak "s#context: .#context: ~/docker#g" "${directory}/docker-compose.yml"
+        sed -i.bak "s#./www:/var/www#.:/var/www#g" "${directory}/docker-compose.yml"
+        rm "${directory}/docker-compose.yml.bak"
+    fi
+
+    echo "Setting container and hostname to ${name}"
+    sed -i.bak "s#${match}#${name}#g" "${directory}/docker-compose.yml"
+    rm "${directory}/docker-compose.yml.bak"
+}
+
+function favicon()
+{
+    local directory="$1"
+
+    if [[ ! -f "$directory/public/favicon.ico" ]]; then
+        cp "${docker_project_dir}/favicon.ico" "$directory/public/favicon.ico"
+        if [[ $? = 0 ]]; then
+            echo "Created favicon.ico file."
+        fi
+    fi
+}
+
+function phpinfo()
+{
+    local directory="$1"
+    local name="$2"
+    local match="$3"
+
+    mkdir -p "${directory}/public"
+
+    cat <<EOT >> "${directory}/public/index.php"
+<?php
+
+phpinfo();
+EOT
+
+    favicon ${directory}
+    create_docker_compose_file ${directory} ${name} ${match}
+    start_project ${directory} ${name}
+}
+
+function start_project()
+{
+    local directory="$1"
+    local name="$2"
+
+    read -p "Do you want to add \"${name}\" to your /etc/hosts file now? (requires sudo) [yes|no] " create_host
+
+    local host_updated=""
+    if [[ "${create_host}" = "yes" ]] || [[ "${create_host}" = "y" ]]; then
+        echo "127.0.0.1 ${name}" | sudo tee -a /etc/hosts
+
+        if [[ $? = 0 ]]; then
+            host_updated="true"
+            echo "Project has been added to /etc/hosts: 127.0.0.1 ${name}"
+        fi
+    fi
+
+    if [[ -z "${host_updated}" ]]; then
+        echo "To add the project to your hosts file run:"
+        echo "echo \"127.0.0.1 ${name}\" | sudo tee -a /etc/hosts"
+    fi
+
+    echo "Starting Project"
+
+    docker-up --project-directory ${directory} -a
+
+    if [[ $? != 0 ]]; then
+        echo "Error: could not start project container."
+        exit 1
+    else
+        echo "Project URL: https://${name}"
+    fi
+}
+
+if [[ -z "${args[0]}" ]]; then
+    echo "Error: Application not found."
+    usage
+    exit 1
+else
+    case "${args[0]}" in
+        laravel )   package="laravel/laravel"
+                    options="--prefer-dist"
+                    ;;
+        mvc5 )      package="mvc5/mvc5-application"
+                    match="mvc5playground"
+                    ;;
+        phpinfo )   phpinfo ${directory} ${name} ${match}
+                    exit
+                    ;;
+        symfony )   package="symfony/website-skeleton"
+                    options="--prefer-dist"
+                    ;;
+        * )         usage
+                    exit
+                    ;;
+    esac
+fi
+
+if [[ -n "${create_directory}" ]]; then
+    echo "Creating directory: ${directory}"
+    mkdir -p ${directory}
+fi
+
+composer_create_project ${directory} ${name} "${options}" ${package} ${match}
