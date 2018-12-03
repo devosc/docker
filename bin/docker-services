@@ -2,7 +2,7 @@
 
 source docker-build-env
 
-if [ -z "$1" ] || [ "up" = "$1" ] || [ "down" = "$1" ]; then
+if [[ -z "$1" ]] || [[ "up" = "$1" ]] || [[ "down" = "$1" ]]; then
     cd "$( cd "$(dirname "$0")" ; pwd -P )/.."
     ./services "$@"
 else
@@ -11,27 +11,27 @@ else
     local="$root/local/$name"
     service="$root/service/$name"
 
-    if [ -f "$local.yml" ]; then
+    if [[ -f "$local.yml" ]]; then
         file="$local.yml"
-    elif [ -d "$local" ]; then
+    elif [[ -d "$local" ]]; then
         file="$local/docker-compose.yml"
-    elif [ -f "$service.yml" ]; then
+    elif [[ -f "$service.yml" ]]; then
         file="$service.yml"
-    elif [ -d "$service" ]; then
+    elif [[ -d "$service" ]]; then
         file="$service/docker-compose.yml"
     else
         echo -e "Service: $name not found"
         exit 1
     fi
 
-    if [ "ip" = "$2" ] || [ "ip-address" = "$2" ]; then
-        docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $name
-    elif [ "down" = "$2" ]; then
+    if [[ "ip" = "$2" ]] || [[ "ip-address" = "$2" ]]; then
+        docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${name}
+    elif [[ "down" = "$2" ]]; then
         # remove images
         rmi=""
-        if [ "--remove-images" = "$3" ]; then
+        if [[ "--remove-images" = "$3" ]]; then
             images=$(docker-compose --file $(pwd)/docker-compose.yml images -q)
-            if [ "$images" != "" ]; then
+            if [[ "$images" != "" ]]; then
                 rmi="--rmi local"
             else
                 echo "No images"
@@ -39,20 +39,20 @@ else
             shift
         fi
 
-        docker-compose --project-name $name --file $file down --remove-orphans $rmi
+        docker-compose --project-name ${name} --file ${file} down --remove-orphans ${rmi}
     else
         # build images before starting containers
         build=""
-        if [ "--build" = "$3" ] || [ "--build" = "$4" ]; then
+        if [[ "--build" = "$3" ]] || [[ "--build" = "$4" ]]; then
             build="--build";
         fi
 
         # attach container
         detach="-d"
-        if [ "--attach" = "$3" ] || [ "--attach" = "$4" ]; then
+        if [[ "--attach" = "$3" ]] || [[ "--attach" = "$4" ]]; then
             detach="";
         fi
 
-        docker-compose --project-name $name --file $file up $detach $build
+        docker-compose --project-name ${name} --file ${file} up ${detach} ${build}
     fi
 fi

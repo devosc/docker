@@ -12,7 +12,7 @@ for ((i=0; i < "${#args[@]}"; ++i)); do
     esac
 done
 
-if [ -n "$update_trusted_proxy" ]; then
+if [[ -n "$update_trusted_proxy" ]]; then
     docker-app "${args[@]}" sed -i "s/APP_TRUSTED_PROXY=.*/APP_TRUSTED_PROXY=$(docker-traefik ip-address)/" .env
 else
     docker-app php artisan "$@"

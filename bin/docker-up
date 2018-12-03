@@ -12,7 +12,7 @@ usage()
     echo "Usage: docker-up [[--project-directory path][--attach][--build][-a]]"
 }
 
-while [ "$1" != "" ]; do
+while [[ "$1" != "" ]]; do
     case $1 in
         # start services
         -a )                    start_services=true
@@ -38,16 +38,16 @@ while [ "$1" != "" ]; do
 done
 
 # start services
-if $start_services ; then
+if ${start_services} ; then
     echo "Starting services"
     docker-services up
 fi
 
 file="${directory}/docker-compose.yml"
 
-if [ -f $file ]; then
+if [[ -f ${file} ]]; then
     echo "Starting project"
-    docker-compose --file $file up $detach $build
+    docker-compose --file ${file} up ${detach} ${build}
 else
     echo "Project not found"
 fi

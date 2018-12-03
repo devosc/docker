@@ -11,7 +11,7 @@ usage()
     echo "Usage: docker-down [[--project-directory path][--remove-images][-a]]"
 }
 
-while [ "$1" != "" ]; do
+while [[ "$1" != "" ]]; do
     case $1 in
         # stop services
         -a )                    stop_services=true
@@ -34,12 +34,12 @@ done
 
 file="${directory}/docker-compose.yml"
 
-if [ -f $file ]; then
+if [[ -f $file ]]; then
     # remove images
     rmi=""
-    if $remove_images ; then
+    if ${remove_images} ; then
         images=$(docker-compose --file $file images -q)
-        if [ "$images" != "" ]; then
+        if [[ "${images}" != "" ]]; then
             rmi="--rmi local"
         else
             echo "No project images"
@@ -47,7 +47,7 @@ if [ -f $file ]; then
     fi
 
     # stop project
-    docker-compose --file $file down --remove-orphans $rmi;
+    docker-compose --file ${file} down --remove-orphans ${rmi};
 
 else
     echo "Project not found"
@@ -55,12 +55,12 @@ fi
 
 # stop all containers
 
-if $stop_services ; then
+if ${stop_services} ; then
     containers=$(docker ps -aq)
-    if [ "$containers" != "" ]; then
+    if [[ "${containers}" != "" ]]; then
         echo "Removing containers"
-        docker stop $containers
-        docker rm $containers
+        docker stop ${containers}
+        docker rm ${containers}
     else
         echo "No containers"
     fi

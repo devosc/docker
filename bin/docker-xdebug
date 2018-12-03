@@ -25,7 +25,7 @@ Options:
     --profiler-output-dir PATH          E.g. /var/www/tmp, default is /tmp."
 }
 
-while [ "$1" != "" ]; do
+while [[ "$1" != "" ]]; do
     case $1 in
         on )                    enable=true
                                 ;;
@@ -62,7 +62,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ "$enable" = "true" ]; then
+if [[ "$enable" = "true" ]]; then
     docker-root --project-directory "$directory" sed -i 's/;zend_extension=/zend_extension=/g' ${conf_dir}/docker-php-ext-xdebug.ini
 
     if [ $? != 0 ]; then
@@ -76,8 +76,8 @@ if [ "$enable" = "true" ]; then
     remote_msg=""
     session_settings=""
 
-    if [ "$session" = "true" ]; then
-        if [ "$(uname)" = "Darwin" ]; then
+    if [[ "$session" = "true" ]]; then
+        if [[ "$(uname)" = "Darwin" ]]; then
             ip="host.docker.internal"
         else
             #https://stackoverflow.com/a/13322549
@@ -96,7 +96,7 @@ xdebug.remote_port=${remote_port}
 
         remote_msg="Remote debugging session has started:"
 
-    elif [ "$session" = "false" ]; then
+    elif [[ "$session" = "false" ]]; then
 
         docker-root --project-directory "$directory" rm -f ${conf_dir}/xdebug-remote.ini
 
@@ -104,7 +104,7 @@ xdebug.remote_port=${remote_port}
 
     fi
 
-    if [ "$profiler" = "true" ]; then
+    if [[ "$profiler" = "true" ]]; then
         profiler_settings="
 xdebug.profiler_enable=1
 xdebug.profiler_output_dir=${profiler_output_dir}
@@ -114,7 +114,7 @@ xdebug.profiler_output_dir=${profiler_output_dir}
 
         profiler_msg="Profiler on:"
 
-    elif [ "$profiler" = "false" ]; then
+    elif [[ "$profiler" = "false" ]]; then
 
         docker-root --project-directory "$directory" rm -f ${conf_dir}/xdebug-profiler.ini
 
@@ -126,19 +126,19 @@ xdebug.profiler_output_dir=${profiler_output_dir}
 
     echo "Xdebug has been turned on."
 
-    if [ -n "${remote_msg}" ]; then
+    if [[ -n "${remote_msg}" ]]; then
         echo "${remote_msg}"
     fi
 
-    if [ -n "${session_settings}" ]; then
+    if [[ -n "${session_settings}" ]]; then
         echo "${session_settings}"
     fi
 
-    if [ -n "${profiler_msg}" ]; then
+    if [[ -n "${profiler_msg}" ]]; then
         echo "${profiler_msg}"
     fi
 
-    if [ -n "${profiler_settings}" ]; then
+    if [[ -n "${profiler_settings}" ]]; then
         echo "${profiler_settings}"
     fi
 

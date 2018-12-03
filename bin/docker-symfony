@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ "$1" = "phpunit" ]; then
+if [[ "$1" = "phpunit" ]]; then
     shift
     docker-app bin/phpunit "$@"
 else
