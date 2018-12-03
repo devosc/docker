@@ -7,8 +7,9 @@ directory="${PWD}"
 docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
 match="docker-project"
 name=""
-options=""
+options=("")
 project=""
+version=""
 
 function usage()
 {
@@ -16,6 +17,7 @@ function usage()
 Application:
     laravel
     mvc5
+    phpinfo
     symfony
 Options:
     --project-directory PATH        Path to project directory. Created if it does not exist.
@@ -37,6 +39,11 @@ for ((i=0; i < "$#"; ++i)); do
         --project-directory )   directory="${args[i+1]}"
                                 unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
+                                ;;
+        -* )                    options+=("${args[i]}")
+                                unset "args[i]"
+                                ;;
+        * )                     break
                                 ;;
     esac
 done
@@ -65,19 +72,19 @@ function composer_create_project()
     local name="$2"
     local options="$3"
     local package="$4"
-    local match="$5"
+    local version="$5"
 
     echo "Creating Project: ${name}"
     echo "Directory: ${directory}"
 
-    docker-php --project-directory ${directory} composer ${options} create-project ${package} .
+    docker-php --project-directory ${directory} composer ${options} create-project ${package} . ${version}
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
         exit 1
     fi
 
-    create_docker_compose_file ${directory} ${name} ${match}
+    create_docker_compose_file ${directory} ${name}
 
     favicon ${directory}
     start_project ${directory} ${name}
@@ -87,7 +94,6 @@ function create_docker_compose_file()
 {
     local directory="$1"
     local name="$2"
-    local match="$3"
 
     if [[ ! -f "${directory}/docker-compose.yml" ]]; then
         echo "Creating Docker Compose file: ${directory}/docker-compose.yml"
@@ -118,7 +124,6 @@ function phpinfo()
 {
     local directory="$1"
     local name="$2"
-    local match="$3"
 
     mkdir -p "${directory}/public"
 
@@ -129,7 +134,7 @@ phpinfo();
 EOT
 
     favicon ${directory}
-    create_docker_compose_file ${directory} ${name} ${match}
+    create_docker_compose_file ${directory} ${name}
     start_project ${directory} ${name}
 }
 
@@ -174,16 +179,16 @@ if [[ -z "${args[0]}" ]]; then
 else
     case "${args[0]}" in
         laravel )   package="laravel/laravel"
-                    options="--prefer-dist"
+                    [[ -z "${options[@]}" ]] && options=("--prefer-dist")
                     ;;
         mvc5 )      package="mvc5/mvc5-application"
                     match="mvc5playground"
                     ;;
-        phpinfo )   phpinfo ${directory} ${name} ${match}
+        phpinfo )   phpinfo ${directory} ${name}
                     exit
                     ;;
         symfony )   package="symfony/website-skeleton"
-                    options="--prefer-dist"
+                    [[ -z "${options[@]}" ]] && options=("--prefer-dist")
                     ;;
         * )         usage
                     exit
@@ -196,4 +201,6 @@ if [[ -n "${create_directory}" ]]; then
     mkdir -p ${directory}
 fi
 
-composer_create_project ${directory} ${name} "${options}" ${package} ${match}
+[[ -n "${args[1]}" ]] && version="${args[1]}"
+
+composer_create_project ${directory} ${name} "${options[@]}" ${package} ${version}
