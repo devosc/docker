@@ -190,8 +190,9 @@ else
         symfony )   package="symfony/website-skeleton"
                     [[ -z "${options[@]}" ]] && options=("--prefer-dist")
                     ;;
-        * )         usage
-                    exit
+        * )         echo "Error: Application not found."
+                    usage
+                    exit 1
                     ;;
     esac
 fi
