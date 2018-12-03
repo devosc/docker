@@ -112,10 +112,12 @@ function favicon()
 {
     local directory="$1"
 
-    if [[ ! -f "$directory/public/favicon.ico" ]]; then
-        cp "${docker_project_dir}/favicon.ico" "$directory/public/favicon.ico"
-        if [[ $? = 0 ]]; then
-            echo "Created favicon.ico file."
+    if [[ -d "$directory/public" ]]; then
+        if [[ ! -f "$directory/public/favicon.ico" ]]; then
+            cp "${docker_project_dir}/favicon.ico" "$directory/public/favicon.ico"
+            if [[ $? = 0 ]]; then
+                echo "Created favicon.ico file."
+            fi
         fi
     fi
 }
@@ -190,9 +192,7 @@ else
         symfony )   package="symfony/website-skeleton"
                     [[ -z "${options[@]}" ]] && options=("--prefer-dist")
                     ;;
-        * )         echo "Error: Application not found."
-                    usage
-                    exit 1
+        * )         package="${args[0]}"
                     ;;
     esac
 fi
