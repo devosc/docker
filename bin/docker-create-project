@@ -1,28 +1,43 @@
 #!/usr/bin/env bash
 
+source docker-build-env
+
 args=("$@")
 callback=""
+container="docker-project"
 create_directory=""
 directory="${PWD}"
 docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
-match="docker-project"
+factory="composer_create_project"
+host="docker-project"
 name=""
 options=("")
 project=""
+public_dir=""
+work_dir=""
 version=""
 
 function usage()
 {
-    echo "Usage: docker-create-project [options] application
-Application:
-    laravel
-    mvc5
-    phpinfo
-    symfony
+    echo "Creates a new project from an existing Composer package. A Docker Compose file is generated and the project name is added to the /etc/hosts file.
+
+Usage: docker-create-project [options] <package>
+
+The following packages are available for convenience.
+
+Package:
+    cakephp                         CakePHP (cakephp/app)
+    laravel                         Laravel (laravel/laravel)
+    mvc5                            Mvc5 (mvc5/mvc5-application)
+    phpinfo                         PHP info page
+    symfony                         Symfony (symfony/website-skeleton)
+    wordpress                       Wordpress (download from https://wordpress.org)
 Options:
+    --composer-options              Display Composer create-project options.
     --project-directory PATH        Path to project directory. Created if it does not exist.
     --name                          Host name and container name for Compose file.
-                                    Default is project directory basename."
+                                    Default is project directory name.
+All of the Composer create-project options can be used."
 }
 
 if [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]]; then
@@ -32,6 +47,9 @@ fi
 
 for ((i=0; i < "$#"; ++i)); do
     case "${args[i]}" in
+        --composer-options )    docker-php composer create-project --help
+                                exit
+                                ;;
         --name )                name="${args[i+1]}"
                                 unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
@@ -84,40 +102,74 @@ function composer_create_project()
         exit 1
     fi
 
-    create_docker_compose_file ${directory} ${name}
-
-    favicon ${directory}
-    start_project ${directory} ${name}
+    if [[ -d "${directory}/public" ]]; then
+        public_dir="pubic"
+    elif [[ -d "${directory}/html" ]]; then
+        public_dir="html"
+    fi
 }
 
 function create_docker_compose_file()
 {
     local directory="$1"
-    local name="$2"
+    name="$2"
+
+    local context="${docker_project_dir}"
+
+    [[ "$HOME/docker" = "$docker_project_dir" ]] && context="~/docker"
 
     if [[ ! -f "${directory}/docker-compose.yml" ]]; then
         echo "Creating Docker Compose file: ${directory}/docker-compose.yml"
         cp "${docker_project_dir}/docker-compose.yml" "${directory}/docker-compose.yml"
-        sed -i.bak "s#context: .#context: ~/docker#g" "${directory}/docker-compose.yml"
+        sed -i.bak "s#context: .#context: ${context}#g" "${directory}/docker-compose.yml"
         sed -i.bak "s#./www:/var/www#.:/var/www#g" "${directory}/docker-compose.yml"
         rm "${directory}/docker-compose.yml.bak"
     fi
 
-    echo "Setting container and hostname to ${name}"
-    sed -i.bak "s#${match}#${name}#g" "${directory}/docker-compose.yml"
+    echo "Setting container name to ${name}"
+    sed -i.bak "s#${container}#${name}#g" "${directory}/docker-compose.yml"
     rm "${directory}/docker-compose.yml.bak"
+
+    read -p "Enter a host name for the container: [${name}] " name
+
+    if [[ $? != 0 ]] || [[ -z "${name}" ]]; then
+        name="$2"
+    fi
+
+    echo "Setting container host name to ${name}."
+    sed -i.bak "s#${host}#${name}#g" "${directory}/docker-compose.yml"
+    rm "${directory}/docker-compose.yml.bak"
+
+    if [[ -n "${public_dir}" ]]; then
+        echo "Setting document root to /var/www/${public_dir}"
+        sed -i.bak "s#APACHE_DOCUMENT_ROOT=/var/www/public#APACHE_DOCUMENT_ROOT=/var/www/${public_dir}#" "${directory}/docker-compose.yml"
+        rm "${directory}/docker-compose.yml.bak"
+    fi
+
+    if [[ -n "${work_dir}" ]]; then
+        echo "Setting working directory to /var/www/${work_dir}"
+        sed -i.bak "s#working_dir: /var/www#working_dir: /var/www/${work_dir}#" "${directory}/docker-compose.yml"
+        rm "${directory}/docker-compose.yml.bak"
+    fi
+
+    create_host ${directory} ${name}
 }
 
-function favicon()
+function create_host()
 {
     local directory="$1"
+    local name="$2"
 
-    if [[ -d "$directory/public" ]]; then
-        if [[ ! -f "$directory/public/favicon.ico" ]]; then
-            cp "${docker_project_dir}/favicon.ico" "$directory/public/favicon.ico"
-            if [[ $? = 0 ]]; then
-                echo "Created favicon.ico file."
-            fi
+    echo "Add the host name to your /etc/hosts file."
+    echo "  echo \"127.0.0.1 ${name}\" | sudo tee -a /etc/hosts"
+    read -p "Do you want to add it now? (sudo access required) [yes|no] " create_host
+
+    if [[ "${create_host}" = "yes" ]] || [[ "${create_host}" = "y" ]]; then
+
+        echo "127.0.0.1 ${name}" | sudo tee -a /etc/hosts
+
+        if [[ $? = 0 ]]; then
+            echo "Host file has been updated."
         fi
     fi
 }
@@ -129,38 +181,19 @@ function phpinfo()
 
     mkdir -p "${directory}/public"
 
+    cp "${docker_project_dir}/favicon.ico" "${directory}/public/favicon.ico"
+
     cat <<EOT >> "${directory}/public/index.php"
 <?php
 
 phpinfo();
 EOT
-
-    favicon ${directory}
-    create_docker_compose_file ${directory} ${name}
-    start_project ${directory} ${name}
 }
 
 function start_project()
 {
     local directory="$1"
     local name="$2"
-
-    read -p "Do you want to add \"${name}\" to your /etc/hosts file now? (requires sudo) [yes|no] " create_host
-
-    local host_updated=""
-    if [[ "${create_host}" = "yes" ]] || [[ "${create_host}" = "y" ]]; then
-        echo "127.0.0.1 ${name}" | sudo tee -a /etc/hosts
-
-        if [[ $? = 0 ]]; then
-            host_updated="true"
-            echo "Project has been added to /etc/hosts: 127.0.0.1 ${name}"
-        fi
-    fi
-
-    if [[ -z "${host_updated}" ]]; then
-        echo "To add the project to your hosts file run:"
-        echo "echo \"127.0.0.1 ${name}\" | sudo tee -a /etc/hosts"
-    fi
 
     echo "Starting Project"
 
@@ -169,8 +202,43 @@ function start_project()
     if [[ $? != 0 ]]; then
         echo "Error: could not start project container."
         exit 1
-    else
-        echo "Project URL: https://${name}"
+    fi
+
+    echo "Project URL: https://${name}"
+}
+
+function wordpress()
+{
+    local directory="$1"
+    local name="$2"
+    local document_root="${directory}/${public_dir}"
+
+    echo "Downloading: https://wordpress.org/latest.tar.gz"
+    curl -O https://wordpress.org/latest.tar.gz
+    tar -xzvf latest.tar.gz --directory ${directory}
+    rm -rf "${document_root}"
+    mv ${directory}/wordpress "${document_root}"
+    rm latest.tar.gz
+
+    proxy="\\
+\\
+// https://codex.wordpress.org/Administration_Over_SSL \\
+define('FORCE_SSL_ADMIN', true); \\
+\\
+if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
+    \$_SERVER['HTTPS']='on';"
+
+    sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);${proxy}#g" "${document_root}/wp-config-sample.php"
+    rm "${document_root}/wp-config-sample.php.bak"
+
+    echo "Default database settings:"
+    echo "  host: mariadb database: wordpress user: root"
+    read -p "Create default database? [no|yes] " create_database
+
+    if [[ "${create_database}" = "yes" ]] ||  [[ "${create_database}" = "y" ]]; then
+        docker-services up
+        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} drop wordpress --force"
+        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} create wordpress"
     fi
 }
 
@@ -180,17 +248,23 @@ if [[ -z "${args[0]}" ]]; then
     exit 1
 else
     case "${args[0]}" in
+        cakephp )   package="cakephp/app"
+                    public_dir="webroot"
+                    work_dir="webroot"
+                    ;;
         laravel )   package="laravel/laravel"
-                    [[ -z "${options[@]}" ]] && options=("--prefer-dist")
                     ;;
         mvc5 )      package="mvc5/mvc5-application"
-                    match="mvc5playground"
+                    host="mvc5playground"
+                    container="mvc5playground"
                     ;;
-        phpinfo )   phpinfo ${directory} ${name}
-                    exit
+        phpinfo )   factory="phpinfo"
                     ;;
         symfony )   package="symfony/website-skeleton"
-                    [[ -z "${options[@]}" ]] && options=("--prefer-dist")
+                    ;;
+        wordpress ) factory="wordpress"
+                    public_dir="html"
+                    work_dir="html"
                     ;;
         * )         package="${args[0]}"
                     ;;
@@ -202,6 +276,9 @@ if [[ -n "${create_directory}" ]]; then
     mkdir -p ${directory}
 fi
 
+[[ -z "${options[@]}" ]] && options=("--prefer-dist")
 [[ -n "${args[1]}" ]] && version="${args[1]}"
 
-composer_create_project ${directory} ${name} "${options[@]}" ${package} ${version}
+${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
+create_docker_compose_file ${directory} ${name}
+start_project ${directory} ${name}
