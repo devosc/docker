@@ -11,7 +11,7 @@ name="--name docker-project"
 
 function usage()
 {
-    local dir="${directory}"
+    local dir="${docker_project_dir}"
 
     [[ "${dir}" = "${HOME}/docker" ]] && dir="~/docker"
 
@@ -28,8 +28,6 @@ Application:
     symfony           - Symfony
     wordpress         - WordPress
 Options:
-    --project-directory PATH        Path to project directory. Created if it does not exist.
-                                    Default directory is ~/docker/www.
     --build                         Build the image before starting the container.
     --host                          Project host name."
 }
