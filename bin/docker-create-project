@@ -53,6 +53,7 @@ fi
 for ((i=0; i < "$#"; ++i)); do
     case "${args[i]}" in
         --build )               build="--build"
+                                unset "args[i]"
                                 ;;
         --composer-options )    docker-php composer create-project --help
                                 exit
@@ -292,10 +293,8 @@ fi
 
 if [[ -z "${host}" ]]; then
     read -p "Enter a host name for the container: [${name}] " host
-fi
 
-if [[ $? != 0 ]] || [[ -z "${host}" ]]; then
-    host="${name}"
+    [[ -z "${host}" ]] && host="${name}"
 fi
 
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
