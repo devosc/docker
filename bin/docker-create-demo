@@ -2,248 +2,24 @@
 
 source docker-build-env
 
-# creates project in docker www directory (experimental).
-
-project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
-
-www_dir="$project_dir/www"
-
-if [[ ! -d "$www_dir" ]]; then
-    echo "Error: www directory does not exist."
-    exit 1
-fi
-
-cd ${project_dir}
-
-[[ -d ${www_dir}/html ]] && document_root="$www_dir/html" || document_root="$www_dir/public"
-
-function cakephp()
-{
-    echo "Working directory: ${document_root}"
-
-    reset_project_dir
-    mkdir -p ${document_root}
-    docker-composer create-project --prefer-dist cakephp/app .
-
-    if [[ $? = 0 ]]; then
-        project_url
-    else
-        echo "
-An error occurred. Check the following:
-    - Working directory must be: ${document_root}"
-        exit 1
-    fi
-}
-
-function favicon()
-{
-    if [[ ! -f "$document_root/favicon.ico" ]]; then
-        cp favicon.ico "$document_root/favicon.ico"
-        echo "Created favicon.ico file."
-    fi
-}
-
-function laravel()
-{
-    reset_project_dir
-    docker-composer create-project --prefer-dist laravel/laravel .
-    if [[ $? = 0 ]]; then
-        project_url
-    else
-        echo "
-An error occurred. Check the following:
-    - Working directory must be: ${www_dir}"
-        exit 1
-    fi
-}
-
-function multisite()
-{
-    docker-wp core multisite-convert --subdomains
-
-    if [[ $? = 0 ]]; then
-        cookie_domain="\\
-\\
-define('COOKIE_DOMAIN', false);"
-
-        sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$cookie_domain#g" "$document_root/wp-config.php"
-        rm "$document_root/wp-config.php.bak"
-
-        cat << 'EOF' > $document_root/.htaccess
-    <IfModule mod_rewrite.c>
-        RewriteEngine On
-        RewriteBase /
-        RewriteRule ^index\.php$ - [L]
-
-        # add a trailing slash to /wp-admin
-        RewriteRule ^wp-admin$ wp-admin/ [R=301,L]
-
-        RewriteCond %{REQUEST_FILENAME} -f [OR]
-        RewriteCond %{REQUEST_FILENAME} -d
-        RewriteRule ^ - [L]
-        RewriteRule ^(wp-(content|admin|includes).*) $1 [L]
-        RewriteRule ^(.*\.php)$ $1 [L]
-        RewriteRule . index.php [L]
-    </IfModule>
-EOF
-
-    echo "Updated wp-config.php and .htaccess files.
-
-After creating a new site in wp-admin, the following steps are required:
-
-    - Add site to your /etc/hosts file.
-        e.g. 127.0.0.1 site1.docker-project
-
-    - Add site to the traefik.frontend.rule in the docker compose file.
-        e.g. traefik.frontend.rule=Host:docker-project, site1.docker-project
-
-    - Build container
-        docker-up --build
-"
-
-        project_url
-    else
-        echo "
-An error occurred. Check the following:
-    - Multisite may already be installed.
-    - WP-CLI must be enabled in the docker compose file."
-        exit 1
-    fi
-}
-
-function mvc5()
-{
-    reset_project_dir
-    docker-composer create-project mvc5/mvc5-application .
-
-    if [[ $? = 0 ]]; then
-        project_url
-    else
-        echo "
-An error occurred. Check the following:
-    - Working directory must be: ${www_dir}"
-        exit 1
-    fi
-}
-
-function phpinfo()
-{
-    reset_project_dir
-    mkdir -p ${document_root}
-
-    cat <<EOT >> ${document_root}/index.php
-<?php
-
-phpinfo();
-EOT
-
-    favicon
-    project_url
-}
-
-function project_url()
-{
-    echo "Project URL: https://docker-project"
-}
-
-function reset_project_dir()
-{
-    cd ${www_dir}
-
-    find . -type f -delete
-    find . -type l -delete
-    find . -type d -name '*' -delete
-
-    cd ${project_dir}
-}
-
-function symfony()
-{
-    reset_project_dir
-    docker-composer create-project --prefer-dist symfony/website-skeleton .
-
-    if [[ $? = 0 ]]; then
-        favicon
-        project_url
-    else
-        echo "
-An error occurred. Check the following:
-    - Working directory must be: ${www_dir}"
-        exit 1
-    fi
-}
-
-function wordpress()
-{
-    echo "Working directory must be: ${document_root}"
-
-    reset_project_dir
-
-    curl -O https://wordpress.org/latest.tar.gz
-    tar -xzvf latest.tar.gz --directory ${www_dir}
-    rm -rf ${document_root}
-    mv ${www_dir}/wordpress ${document_root}
-    rm latest.tar.gz
-
-    proxy="\\
-\\
-// https://codex.wordpress.org/Administration_Over_SSL \\
-define('FORCE_SSL_ADMIN', true); \\
-\\
-if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
-    \$_SERVER['HTTPS']='on';"
-
-    sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$proxy#g" "$document_root/wp-config-sample.php"
-    rm "$document_root/wp-config-sample.php.bak"
-
-    read -p "Create default database? [no|yes] " create_database
-
-    if [[ "$create_database" = "yes" ]] ||  [[ "$create_database" = "y" ]]; then
-        echo "host: mariadb database: wordpress user: root"
-        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} drop wordpress --force"
-        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} create wordpress"
-    fi
-
-    favicon
-    project_url
-}
-
+args=("$@")
 build=""
-if [[ "$1" = "--build" ]]; then
-    build="--build"
-    shift
-elif [[ "$2" = "--build" ]]; then
-    build="--build"
-fi
+docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
+directory="${docker_project_dir}/www"
+host="--host docker-project"
+name="--name docker-project"
 
-if [[ -n "$build" ]] || [[ -z "$(docker-compose top)" ]]; then
-    docker-up $build -a
-    if [[ $? != 0 ]]; then
-        echo "An error occurred."
-        exit 1
-    fi
-fi
+function usage()
+{
+    local dir="${directory}"
 
-if [[ "cakephp" = "$1" ]]; then
-    cakephp
-elif [[ "laravel" = "$1" ]]; then
-    laravel
-elif [[ "multisite-convert" = "$1" ]]; then
-    multisite
-elif [[ "mvc5" = "$1" ]]; then
-    mvc5
-elif [[ "phpinfo" = "$1" ]]; then
-    phpinfo
-elif [[ "symfony" = "$1" ]]; then
-    symfony
-elif [[ "wordpress" = "$1" ]]; then
-    wordpress
-else
-    echo "Create a demo application."
-    echo "Project directory: ${www_dir}"
-    echo "Document Root: ${document_root}"
-    echo "
-Options:
+    [[ "${dir}" = "${HOME}/docker" ]] && dir="~/docker"
+
+    echo "Creates a demo application in the ${dir}/www directory.
+
+Usage: docker-create-demo [--build] <application>
+
+Application:
     cakephp           - CakePHP
     laravel           - Laravel
     mvc5              - Mvc5
@@ -251,17 +27,48 @@ Options:
     phpinfo           - PHP info
     symfony           - Symfony
     wordpress         - WordPress
-"
-    read -p "Enter selection: " selection
+Options:
+    --project-directory PATH        Path to project directory. Created if it does not exist.
+                                    Default directory is ~/docker/www.
+    --build                         Build the image before starting the container.
+    --host                          Project host name."
+}
 
-    case ${selection} in
-        'cakephp' ) cakephp ;;
-        'laravel' ) laravel ;;
-        'mvc5' ) mvc5 ;;
-        'multisite-convert' ) multisite ;;
-        'phpinfo' ) phpinfo ;;
-        'symfony' ) symfony ;;
-        'wordpress' ) wordpress ;;
-        * ) echo "Invalid or no selection made."; exit 1;
-    esac
+if [[ -z "${args[0]}" ]]; then
+    usage
+    exit 1
+else
+    for ((i=0; i < "$#"; ++i)); do
+        case "${args[i]}" in
+            cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress )      package="${args[i]}"
+                                                                                    ;;
+            --build )                                                               build="--build"
+                                                                                    ;;
+            --host )                                                                host="--host ${args[i+1]}"
+                                                                                    unset "args[i]" "args[i+1]"
+                                                                                    i=$(expr ${i} + 1)
+                                                                                    ;;
+            -h|--help )                                                             usage
+                                                                                    exit
+                                                                                    ;;
+            * )                                                                     usage
+                                                                                    exit 1
+                                                                                    ;;
+        esac
+    done
+fi
+
+if [[ "multisite-convert" = "${package}" ]]; then
+    docker-wp --project-directory "${docker_project_dir}" multisite-convert
+else
+
+    docker-down --project-directory ${docker_project_dir}
+
+    cd ${directory}
+
+    find . -type f -delete
+    find . -type l -delete
+    find . -type d -name '*' -delete
+
+    docker-create-project ${host} ${build} ${name} ${host} ${package}
 fi
