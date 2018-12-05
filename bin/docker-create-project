@@ -3,18 +3,21 @@
 source docker-build-env
 
 args=("$@")
-callback=""
-container="docker-project"
+build=""
 create_directory=""
+default_host="docker-project"
+default_name="docker-project"
 directory="${PWD}"
 docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
 factory="composer_create_project"
-host="docker-project"
+host=""
+ip="127.0.0.1"
 name=""
 options=("")
 project=""
 public_dir=""
 work_dir=""
+wp_cli=""
 version=""
 
 function usage()
@@ -33,7 +36,9 @@ Package:
     symfony                         Symfony (symfony/website-skeleton)
     wordpress                       Wordpress (download from https://wordpress.org)
 Options:
+    --build                         Build the image before starting the container.
     --composer-options              Display Composer create-project options.
+    --host                          Project host name.
     --project-directory PATH        Path to project directory. Created if it does not exist.
     --name                          Host name and container name for Compose file.
                                     Default is project directory name.
@@ -47,8 +52,14 @@ fi
 
 for ((i=0; i < "$#"; ++i)); do
     case "${args[i]}" in
+        --build )               build="--build"
+                                ;;
         --composer-options )    docker-php composer create-project --help
                                 exit
+                                ;;
+        --host )                host="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
                                 ;;
         --name )                name="${args[i+1]}"
                                 unset "args[i]" "args[i+1]"
@@ -102,9 +113,7 @@ function composer_create_project()
         exit 1
     fi
 
-    if [[ -d "${directory}/public" ]]; then
-        public_dir="pubic"
-    elif [[ -d "${directory}/html" ]]; then
+    if [[ -d "${directory}/html" ]]; then
         public_dir="html"
     fi
 }
@@ -112,7 +121,8 @@ function composer_create_project()
 function create_docker_compose_file()
 {
     local directory="$1"
-    name="$2"
+    local name="$2"
+    local host="$3"
 
     local context="${docker_project_dir}"
 
@@ -126,52 +136,65 @@ function create_docker_compose_file()
         rm "${directory}/docker-compose.yml.bak"
     fi
 
-    echo "Setting container name to ${name}"
-    sed -i.bak "s#${container}#${name}#g" "${directory}/docker-compose.yml"
-    rm "${directory}/docker-compose.yml.bak"
-
-    read -p "Enter a host name for the container: [${name}] " name
-
-    if [[ $? != 0 ]] || [[ -z "${name}" ]]; then
-        name="$2"
-    fi
-
-    echo "Setting container host name to ${name}."
-    sed -i.bak "s#${host}#${name}#g" "${directory}/docker-compose.yml"
+    echo "Container name: ${name}"
+    sed -i.bak "s#${default_name}#${name}#g" "${directory}/docker-compose.yml"
     rm "${directory}/docker-compose.yml.bak"
 
     if [[ -n "${public_dir}" ]]; then
-        echo "Setting document root to /var/www/${public_dir}"
+        echo "Document root: /var/www/${public_dir}"
         sed -i.bak "s#APACHE_DOCUMENT_ROOT=/var/www/public#APACHE_DOCUMENT_ROOT=/var/www/${public_dir}#" "${directory}/docker-compose.yml"
         rm "${directory}/docker-compose.yml.bak"
     fi
 
     if [[ -n "${work_dir}" ]]; then
-        echo "Setting working directory to /var/www/${work_dir}"
+        echo "Working directory: /var/www/${work_dir}"
         sed -i.bak "s#working_dir: /var/www#working_dir: /var/www/${work_dir}#" "${directory}/docker-compose.yml"
         rm "${directory}/docker-compose.yml.bak"
     fi
 
-    create_host ${directory} ${name}
+    if [[ -n "${wp_cli}" ]]; then
+        echo "Enabling WP-CLI"
+        sed -i.bak "s@#- WP_CLI=true@- WP_CLI=true@" "${directory}/docker-compose.yml"
+        rm "${directory}/docker-compose.yml.bak"
+    fi
 }
 
 function create_host()
 {
     local directory="$1"
     local name="$2"
+    local host="$3"
+    local ip="$4"
 
-    echo "Add the host name to your /etc/hosts file."
-    echo "  echo \"127.0.0.1 ${name}\" | sudo tee -a /etc/hosts"
-    read -p "Do you want to add it now? (sudo access required) [yes|no] " create_host
-
-    if [[ "${create_host}" = "yes" ]] || [[ "${create_host}" = "y" ]]; then
-
-        echo "127.0.0.1 ${name}" | sudo tee -a /etc/hosts
-
-        if [[ $? = 0 ]]; then
-            echo "Host file has been updated."
-        fi
+    if [[ -z "${host}" ]]; then
+        read -p "Enter a host name for the container: [${name}] " host
     fi
+
+    if [[ $? != 0 ]] || [[ -z "${host}" ]]; then
+        host="${name}"
+    fi
+
+    if ! grep -q "${ip} ${host}" /etc/hosts; then
+        echo "Add the host name ${host} to your /etc/hosts file using:"
+        echo "  echo \"${ip} ${host}\" | sudo tee -a /etc/hosts"
+        read -p "Do you want to add it now? (sudo access required) [no|yes*] " create
+
+        if [[ -z "${create}" ]] || [[ "${create}" = "yes" ]] || [[ "${create}" = "y" ]]; then
+
+            echo "${ip} ${host}" | sudo tee -a /etc/hosts
+
+            if [[ $? = 0 ]]; then
+                echo "Host file updated."
+            fi
+        else
+            echo "Skipping host file."
+        fi
+    else
+        echo "Host exists: ${ip} ${host}";
+    fi
+
+    sed -i.bak "s#${default_host}#${host}#g" "${directory}/docker-compose.yml"
+    rm "${directory}/docker-compose.yml.bak"
 }
 
 function phpinfo()
@@ -192,19 +215,15 @@ EOT
 
 function start_project()
 {
-    local directory="$1"
-    local name="$2"
+    local build="$1"
+    local directory="$2"
 
-    echo "Starting Project"
-
-    docker-up --project-directory ${directory} -a
+    docker-up ${build} --project-directory "${directory}" -a
 
     if [[ $? != 0 ]]; then
         echo "Error: could not start project container."
         exit 1
     fi
-
-    echo "Project URL: https://${name}"
 }
 
 function wordpress()
@@ -233,7 +252,7 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
 
     echo "Default database settings:"
     echo "  host: mariadb database: wordpress user: root"
-    read -p "Create default database? [no|yes] " create_database
+    read -p "Create default database? [yes|no*] " create_database
 
     if [[ "${create_database}" = "yes" ]] ||  [[ "${create_database}" = "y" ]]; then
         docker-services up
@@ -243,7 +262,6 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
 }
 
 if [[ -z "${args[0]}" ]]; then
-    echo "Error: Application not found."
     usage
     exit 1
 else
@@ -255,8 +273,8 @@ else
         laravel )   package="laravel/laravel"
                     ;;
         mvc5 )      package="mvc5/mvc5-application"
-                    host="mvc5playground"
-                    container="mvc5playground"
+                    default_host="mvc5playground"
+                    default_name="mvc5playground"
                     ;;
         phpinfo )   factory="phpinfo"
                     ;;
@@ -265,6 +283,7 @@ else
         wordpress ) factory="wordpress"
                     public_dir="html"
                     work_dir="html"
+                    wp_cli="true"
                     ;;
         * )         package="${args[0]}"
                     ;;
@@ -281,4 +300,6 @@ fi
 
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
 create_docker_compose_file ${directory} ${name}
-start_project ${directory} ${name}
+create_host ${directory} ${name} ${host} ${ip}
+start_project "${build}" ${directory}
+echo "Project URL: https://${host}"
