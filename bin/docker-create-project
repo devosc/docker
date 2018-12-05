@@ -166,14 +166,6 @@ function create_host()
     local host="$3"
     local ip="$4"
 
-    if [[ -z "${host}" ]]; then
-        read -p "Enter a host name for the container: [${name}] " host
-    fi
-
-    if [[ $? != 0 ]] || [[ -z "${host}" ]]; then
-        host="${name}"
-    fi
-
     if ! grep -q "${ip} ${host}" /etc/hosts; then
         echo "Add the host name ${host} to your /etc/hosts file using:"
         echo "  echo \"${ip} ${host}\" | sudo tee -a /etc/hosts"
@@ -297,6 +289,14 @@ fi
 
 [[ -z "${options[@]}" ]] && options=("--prefer-dist")
 [[ -n "${args[1]}" ]] && version="${args[1]}"
+
+if [[ -z "${host}" ]]; then
+    read -p "Enter a host name for the container: [${name}] " host
+fi
+
+if [[ $? != 0 ]] || [[ -z "${host}" ]]; then
+    host="${name}"
+fi
 
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
 create_docker_compose_file ${directory} ${name}
