@@ -39,8 +39,10 @@ else
     for ((i=0; i < "$#"; ++i)); do
         case "${args[i]}" in
             cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress )      package="${args[i]}"
+                                                                                    unset "args[i]"
                                                                                     ;;
             --build )                                                               build="--build"
+                                                                                    unset "args[i]"
                                                                                     ;;
             --host )                                                                host="--host ${args[i+1]}"
                                                                                     unset "args[i]" "args[i+1]"
@@ -68,5 +70,5 @@ else
     find . -type l -delete
     find . -type d -name '*' -delete
 
-    docker-create-project ${host} ${build} ${name} ${host} ${package}
+    docker-create-project ${host} ${build} ${name} ${package}
 fi
