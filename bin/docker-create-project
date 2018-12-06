@@ -229,7 +229,7 @@ function git_clone()
     echo "Creating Project: ${name}"
     echo "Directory: ${directory}"
 
-    docker-php --project-directory ${directory} git clone ${options} ${package} .
+    docker-php --ssh-keys --project-directory ${directory} git clone ${options} ${package} .
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
