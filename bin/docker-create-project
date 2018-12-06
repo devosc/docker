@@ -11,6 +11,7 @@ directory="${PWD}"
 docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
 factory="composer_create_project"
 host=""
+image=""
 ip="127.0.0.1"
 name=""
 options=("")
@@ -24,7 +25,7 @@ function usage()
 {
     echo "Creates a new project from an existing Composer package. A Docker Compose file is generated and the project name is added to the /etc/hosts file.
 
-Usage: docker-create-project [options] <package>
+Usage: docker-create-project [options] [package]
 
 The following packages are available for convenience.
 
@@ -39,6 +40,7 @@ Options:
     --build                         Build the image before starting the container.
     --composer-options              Display Composer create-project options.
     --host                          Project host name.
+    --image                         Docker image name.
     --project-directory PATH        Path to project directory. Created if it does not exist.
     --name                          Host name and container name for Compose file.
                                     Default is project directory name.
@@ -59,6 +61,10 @@ for ((i=0; i < "$#"; ++i)); do
                                 exit
                                 ;;
         --host )                host="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+        --image )               image="${args[i+1]}"
                                 unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
                                 ;;
@@ -123,7 +129,7 @@ function create_docker_compose_file()
 {
     local directory="$1"
     local name="$2"
-    local host="$3"
+    local image="$3"
 
     local context="${docker_project_dir}"
 
@@ -150,6 +156,12 @@ function create_docker_compose_file()
     if [[ -n "${work_dir}" ]]; then
         echo "Working directory: /var/www/${work_dir}"
         sed -i.bak "s#working_dir: /var/www#working_dir: /var/www/${work_dir}#" "${directory}/docker-compose.yml"
+        rm "${directory}/docker-compose.yml.bak"
+    fi
+
+    if [[ -n "${image}" ]]; then
+        echo "Docker image name: ${image}"
+        sed -i.bak "s@#image: docker-project@image: ${image}@" "${directory}/docker-compose.yml"
         rm "${directory}/docker-compose.yml.bak"
     fi
 
@@ -298,7 +310,7 @@ if [[ -z "${host}" ]]; then
 fi
 
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
-create_docker_compose_file ${directory} ${name}
+create_docker_compose_file ${directory} ${name} ${image}
 create_host ${directory} ${name} ${host} ${ip}
 start_project "${build}" ${directory}
 echo "Project URL: https://${host}"

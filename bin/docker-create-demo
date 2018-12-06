@@ -7,6 +7,7 @@ build=""
 docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
 directory="${docker_project_dir}/www"
 host="--host docker-project"
+image="--image docker-project-demo"
 name="--name docker-project"
 
 function usage()
@@ -17,7 +18,7 @@ function usage()
 
     echo "Creates a demo application in the ${dir}/www directory.
 
-Usage: docker-create-demo [--build] <application>
+Usage: docker-create-demo [--build] [application]
 
 Application:
     cakephp           - CakePHP
@@ -60,15 +61,15 @@ fi
 
 if [[ "multisite-convert" = "${package}" ]]; then
     docker-wp --project-directory "${docker_project_dir}" multisite-convert
-else
-
-    docker-down --project-directory ${docker_project_dir}
-
-    cd ${directory}
-
-    find . -type f -delete
-    find . -type l -delete
-    find . -type d -name '*' -delete
-
-    docker-create-project ${host} ${build} ${name} ${package}
+    exit
 fi
+
+docker-down --project-directory ${docker_project_dir}
+
+cd ${directory}
+
+find . -type f -delete
+find . -type l -delete
+find . -type d -name '*' -delete
+
+docker-create-project ${image} ${host} ${build} ${name} ${package}
