@@ -39,6 +39,7 @@ Package:
 Options:
     --build                         Build the image before starting the container.
     --composer-options              Display Composer create-project options.
+    --git                           Clone a Git repository into the project directory.
     --host                          Project host name.
     --image                         Docker image name.
     --project-directory PATH        Path to project directory. Created if it does not exist.
@@ -59,6 +60,9 @@ for ((i=0; i < "$#"; ++i)); do
                                 ;;
         --composer-options )    docker-php composer create-project --help
                                 exit
+                                ;;
+        --git )                 factory="git_clone"
+                                unset "args[i]"
                                 ;;
         --host )                host="${args[i+1]}"
                                 unset "args[i]" "args[i+1]"
@@ -119,10 +123,6 @@ function composer_create_project()
         echo "An error occurred."
         exit 1
     fi
-
-    if [[ -d "${directory}/html" ]]; then
-        public_dir="html"
-    fi
 }
 
 function create_docker_compose_file()
@@ -138,10 +138,12 @@ function create_docker_compose_file()
     if [[ ! -f "${directory}/docker-compose.yml" ]]; then
         echo "Creating Docker Compose file: ${directory}/docker-compose.yml"
         cp "${docker_project_dir}/docker-compose.yml" "${directory}/docker-compose.yml"
-        sed -i.bak "s#context: .#context: ${context}#g" "${directory}/docker-compose.yml"
-        sed -i.bak "s#./www:/var/www#.:/var/www#g" "${directory}/docker-compose.yml"
-        rm "${directory}/docker-compose.yml.bak"
     fi
+
+    echo "Context: ${context}"
+    sed -i.bak "s#context: .#context: ${context}#g" "${directory}/docker-compose.yml"
+    sed -i.bak "s#./www:/var/www#.:/var/www#g" "${directory}/docker-compose.yml"
+    rm "${directory}/docker-compose.yml.bak"
 
     echo "Container name: ${name}"
     sed -i.bak "s#${default_name}#${name}#g" "${directory}/docker-compose.yml"
@@ -150,6 +152,10 @@ function create_docker_compose_file()
     if [[ -n "${public_dir}" ]]; then
         echo "Document root: /var/www/${public_dir}"
         sed -i.bak "s#APACHE_DOCUMENT_ROOT=/var/www/public#APACHE_DOCUMENT_ROOT=/var/www/${public_dir}#" "${directory}/docker-compose.yml"
+        rm "${directory}/docker-compose.yml.bak"
+    else
+        echo "Document root: /var/www"
+        sed -i.bak "s#APACHE_DOCUMENT_ROOT=/var/www/public#APACHE_DOCUMENT_ROOT=/var/www#" "${directory}/docker-compose.yml"
         rm "${directory}/docker-compose.yml.bak"
     fi
 
@@ -200,6 +206,35 @@ function create_host()
 
     sed -i.bak "s#${default_host}#${host}#g" "${directory}/docker-compose.yml"
     rm "${directory}/docker-compose.yml.bak"
+}
+
+function public_directory()
+{
+    local directory="$1"
+
+    if [[ -d "${directory}/public" ]]; then
+        public_dir="public"
+    elif [[ -d "${directory}/html" ]]; then
+        public_dir="html"
+    fi
+}
+
+function git_clone()
+{
+    local directory="$1"
+    local name="$2"
+    local options="$3"
+    local package="$4"
+
+    echo "Creating Project: ${name}"
+    echo "Directory: ${directory}"
+
+    docker-php --project-directory ${directory} git clone ${options} ${package} .
+
+    if [[ $? != 0 ]]; then
+        echo "An error occurred."
+        exit 1
+    fi
 }
 
 function phpinfo()
@@ -274,8 +309,10 @@ else
         cakephp )   package="cakephp/app"
                     public_dir="webroot"
                     work_dir="webroot"
+                    options=("--prefer-dist")
                     ;;
         laravel )   package="laravel/laravel"
+                    options=("--prefer-dist")
                     ;;
         mvc5 )      package="mvc5/mvc5-application"
                     default_host="mvc5playground"
@@ -284,6 +321,7 @@ else
         phpinfo )   factory="phpinfo"
                     ;;
         symfony )   package="symfony/website-skeleton"
+                    options=("--prefer-dist")
                     ;;
         wordpress ) factory="wordpress"
                     public_dir="html"
@@ -300,7 +338,6 @@ if [[ -n "${create_directory}" ]]; then
     mkdir -p ${directory}
 fi
 
-[[ -z "${options[@]}" ]] && options=("--prefer-dist")
 [[ -n "${args[1]}" ]] && version="${args[1]}"
 
 if [[ -z "${host}" ]]; then
@@ -310,6 +347,7 @@ if [[ -z "${host}" ]]; then
 fi
 
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
+public_directory ${directory}
 create_docker_compose_file ${directory} ${name} ${image}
 create_host ${directory} ${name} ${host} ${ip}
 start_project "${build}" ${directory}
