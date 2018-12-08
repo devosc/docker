@@ -257,7 +257,7 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     fi
 }
 
-# Set options.
+# Set or match options.
 for ((i=0; i < "$#"; ++i)); do
     case "${args[i]}" in
         --build )               build="--build"
@@ -292,22 +292,21 @@ for ((i=0; i < "$#"; ++i)); do
         -* )                    options+=("${args[i]}")
                                 unset "args[i]"
                                 ;;
-        * )                     break
+        * )                     package="${args[i]}"
+                                version="${args[i+1]}" # Composer package version.
+                                break
                                 ;;
     esac
 done
 
-# Reset args index.
-args=("${args[@]}")
-
 # Check package is not empty.
-if [[ -z "${args[0]}" ]]; then
+if [[ -z "${package}" ]]; then
     usage
     exit 1
 fi
 
 # Set package.
-case "${args[0]}" in
+case "${package}" in
     cakephp )   package="cakephp/app"
                 public_dir="webroot"
                 work_dir="webroot"
@@ -331,9 +330,6 @@ case "${args[0]}" in
     * )         package="${args[0]}"
                 ;;
 esac
-
-# Set Composer package version if provided.
-[[ -n "${args[1]}" ]] && version="${args[1]}"
 
 # Set container name to directory name if not provided.
 [[ -z "${name}" ]] && name="$( basename "${directory}" )"
