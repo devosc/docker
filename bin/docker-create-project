@@ -39,7 +39,6 @@ Package:
 Options:
     --build                         Build the image before starting the container.
     --composer-options              Display Composer create-project options.
-    --git                           Clone a Git repository into the project directory.
     --host                          Project host name.
     --image                         Docker image name.
     --project-directory PATH        Path to project directory. Created if it does not exist.
@@ -345,6 +344,8 @@ if [[ -z "${host}" ]]; then
 
     [[ -z "${host}" ]] && host="${name}"
 fi
+
+[[ "${package}" == *".git" ]] && factory="git_clone"
 
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
 public_directory ${directory}
