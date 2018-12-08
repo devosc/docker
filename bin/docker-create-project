@@ -199,7 +199,7 @@ function create_host()
     local host="$2"
     local ip="$3"
 
-    if ! grep -q "${ip} ${host}" /etc/hosts; then
+    if ! grep -q "${ip} ${host}$" /etc/hosts; then
         echo "Add the host name ${host} to your /etc/hosts file using:"
         echo "  echo \"${ip} ${host}\" | sudo tee -a /etc/hosts"
         read -p "Do you want to add it now? (sudo access required) [no|yes*] " create
