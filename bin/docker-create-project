@@ -113,9 +113,6 @@ function composer_create_project()
     local package="$4"
     local version="$5"
 
-    echo "Creating Project: ${name}"
-    echo "Directory: ${directory}"
-
     docker-php --project-directory ${directory} composer ${options} create-project ${package} . ${version}
 
     if [[ $? != 0 ]]; then
@@ -164,6 +161,9 @@ function create_docker_compose_file()
     sed -i.bak "s#${default_name}#${name}#g" "${directory}/docker-compose.yml"
     rm "${directory}/docker-compose.yml.bak"
 
+    sed -i.bak "s#${default_host}#${host}#g" "${directory}/docker-compose.yml"
+    rm "${directory}/docker-compose.yml.bak"
+
     if [[ -n "${public_dir}" ]]; then
         echo "Document root: /var/www/${public_dir}"
         sed -i.bak "s#APACHE_DOCUMENT_ROOT=/var/www/public#APACHE_DOCUMENT_ROOT=/var/www/${public_dir}#" "${directory}/docker-compose.yml"
@@ -196,9 +196,8 @@ function create_docker_compose_file()
 function create_host()
 {
     local directory="$1"
-    local name="$2"
-    local host="$3"
-    local ip="$4"
+    local host="$2"
+    local ip="$3"
 
     if ! grep -q "${ip} ${host}" /etc/hosts; then
         echo "Add the host name ${host} to your /etc/hosts file using:"
@@ -218,9 +217,6 @@ function create_host()
     else
         echo "Host exists: ${ip} ${host}";
     fi
-
-    sed -i.bak "s#${default_host}#${host}#g" "${directory}/docker-compose.yml"
-    rm "${directory}/docker-compose.yml.bak"
 }
 
 function public_directory()
@@ -240,9 +236,6 @@ function git_clone()
     local name="$2"
     local options="$3"
     local package="$4"
-
-    echo "Creating Project: ${name}"
-    echo "Directory: ${directory}"
 
     docker-php --ssh-keys --project-directory ${directory} git clone ${options} ${package} .
 
@@ -284,8 +277,8 @@ function start_project()
 function wordpress()
 {
     local directory="$1"
-    local name="$2"
     local document_root="${directory}/${public_dir}"
+    local name="$2"
 
     echo "Downloading: https://wordpress.org/latest.tar.gz"
     curl -O https://wordpress.org/latest.tar.gz
@@ -348,12 +341,12 @@ else
     esac
 fi
 
+[[ -n "${args[1]}" ]] && version="${args[1]}"
+
 if [[ -n "${create_directory}" ]]; then
     echo "Creating directory: ${directory}"
     mkdir -p ${directory}
 fi
-
-[[ -n "${args[1]}" ]] && version="${args[1]}"
 
 if [[ -z "${host}" ]]; then
     read -p "Enter a host name for the container: [${name}] " host
@@ -363,10 +356,12 @@ fi
 
 [[ "${package}" == *".git" ]] && factory="git_clone"
 
+echo "Creating Project: ${name}"
+echo "Directory: ${directory}"
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
 [[ "${factory}" != "composer_create_project" ]] && composer_install ${directory}
 public_directory ${directory}
 create_docker_compose_file ${directory} ${name} ${image}
-create_host ${directory} ${name} ${host} ${ip}
+create_host ${directory} ${host} ${ip}
 start_project "${build}" ${directory}
 echo "Project URL: https://${host}"
