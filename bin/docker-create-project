@@ -4,6 +4,7 @@ source docker-build-env
 
 args=("$@")
 build=""
+context=""
 create_directory=""
 default_host="docker-project"
 default_name="docker-project"
@@ -39,6 +40,7 @@ Package:
 Options:
     --build                         Build the image before starting the container.
     --composer-options              Display Composer create-project options.
+    --context                       Docker build context.
     --host                          Project host name.
     --image                         Docker image name.
     --project-directory PATH        Path to project directory. Created if it does not exist.
@@ -60,8 +62,9 @@ for ((i=0; i < "$#"; ++i)); do
         --composer-options )    docker-php composer create-project --help
                                 exit
                                 ;;
-        --git )                 factory="git_clone"
-                                unset "args[i]"
+        --context )             context="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
                                 ;;
         --host )                host="${args[i+1]}"
                                 unset "args[i]" "args[i+1]"
@@ -140,28 +143,36 @@ function composer_install()
 function create_docker_compose_file()
 {
     local directory="$1"
-    local name="$2"
-    local image="$3"
-
-    local context="${docker_project_dir}"
-
-    [[ "$HOME/docker" = "$docker_project_dir" ]] && context="~/docker"
+    local context="$2"
+    local name="$3"
+    local host="$4"
+    local image="$5"
 
     if [[ ! -f "${directory}/docker-compose.yml" ]]; then
         echo "Creating Docker Compose file: ${directory}/docker-compose.yml"
         cp "${docker_project_dir}/docker-compose.yml" "${directory}/docker-compose.yml"
+
+        #volume for working directory
+        sed -i.bak "s#\./www:/var/www#\.:/var/www#g" "${directory}/docker-compose.yml"
+        rm "${directory}/docker-compose.yml.bak"
+
+        [[ -z "${context}" ]] && context="${docker_project_dir}"
+        [[ "${HOME}/docker" = "${context}" ]] && context="~/docker"
     fi
 
-    echo "Context: ${context}"
-    sed -i.bak "s#context: .#context: ${context}#g" "${directory}/docker-compose.yml"
-    sed -i.bak "s#./www:/var/www#.:/var/www#g" "${directory}/docker-compose.yml"
-    rm "${directory}/docker-compose.yml.bak"
+    if [[ -n "${context}" ]]; then
+        echo "Context: ${context}"
+        sed -i.bak "s#context: .*#context: ${context}#g" "${directory}/docker-compose.yml"
+        sed -i.bak "s#\./www:/var/www#\.:/var/www#g" "${directory}/docker-compose.yml"
+        rm "${directory}/docker-compose.yml.bak"
+    fi
 
     echo "Container name: ${name}"
-    sed -i.bak "s#${default_name}#${name}#g" "${directory}/docker-compose.yml"
+    sed -i.bak "s#container_name: .*#container_name: ${name}#g" "${directory}/docker-compose.yml"
     rm "${directory}/docker-compose.yml.bak"
 
-    sed -i.bak "s#${default_host}#${host}#g" "${directory}/docker-compose.yml"
+    echo "Host: ${host}"
+    sed -i.bak "s#Host:.*#Host:${host}#g" "${directory}/docker-compose.yml"
     rm "${directory}/docker-compose.yml.bak"
 
     if [[ -n "${public_dir}" ]]; then
@@ -361,7 +372,7 @@ echo "Directory: ${directory}"
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
 [[ "${factory}" != "composer_create_project" ]] && composer_install ${directory}
 public_directory ${directory}
-create_docker_compose_file ${directory} ${name} ${image}
+create_docker_compose_file ${directory} "${context}" ${name} ${host} ${image}
 create_host ${directory} ${host} ${ip}
 start_project "${build}" ${directory}
 echo "Project URL: https://${host}"
