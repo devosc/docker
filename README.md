@@ -60,7 +60,7 @@ Inside the project directory, start the project container and the shared service
 ```
 docker-up -a
 ```
-
+The URL is `https://docker-project`.
 ## Project Commands
 - Start container: `docker-up`
 - Stop container: `docker-down`
@@ -76,7 +76,7 @@ docker-up -a
 - npm: `docker-npm`
 - PHPUnit: `docker-phpunit`
 - Symfony: `docker-symfony [phpunit]`
-- WP-CLI: `docker-wp`
+- WP-CLI: `docker-wp [multisite-convert]`
 - Xdebug: `docker-xdebug [on|off]`
     - Start remote debugging session `--session-start`
     - Stop remote debugging session `--session-stop`
@@ -88,7 +88,27 @@ docker-up -a
 
 ## PHP Command
 The `docker-php` command provides a command line interface for PHP, Composer and Git. PHP is the default command and it runs an interactive shell when no arguments exist. Use `docker-php PATH` to execute a file relative to the project directory and use `--ssh-keys` to mount your `.ssh` directory when using Composer and Git. Use the `CLI_RELEASE_VERSION` build argument to change the PHP Docker image version. To install Xdebug, set `XDEBUG=true` in the `.build.env` file, or create a separate `.build-cli.env` file.
+## Projects
+A project can be created for a Composer `package` or Git `repository` using the `docker-create-project` command.
+```
+docker-create-project [options] package|repository [version]
+```
+A project Compose file is created if it doesn't exist and the project directory name is used as the `host` name and `container` name unless the options `--host HOST` and `--name NAME` are provided. The web server `document root` defaults to the project directory unless a `public` or `html` directory exists. The following packages are available for convenience.
+- `cakephp` CakePHP (cakephp/app)
+- `laravel`        Laravel (laravel/laravel)
+- `mvc5`           Mvc5 (mvc5/mvc5-application)
+- `phpinfo`        PHP info page
+- `symfony`        Symfony (symfony/website-skeleton)
+- `wordpress`      Wordpress (download from https://wordpress.org)
 
+All of the Composer `create-project` and Git `clone` options can be used.
+## Trusted Proxy Server Configuration
+If necessary, use `docker-traefik ip-address` to return the i.p. address for trusted proxy server configurations.
+## Demo Applications
+CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the `~/docker/www` directory.
+```
+docker-create-demo [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress]
+```
 ## Build Args
 To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
 ```
@@ -130,11 +150,3 @@ Use `docker-up --build` to build the images after changing a `Dockerfile` or the
 Shared services, such as Traefik and MailHog, are automatically started using `docker-up -a`. The `-a` switch runs `docker-services up` which calls the `services` script that manages the services to start. To stop all services, it is easier to stop and remove all containers using `docker-down -a`, this is because multiple services can be connected to a shared service. If there are no projects running, then it is possible to use `docker-services down`. An individual service can be targeted by specifying its name, e.g. `docker-services adminer up`, and the image for the service can be built before starting its container using the `--build` switch, e.g. `docker-services adminer up --build`. Similarly, the image for a service can be removed when stopping the service, e.g `docker-services adminer down --remove-images`. The i.p. address for a particular service can also be retrieved, e.g. `docker-services mariadb ip-address`.
 ## Local Services
 Other services can be added to the `local` directory and registered in the `services` script. A `local` service will be used instead of a core service, if it exists. A service can be defined in a Compose file matching the name of the service, e.g. `mysql.yml`. Alternatively, a service can be a directory matching the name of the service, containing a `docker-compose.yml` file.
-## Trusted Proxy Server Configuration
-If necessary, use `docker-traefik ip-address` to return the i.p. address for trusted proxy server configurations.
-## Demo Applications
-CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the `~/docker/www` directory.
-```
-docker-create-demo [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress]
-```
-The URL is `https://docker-project`.
