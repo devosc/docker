@@ -124,6 +124,22 @@ function composer_create_project()
     fi
 }
 
+function composer_install()
+{
+    local directory="$1"
+
+    if [[ ! -f "${directory}/composer.json" ]]; then
+        return
+    fi
+
+    docker-php --project-directory ${directory} composer install
+
+    if [[ $? != 0 ]]; then
+        echo "An error occurred."
+        exit 1
+    fi
+}
+
 function create_docker_compose_file()
 {
     local directory="$1"
@@ -348,6 +364,7 @@ fi
 [[ "${package}" == *".git" ]] && factory="git_clone"
 
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
+[[ "${factory}" != "composer_create_project" ]] && composer_install ${directory}
 public_directory ${directory}
 create_docker_compose_file ${directory} ${name} ${image}
 create_host ${directory} ${name} ${host} ${ip}
