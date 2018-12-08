@@ -37,11 +37,11 @@ Package:
 Options:
     --build                         Build the image before starting the container.
     --composer-options              Display Composer create-project options.
-    --context                       Docker build context.
-    --host                          Project host name.
-    --image                         Docker image name.
+    --context CONTEXT               Docker build context.
+    --host HOST                     Project host name.
+    --image IMAGE                   Docker image name.
     --project-directory PATH        Path to project directory. Created if it does not exist.
-    --name                          Host name and container name for Compose file.
+    --name NAME                     Host name and container name for Compose file.
                                     Default is project directory name.
 All of the Composer create-project options can be used."
 }
@@ -49,10 +49,9 @@ All of the Composer create-project options can be used."
 function composer_create_project()
 {
     local directory="$1"
-    local name="$2"
-    local options="$3"
-    local package="$4"
-    local version="$5"
+    local options="$2"
+    local package="$3"
+    local version="$4"
 
     docker-php --project-directory ${directory} composer ${options} create-project ${package} . ${version}
 
@@ -172,9 +171,8 @@ function create_host()
 function git_clone()
 {
     local directory="$1"
-    local name="$2"
-    local options="$3"
-    local package="$4"
+    local options="$2"
+    local package="$3"
 
     docker-php --ssh-keys --project-directory ${directory} git clone ${options} ${package} .
 
@@ -336,7 +334,7 @@ else
     esac
 fi
 
-# Set composer package version if provided.
+# Set Composer package version if provided.
 [[ -n "${args[1]}" ]] && version="${args[1]}"
 
 # Set container name to directory name if not provided.
@@ -371,7 +369,7 @@ fi
 # Create project.
 echo "Creating Project: ${name}"
 echo "Directory: ${directory}"
-${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
+${factory} ${directory} "${options[@]}" ${package} ${version}
 composer_install ${directory} ${factory}
 set_public_dir ${directory}
 create_docker_compose_file ${directory} "${context}" ${name} ${host} ${image}
