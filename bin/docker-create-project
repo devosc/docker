@@ -257,12 +257,6 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     fi
 }
 
-# Check usage.
-if [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]]; then
-    usage
-    exit
-fi
-
 # Set options.
 for ((i=0; i < "$#"; ++i)); do
     case "${args[i]}" in
@@ -292,6 +286,9 @@ for ((i=0; i < "$#"; ++i)); do
                                 unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
                                 ;;
+        -h|--help )             usage
+                                exit
+                                ;;
         -* )                    options+=("${args[i]}")
                                 unset "args[i]"
                                 ;;
@@ -303,36 +300,37 @@ done
 # Reset args index.
 args=("${args[@]}")
 
-# Set package.
+# Check package is not empty.
 if [[ -z "${args[0]}" ]]; then
     usage
     exit 1
-else
-    case "${args[0]}" in
-        cakephp )   package="cakephp/app"
-                    public_dir="webroot"
-                    work_dir="webroot"
-                    options=("--prefer-dist")
-                    ;;
-        laravel )   package="laravel/laravel"
-                    options=("--prefer-dist")
-                    ;;
-        mvc5 )      package="mvc5/mvc5-application"
-                    ;;
-        phpinfo )   factory="phpinfo"
-                    ;;
-        symfony )   package="symfony/website-skeleton"
-                    options=("--prefer-dist")
-                    ;;
-        wordpress ) factory="wordpress"
-                    public_dir="html"
-                    work_dir="html"
-                    wp_cli="true"
-                    ;;
-        * )         package="${args[0]}"
-                    ;;
-    esac
 fi
+
+# Set package.
+case "${args[0]}" in
+    cakephp )   package="cakephp/app"
+                public_dir="webroot"
+                work_dir="webroot"
+                options=("--prefer-dist")
+                ;;
+    laravel )   package="laravel/laravel"
+                options=("--prefer-dist")
+                ;;
+    mvc5 )      package="mvc5/mvc5-application"
+                ;;
+    phpinfo )   factory="phpinfo"
+                ;;
+    symfony )   package="symfony/website-skeleton"
+                options=("--prefer-dist")
+                ;;
+    wordpress ) factory="wordpress"
+                public_dir="html"
+                work_dir="html"
+                wp_cli="true"
+                ;;
+    * )         package="${args[0]}"
+                ;;
+esac
 
 # Set Composer package version if provided.
 [[ -n "${args[1]}" ]] && version="${args[1]}"
