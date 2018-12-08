@@ -5,9 +5,6 @@ source docker-build-env
 args=("$@")
 build=""
 context=""
-create_directory=""
-default_host="docker-project"
-default_name="docker-project"
 directory="${PWD}"
 docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
 factory="composer_create_project"
@@ -24,9 +21,9 @@ version=""
 
 function usage()
 {
-    echo "Creates a new project from an existing Composer package. A Docker Compose file is generated and the project name is added to the /etc/hosts file.
+    echo "Creates a new project from a Composer package or Git repository. A new Docker Compose file is created if it does not exist, and the project name is added to the /etc/hosts file.
 
-Usage: docker-create-project [options] [package]
+Usage: docker-create-project [options] package|repository [version]
 
 The following packages are available for convenience.
 
@@ -49,65 +46,6 @@ Options:
 All of the Composer create-project options can be used."
 }
 
-if [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]]; then
-    usage
-    exit
-fi
-
-for ((i=0; i < "$#"; ++i)); do
-    case "${args[i]}" in
-        --build )               build="--build"
-                                unset "args[i]"
-                                ;;
-        --composer-options )    docker-php composer create-project --help
-                                exit
-                                ;;
-        --context )             context="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
-                                i=$(expr ${i} + 1)
-                                ;;
-        --host )                host="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
-                                i=$(expr ${i} + 1)
-                                ;;
-        --image )               image="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
-                                i=$(expr ${i} + 1)
-                                ;;
-        --name )                name="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
-                                i=$(expr ${i} + 1)
-                                ;;
-        --project-directory )   directory="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
-                                i=$(expr ${i} + 1)
-                                ;;
-        -* )                    options+=("${args[i]}")
-                                unset "args[i]"
-                                ;;
-        * )                     break
-                                ;;
-    esac
-done
-
-args=("${args[@]}")
-
-if [[ -d "${directory}" ]]; then
-    if [[ "${directory}" != "${PWD}" ]]; then
-        echo "Error: Directory already exists."
-        echo "Path: ${directory}"
-        exit 1
-    elif [[ -n "$(ls -A ${directory})" ]]; then
-        echo "Error: Directory is not empty."
-        echo "Path: ${directory}"
-        exit 1
-    fi
-else
-    create_directory=true
-fi
-
-[[ -z "${name}" ]] && name="$( basename "${directory}" )"
-
 function composer_create_project()
 {
     local directory="$1"
@@ -127,8 +65,9 @@ function composer_create_project()
 function composer_install()
 {
     local directory="$1"
+    local factory="$2"
 
-    if [[ ! -f "${directory}/composer.json" ]]; then
+    if [[ ! -f "${directory}/composer.json" ]] || [[ "${factory}" = "composer_create_project" ]]; then
         return
     fi
 
@@ -193,7 +132,7 @@ function create_docker_compose_file()
 
     if [[ -n "${image}" ]]; then
         echo "Docker image name: ${image}"
-        sed -i.bak "s@#image: docker-project@image: ${image}@" "${directory}/docker-compose.yml"
+        sed -i.bak "s@#image: .*@image: ${image}@" "${directory}/docker-compose.yml"
         rm "${directory}/docker-compose.yml.bak"
     fi
 
@@ -230,17 +169,6 @@ function create_host()
     fi
 }
 
-function public_directory()
-{
-    local directory="$1"
-
-    if [[ -d "${directory}/public" ]]; then
-        public_dir="public"
-    elif [[ -d "${directory}/html" ]]; then
-        public_dir="html"
-    fi
-}
-
 function git_clone()
 {
     local directory="$1"
@@ -270,6 +198,17 @@ function phpinfo()
 
 phpinfo();
 EOT
+}
+
+function set_public_dir()
+{
+    local directory="$1"
+
+    if [[ -d "${directory}/public" ]]; then
+        public_dir="public"
+    elif [[ -d "${directory}/html" ]]; then
+        public_dir="html"
+    fi
 }
 
 function start_project()
@@ -320,6 +259,53 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     fi
 }
 
+# Check usage.
+if [[ "$1" = "--help" ]] || [[ "$1" = "-h" ]]; then
+    usage
+    exit
+fi
+
+# Set options.
+for ((i=0; i < "$#"; ++i)); do
+    case "${args[i]}" in
+        --build )               build="--build"
+                                unset "args[i]"
+                                ;;
+        --composer-options )    docker-php composer create-project --help
+                                exit
+                                ;;
+        --context )             context="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+        --host )                host="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+        --image )               image="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+        --name )                name="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+        --project-directory )   directory="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+        -* )                    options+=("${args[i]}")
+                                unset "args[i]"
+                                ;;
+        * )                     break
+                                ;;
+    esac
+done
+
+# Reset args index.
+args=("${args[@]}")
+
+# Set package.
 if [[ -z "${args[0]}" ]]; then
     usage
     exit 1
@@ -334,8 +320,6 @@ else
                     options=("--prefer-dist")
                     ;;
         mvc5 )      package="mvc5/mvc5-application"
-                    default_host="mvc5playground"
-                    default_name="mvc5playground"
                     ;;
         phpinfo )   factory="phpinfo"
                     ;;
@@ -352,26 +336,44 @@ else
     esac
 fi
 
+# Set composer package version if provided.
 [[ -n "${args[1]}" ]] && version="${args[1]}"
 
-if [[ -n "${create_directory}" ]]; then
+# Set container name to directory name if not provided.
+[[ -z "${name}" ]] && name="$( basename "${directory}" )"
+
+# Create directory if it doesn't exist. Error if current directory is not empty or directory exists.
+if [[ -d "${directory}" ]]; then
+    if [[ "${directory}" != "${PWD}" ]]; then
+        echo "Error: Directory already exists."
+        echo "Path: ${directory}"
+        exit 1
+    elif [[ -n "$(ls -A ${directory})" ]]; then
+        echo "Error: Directory is not empty."
+        echo "Path: ${directory}"
+        exit 1
+    fi
+else
     echo "Creating directory: ${directory}"
     mkdir -p ${directory}
 fi
 
+# Set host name if not provided.
 if [[ -z "${host}" ]]; then
     read -p "Enter a host name for the container: [${name}] " host
 
     [[ -z "${host}" ]] && host="${name}"
 fi
 
+# Use Git clone factory if package is a repository.
 [[ "${package}" == *".git" ]] && factory="git_clone"
 
+# Create project.
 echo "Creating Project: ${name}"
 echo "Directory: ${directory}"
 ${factory} ${directory} ${name} "${options[@]}" ${package} ${version}
-[[ "${factory}" != "composer_create_project" ]] && composer_install ${directory}
-public_directory ${directory}
+composer_install ${directory} ${factory}
+set_public_dir ${directory}
 create_docker_compose_file ${directory} "${context}" ${name} ${host} ${image}
 create_host ${directory} ${host} ${ip}
 start_project "${build}" ${directory}
