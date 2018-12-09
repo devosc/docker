@@ -21,9 +21,12 @@ version=""
 
 function usage()
 {
-    echo "Creates a new project from a Composer package or Git repository. A new Docker Compose file is created if it does not exist, and the project name is added to the /etc/hosts file.
+    echo "Creates and starts a project from a Composer package or Git repository.
 
 Usage: docker-create-project [options] package|repository [version]
+
+Composer install is called after cloning a Git repository and a Docker Compose file is created if it doesn't exist.
+The project name is used as the host and container name if not provided. The host name is added to the /etc/hosts file.
 
 The following packages are available for convenience.
 
@@ -43,17 +46,19 @@ Options:
     --project-directory PATH        Path to project directory. Created if it does not exist.
     --name NAME                     Host name and container name for Compose file.
                                     Default is project directory name.
-All of the Composer create-project options can be used."
+    --stability STABILITY           Composer minimum-stability allowed (unless a version is specified).
+"
 }
 
 function composer_create_project()
 {
-    local directory="$1"
-    local options="$2"
-    local package="$3"
-    local version="$4"
+    local args=("${@}")
+    local directory="${args[0]}"
+    local package="${args[1]}"
+    local options=("${args[@]:3:$#-4}")
+    local version="${args[-1]}"
 
-    docker-php --project-directory ${directory} composer ${options} create-project ${package} . ${version}
+    docker-php --project-directory ${directory} composer ${options[@]} create-project ${package} . ${version}
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
@@ -85,6 +90,9 @@ function create_docker_compose_file()
     local name="$3"
     local host="$4"
     local image="$5"
+    local public_dir="$6"
+    local work_dir="$7"
+    local wp_cli="$8"
 
     if [[ ! -f "${directory}/docker-compose.yml" ]]; then
         echo "Creating Docker Compose file: ${directory}/docker-compose.yml"
@@ -113,25 +121,25 @@ function create_docker_compose_file()
     sed -i.bak "s#Host:.*#Host:${host}#g" "${directory}/docker-compose.yml"
     rm "${directory}/docker-compose.yml.bak"
 
+    if [[ -n "${image}" ]]; then
+        echo "Docker image name: ${image}"
+        sed -i.bak "s@#image: .*@image: ${image}@" "${directory}/docker-compose.yml"
+        rm "${directory}/docker-compose.yml.bak"
+    fi
+
     if [[ -n "${public_dir}" ]]; then
         echo "Document root: /var/www/${public_dir}"
-        sed -i.bak "s#APACHE_DOCUMENT_ROOT=/var/www/public#APACHE_DOCUMENT_ROOT=/var/www/${public_dir}#" "${directory}/docker-compose.yml"
+        sed -i.bak "s#APACHE_DOCUMENT_ROOT=.*#APACHE_DOCUMENT_ROOT=/var/www/${public_dir}#" "${directory}/docker-compose.yml"
         rm "${directory}/docker-compose.yml.bak"
     else
         echo "Document root: /var/www"
-        sed -i.bak "s#APACHE_DOCUMENT_ROOT=/var/www/public#APACHE_DOCUMENT_ROOT=/var/www#" "${directory}/docker-compose.yml"
+        sed -i.bak "s#APACHE_DOCUMENT_ROOT=.*#APACHE_DOCUMENT_ROOT=/var/www#" "${directory}/docker-compose.yml"
         rm "${directory}/docker-compose.yml.bak"
     fi
 
     if [[ -n "${work_dir}" ]]; then
         echo "Working directory: /var/www/${work_dir}"
         sed -i.bak "s#working_dir: /var/www#working_dir: /var/www/${work_dir}#" "${directory}/docker-compose.yml"
-        rm "${directory}/docker-compose.yml.bak"
-    fi
-
-    if [[ -n "${image}" ]]; then
-        echo "Docker image name: ${image}"
-        sed -i.bak "s@#image: .*@image: ${image}@" "${directory}/docker-compose.yml"
         rm "${directory}/docker-compose.yml.bak"
     fi
 
@@ -170,11 +178,12 @@ function create_host()
 
 function git_clone()
 {
-    local directory="$1"
-    local options="$2"
-    local package="$3"
+    local args=("${@}")
+    local directory="${args[0]}"
+    local package="${args[1]}"
+    local options=("${args[@]:3:$#-4}")
 
-    docker-php --ssh-keys --project-directory ${directory} git clone ${options} ${package} .
+    docker-php --ssh-keys --project-directory ${directory} git clone ${options[@]} ${package} .
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
@@ -185,7 +194,6 @@ function git_clone()
 function phpinfo()
 {
     local directory="$1"
-    local name="$2"
 
     mkdir -p "${directory}/public"
 
@@ -225,14 +233,13 @@ function start_project()
 function wordpress()
 {
     local directory="$1"
-    local document_root="${directory}/${public_dir}"
-    local name="$2"
+    local wp_dir="${directory}/html"
 
     echo "Downloading: https://wordpress.org/latest.tar.gz"
     curl -O https://wordpress.org/latest.tar.gz
     tar -xzvf latest.tar.gz --directory ${directory}
-    rm -rf "${document_root}"
-    mv ${directory}/wordpress "${document_root}"
+    rm -rf "${wp_dir}"
+    mv ${directory}/wordpress "${wp_dir}"
     rm latest.tar.gz
 
     proxy="\\
@@ -243,8 +250,8 @@ define('FORCE_SSL_ADMIN', true); \\
 if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     \$_SERVER['HTTPS']='on';"
 
-    sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);${proxy}#g" "${document_root}/wp-config-sample.php"
-    rm "${document_root}/wp-config-sample.php.bak"
+    sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);${proxy}#g" "${wp_dir}/wp-config-sample.php"
+    rm "${wp_dir}/wp-config-sample.php.bak"
 
     echo "Default database settings:"
     echo "  host: mariadb database: wordpress user: root"
@@ -283,6 +290,10 @@ for ((i=0; i < "$#"; ++i)); do
                                 i=$(expr ${i} + 1)
                                 ;;
         --project-directory )   directory="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+        --stability )           options+=("--stability=${args[i+1]}")
                                 unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
                                 ;;
@@ -327,8 +338,6 @@ case "${package}" in
                 work_dir="html"
                 wp_cli="true"
                 ;;
-    * )         package="${args[0]}"
-                ;;
 esac
 
 # Set container name to directory name if not provided.
@@ -363,10 +372,10 @@ fi
 # Create project.
 echo "Creating Project: ${name}"
 echo "Directory: ${directory}"
-${factory} ${directory} "${options[@]}" ${package} ${version}
+${factory} ${directory} ${package} "${options[@]}" "${version}"
 composer_install ${directory} ${factory}
 set_public_dir ${directory}
-create_docker_compose_file ${directory} "${context}" ${name} ${host} ${image}
+create_docker_compose_file ${directory} "${context}" ${name} ${host} "${image}" "${public_dir}" "${work_dir}" "${wp_cli}"
 create_host ${directory} ${host} ${ip}
 start_project "${build}" ${directory}
 echo "Project URL: https://${host}"

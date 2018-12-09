@@ -100,8 +100,6 @@ A project Compose file is created if it doesn't exist and the project directory 
 - `phpinfo`        PHP info page
 - `symfony`        Symfony (symfony/website-skeleton)
 - `wordpress`      Wordpress (download from https://wordpress.org)
-
-All of the Composer `create-project` and Git `clone` options can be used.
 ## Trusted Proxy Server Configuration
 If necessary, use `docker-traefik ip-address` to return the i.p. address for trusted proxy server configurations.
 ## Demo Applications
