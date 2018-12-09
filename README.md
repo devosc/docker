@@ -85,7 +85,6 @@ The URL is `https://docker-project`.
     - Profiler on `--profiler-on`
     - Profiler off `--profiler-off`
     - Profiler output directory `--profiler-output-dir PATH`
-
 ## PHP Command
 The `docker-php` command provides a command line interface for PHP, Composer and Git. PHP is the default command and it runs an interactive shell when no arguments exist. Use `docker-php PATH` to execute a file relative to the project directory and use `--ssh-keys` to mount your `.ssh` directory when using Composer and Git. Use the `CLI_RELEASE_VERSION` build argument to change the PHP Docker image version. To install Xdebug, set `XDEBUG=true` in the `.build.env` file, or create a separate `.build-cli.env` file.
 ## Projects
@@ -93,20 +92,20 @@ A project can be created for a Composer `package` or Git `repository` using the 
 ```
 docker-create-project [options] package|repository [version]
 ```
-A project Compose file is created if it doesn't exist and the project directory name is used as the `host` name and `container` name unless the options `--host HOST` and `--name NAME` are provided. The web server `document root` defaults to the project directory unless a `public` or `html` directory exists. The following packages are available for convenience.
+A project Compose file is created if it doesn't exist and the project directory name is used as the `host` name and `container` name unless the options `--host HOST` and `--name NAME` are provided. The web server document root defaults to the project directory unless a `public` or `html` directory exists. The following packages are available for convenience.
 - `cakephp` CakePHP (cakephp/app)
 - `laravel`        Laravel (laravel/laravel)
 - `mvc5`           Mvc5 (mvc5/mvc5-application)
 - `phpinfo`        PHP info page
 - `symfony`        Symfony (symfony/website-skeleton)
 - `wordpress`      Wordpress (download from https://wordpress.org)
-## Trusted Proxy Server Configuration
-If necessary, use `docker-traefik ip-address` to return the i.p. address for trusted proxy server configurations.
 ## Demo Applications
 CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the `~/docker/www` directory.
 ```
 docker-create-demo [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress]
 ```
+## Trusted Proxy Server Configuration
+If necessary, use `docker-traefik ip-address` to return the i.p. address for trusted proxy server configurations.
 ## Build Args
 To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
 ```
