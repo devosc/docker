@@ -267,40 +267,32 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
 for ((i=0; i < "$#"; ++i)); do
     case "${args[i]}" in
         --build )               build="--build"
-                                unset "args[i]"
                                 ;;
         --composer-options )    docker-php composer create-project --help
                                 exit
                                 ;;
         --context )             context="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
                                 ;;
         --host )                host="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
                                 ;;
         --image )               image="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
                                 ;;
         --name )                name="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
                                 ;;
         --project-directory )   directory="${args[i+1]}"
-                                unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
                                 ;;
         --stability )           options+=("--stability=${args[i+1]}")
-                                unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
                                 ;;
         -h|--help )             usage
                                 exit
                                 ;;
         -* )                    options+=("${args[i]}")
-                                unset "args[i]"
                                 ;;
         * )                     package="${args[i]}"
                                 version="${args[i+1]}" # Composer package version.
