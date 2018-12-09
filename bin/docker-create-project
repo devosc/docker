@@ -13,7 +13,6 @@ image=""
 ip="127.0.0.1"
 name=""
 options=("")
-project=""
 public_dir=""
 work_dir=""
 wp_cli=""
