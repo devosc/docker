@@ -88,18 +88,22 @@ function create_docker_compose_file()
     local context="$2"
     local name="$3"
     local host="$4"
-    local image="$5"
-    local public_dir="$6"
+    local public_dir="$5"
+    local image="$6"
     local work_dir="$7"
     local wp_cli="$8"
+    local compose_file="${directory}/docker-compose.yml"
+    local document_root="${directory}"
 
-    if [[ ! -f "${directory}/docker-compose.yml" ]]; then
-        echo "Creating Docker Compose file: ${directory}/docker-compose.yml"
-        cp "${docker_project_dir}/docker-compose.yml" "${directory}/docker-compose.yml"
+    [[ -n "${public_dir}" ]] && document_root="/var/www/${public_dir}"
+
+    if [[ ! -f "${compose_file}" ]]; then
+        echo "Creating Docker Compose file: ${compose_file}"
+        cp "${docker_project_dir}/docker-compose.yml" "${compose_file}"
 
         #volume for working directory
-        sed -i.bak "s#\./www:/var/www#\.:/var/www#g" "${directory}/docker-compose.yml"
-        rm "${directory}/docker-compose.yml.bak"
+        sed -i.bak "s#\./www:/var/www#\.:/var/www#g" "${compose_file}"
+        rm "${compose_file}.bak"
 
         [[ -z "${context}" ]] && context="${docker_project_dir}"
         [[ "${HOME}/docker" = "${context}" ]] && context="~/docker"
@@ -107,45 +111,39 @@ function create_docker_compose_file()
 
     if [[ -n "${context}" ]]; then
         echo "Context: ${context}"
-        sed -i.bak "s#context: .*#context: ${context}#g" "${directory}/docker-compose.yml"
-        sed -i.bak "s#\./www:/var/www#\.:/var/www#g" "${directory}/docker-compose.yml"
-        rm "${directory}/docker-compose.yml.bak"
+        sed -i.bak "s#context: .*#context: ${context}#g" ${compose_file}
+        sed -i.bak "s#\./www:/var/www#\.:/var/www#g" ${compose_file}
+        rm "${compose_file}.bak"
     fi
 
     echo "Container name: ${name}"
-    sed -i.bak "s#container_name: .*#container_name: ${name}#g" "${directory}/docker-compose.yml"
-    rm "${directory}/docker-compose.yml.bak"
+    sed -i.bak "s#container_name: .*#container_name: ${name}#g" ${compose_file}
+    rm "${compose_file}.bak"
 
     echo "Host: ${host}"
-    sed -i.bak "s#Host:.*#Host:${host}#g" "${directory}/docker-compose.yml"
-    rm "${directory}/docker-compose.yml.bak"
+    sed -i.bak "s#Host:.*#Host:${host}#g" ${compose_file}
+    rm "${compose_file}.bak"
+
+    echo "Document root: ${document_root}"
+    sed -i.bak "s#APACHE_DOCUMENT_ROOT=.*#APACHE_DOCUMENT_ROOT=${document_root}#" ${compose_file}
+    rm "${compose_file}.bak"
 
     if [[ -n "${image}" ]]; then
         echo "Docker image name: ${image}"
-        sed -i.bak "s@#image: .*@image: ${image}@" "${directory}/docker-compose.yml"
-        rm "${directory}/docker-compose.yml.bak"
-    fi
-
-    if [[ -n "${public_dir}" ]]; then
-        echo "Document root: /var/www/${public_dir}"
-        sed -i.bak "s#APACHE_DOCUMENT_ROOT=.*#APACHE_DOCUMENT_ROOT=/var/www/${public_dir}#" "${directory}/docker-compose.yml"
-        rm "${directory}/docker-compose.yml.bak"
-    else
-        echo "Document root: /var/www"
-        sed -i.bak "s#APACHE_DOCUMENT_ROOT=.*#APACHE_DOCUMENT_ROOT=/var/www#" "${directory}/docker-compose.yml"
-        rm "${directory}/docker-compose.yml.bak"
+        sed -i.bak "s@#image: .*@image: ${image}@" ${compose_file}
+        rm "${compose_file}.bak"
     fi
 
     if [[ -n "${work_dir}" ]]; then
         echo "Working directory: /var/www/${work_dir}"
-        sed -i.bak "s#working_dir: /var/www#working_dir: /var/www/${work_dir}#" "${directory}/docker-compose.yml"
-        rm "${directory}/docker-compose.yml.bak"
+        sed -i.bak "s#working_dir: /var/www#working_dir: /var/www/${work_dir}#" ${compose_file}
+        rm "${compose_file}.bak"
     fi
 
     if [[ -n "${wp_cli}" ]]; then
         echo "Enabling WP-CLI"
-        sed -i.bak "s@#- WP_CLI=true@- WP_CLI=true@" "${directory}/docker-compose.yml"
-        rm "${directory}/docker-compose.yml.bak"
+        sed -i.bak "s@#- WP_CLI=true@- WP_CLI=true@" ${compose_file}
+        rm "${compose_file}.bak"
     fi
 }
 
@@ -283,7 +281,7 @@ for ((i=0; i < "$#"; ++i)); do
         --name )                name="${args[i+1]}"
                                 i=$(expr ${i} + 1)
                                 ;;
-        --project-directory )   directory="${args[i+1]}"
+        --project-directory )   directory="$( cd "$(dirname "${args[i+1]}")" ; pwd -P )/$(basename "${args[i+1]}")"
                                 i=$(expr ${i} + 1)
                                 ;;
         --stability )           options+=("--stability=${args[i+1]}")
@@ -366,7 +364,7 @@ echo "Directory: ${directory}"
 ${factory} ${directory} ${package} "${options[@]}" "${version}"
 composer_install ${directory} ${factory}
 set_public_dir ${directory}
-create_docker_compose_file ${directory} "${context}" ${name} ${host} "${image}" "${public_dir}" "${work_dir}" "${wp_cli}"
+create_docker_compose_file ${directory} "${context}" ${name} ${host} "${public_dir}" "${image}" "${work_dir}" "${wp_cli}"
 create_host ${directory} ${host} ${ip}
 start_project "${build}" ${directory}
 echo "Project URL: https://${host}"
