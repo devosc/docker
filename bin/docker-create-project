@@ -281,7 +281,7 @@ for ((i=0; i < "$#"; ++i)); do
         --name )                name="${args[i+1]}"
                                 i=$(expr ${i} + 1)
                                 ;;
-        --project-directory )   directory="$( cd "$(dirname "${args[i+1]}")" ; pwd -P )/$(basename "${args[i+1]}")"
+        --project-directory )   directory="${args[i+1]}"
                                 i=$(expr ${i} + 1)
                                 ;;
         --stability )           options+=("--stability=${args[i+1]}")
@@ -332,13 +332,9 @@ esac
 # Set container name to directory name if not provided.
 [[ -z "${name}" ]] && name="$( basename "${directory}" )"
 
-# Create directory if it doesn't exist. Error if current directory is not empty or directory exists.
+# Create directory if it doesn't exist. Error if directory is not empty.
 if [[ -d "${directory}" ]]; then
-    if [[ "${directory}" != "${PWD}" ]]; then
-        echo "Error: Directory already exists."
-        echo "Path: ${directory}"
-        exit 1
-    elif [[ -n "$(ls -A ${directory})" ]]; then
+    if [[ -n "$(ls -A ${directory})" ]]; then
         echo "Error: Directory is not empty."
         echo "Path: ${directory}"
         exit 1
@@ -347,6 +343,9 @@ else
     echo "Creating directory: ${directory}"
     mkdir -p ${directory}
 fi
+
+# Resolve directory path
+directory="$( cd "${directory}" ; pwd -P )"
 
 # Set host name if not provided.
 if [[ -z "${host}" ]]; then
