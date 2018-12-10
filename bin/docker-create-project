@@ -342,6 +342,11 @@ if [[ -d "${directory}" ]]; then
 else
     echo "Creating directory: ${directory}"
     mkdir -p ${directory}
+
+    if [[ $? != 0 ]]; then
+        echo "An error occurred.";
+        exit 1
+    fi;
 fi
 
 # Resolve directory path
