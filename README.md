@@ -92,7 +92,7 @@ A project can be created for a Composer `package` or Git `repository` using the 
 ```
 docker-create-project [options] package|repository [version]
 ```
-A project Compose file is created if it doesn't exist and the project directory name is used as the `host` name and `container` name unless the options `--host HOST` and `--name NAME` are provided. The web server document root defaults to the project directory unless a `public` or `html` directory exists. The following packages are available for convenience.
+A project Compose file is created if it doesn't exist and the project directory name is used as the `host` and `container` name unless the options `--host HOST` and `--name NAME` are provided. The web server document root defaults to the project directory unless a `public` or `html` directory exists. The following packages are available for convenience.
 - `cakephp` CakePHP (cakephp/app)
 - `laravel`        Laravel (laravel/laravel)
 - `mvc5`           Mvc5 (mvc5/mvc5-application)
