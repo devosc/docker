@@ -1,0 +1,36 @@
+version: '3.5'
+
+networks:
+  public:
+    external:
+      name: traefik_webgateway
+
+services:
+  app:
+    build:
+      args:
+        - XDEBUG=true
+        - NODE_JS=true
+        #- WP_CLI=true
+        - RELEASE_VERSION=apache
+        - USER_ID=${USER_ID}
+        - GROUP_ID=${GROUP_ID}
+        - LOCALE=${LOCALE}
+        - TIME_ZONE=${TIME_ZONE}
+        - BUILD_DEPS=${BUILD_DEPS}
+        - PHP_EXT_CONFIGURE=${PHP_EXT_CONFIGURE}
+        - PHP_EXT_INSTALL=${PHP_EXT_INSTALL}
+      context: ~/docker
+    container_name: docker-project
+    image: docker-project-demo
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/public
+    labels:
+      - traefik.docker.network=traefik_webgateway
+      - traefik.frontend.rule=Host:docker-project
+      - traefik.port=80
+    networks:
+      - public
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
