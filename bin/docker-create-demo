@@ -21,42 +21,43 @@ function usage()
 Usage: docker-create-demo [--build] [application]
 
 Application:
-    cakephp           - CakePHP
-    laravel           - Laravel
-    mvc5              - Mvc5
-    multisite-convert - Convert WordPress to a multisite network
-    phpinfo           - PHP info
-    symfony           - Symfony
-    wordpress         - WordPress
+    cakephp                 CakePHP
+    laravel                 Laravel
+    mvc5                    Mvc5
+    multisite-convert       Convert WordPress to a multisite network
+    phpinfo                 PHP info page
+    symfony                 Symfony
+    wordpress               WordPress
 Options:
-    --build                         Build the image before starting the container.
-    --host                          Project host name."
+    --build                 Build the image before starting the container.
+    --host                  Project host name.
+"
 }
 
-if [[ -z "${args[0]}" ]]; then
+for ((i=0; i < "$#"; ++i)); do
+    case "${args[i]}" in
+        cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress )      package="${args[i]}"
+                                                                                unset "args[i]"
+                                                                                ;;
+        --build )                                                               build="--build"
+                                                                                unset "args[i]"
+                                                                                ;;
+        --host )                                                                host="--host ${args[i+1]}"
+                                                                                unset "args[i]" "args[i+1]"
+                                                                                i=$(expr ${i} + 1)
+                                                                                ;;
+        -h|--help )                                                             usage
+                                                                                exit
+                                                                                ;;
+        * )                                                                     usage
+                                                                                exit 1
+                                                                                ;;
+    esac
+done
+
+if [[ -z "${package}" ]]; then
     usage
     exit 1
-else
-    for ((i=0; i < "$#"; ++i)); do
-        case "${args[i]}" in
-            cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress )      package="${args[i]}"
-                                                                                    unset "args[i]"
-                                                                                    ;;
-            --build )                                                               build="--build"
-                                                                                    unset "args[i]"
-                                                                                    ;;
-            --host )                                                                host="--host ${args[i+1]}"
-                                                                                    unset "args[i]" "args[i+1]"
-                                                                                    i=$(expr ${i} + 1)
-                                                                                    ;;
-            -h|--help )                                                             usage
-                                                                                    exit
-                                                                                    ;;
-            * )                                                                     usage
-                                                                                    exit 1
-                                                                                    ;;
-        esac
-    done
 fi
 
 if [[ "multisite-convert" = "${package}" ]]; then
@@ -67,6 +68,11 @@ fi
 docker-down --project-directory ${docker_project_dir}
 
 cd ${directory}
+
+if [[ $? != 0 ]]; then
+    echo "An error occurred.";
+    exit 1
+fi;
 
 find . -type f -delete
 find . -type l -delete
