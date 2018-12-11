@@ -18,28 +18,24 @@ function usage()
 
     echo "Creates a demo application in the ${dir}/www directory.
 
-Usage: docker-create-demo [--build] [application]
+Usage: docker-create-demo [--host HOST] package
 
-Application:
-    cakephp                 CakePHP
-    laravel                 Laravel
-    mvc5                    Mvc5
+Package:
+    cakephp         CakePHP
+    laravel         Laravel
+    mvc5            Mvc5
     multisite-convert       Convert WordPress to a multisite network
-    phpinfo                 PHP info page
-    symfony                 Symfony
-    wordpress               WordPress
+    phpinfo         PHP info page
+    symfony         Symfony
+    wordpress       WordPress
 Options:
-    --build                 Build the image before starting the container.
-    --host                  Project host name.
+    --host          Project host name.
 "
 }
 
 for ((i=0; i < "$#"; ++i)); do
     case "${args[i]}" in
         cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordpress )      package="${args[i]}"
-                                                                                unset "args[i]"
-                                                                                ;;
-        --build )                                                               build="--build"
                                                                                 unset "args[i]"
                                                                                 ;;
         --host )                                                                host="--host ${args[i+1]}"
@@ -78,4 +74,4 @@ find . -type f -delete
 find . -type l -delete
 find . -type d -name '*' -delete
 
-docker-create-project ${image} ${host} ${build} ${name} ${package}
+docker-create-project --build ${image} ${host} ${name} ${package}
