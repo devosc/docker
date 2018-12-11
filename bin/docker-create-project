@@ -289,10 +289,29 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
         [[ -z "${password}" ]] && password="${DATABASE_ROOT_PASSWORD}"
 
         echo ""
-        echo "Dropping database ${database_name} if it exists."
-        docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} drop ${database_name} --force"
-        echo "Creating database ${database_name}."
-        docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} create ${database_name}"
+
+        local db_exists=$(docker exec ${host} sh -c "mysql -u${user} -p${password} -s -N -e \"select schema_name from information_schema.schemata where schema_name = '${database_name}'\"")
+
+        if [[ $? != 0 ]]; then
+            echo "Error. Could not connect to database."
+            return
+        fi
+
+        local drop_db=""
+
+        if [[ -n "${db_exists}" ]]; then
+            read -p "Database already exists. Do you want to drop it now and create a new one? [yes|no*] " drop_db
+            if [[ "${drop_db}" = "yes" ]] || [[ "${drop_db}" = "y" ]]; then
+                docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} drop ${database_name} --force"
+            fi
+        fi
+
+        if [[ -z "${db_exists}" ]] || [[ -n "${drop_db}" ]]; then
+            echo "Creating database ${database_name}."
+            docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} create ${database_name}"
+        else
+            echo "Skipping database."
+        fi
     fi
 }
 
