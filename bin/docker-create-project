@@ -55,7 +55,7 @@ function composer_create_project()
     local directory="${args[0]}"
     local package="${args[1]}"
     local options=("${args[@]:3:$#-4}")
-    local version="${args[-1]}"
+    local version="${args[@]: -1}"
 
     docker-php --project-directory ${directory} composer ${options[@]} create-project ${package} . ${version}
 
