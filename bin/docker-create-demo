@@ -61,7 +61,7 @@ if [[ -z "${package}" ]]; then
 fi
 
 if [[ "multisite-convert" = "${package}" ]]; then
-    docker-wp --project-directory "${docker_project_dir}" multisite-convert
+    docker-wp --project-directory "${directory}" multisite-convert
     exit
 fi
 
