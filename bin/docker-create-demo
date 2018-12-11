@@ -21,15 +21,15 @@ function usage()
 Usage: docker-create-demo [--host HOST] package
 
 Package:
-    cakephp         CakePHP
-    laravel         Laravel
-    mvc5            Mvc5
+    cakephp                 CakePHP
+    laravel                 Laravel
+    mvc5                    Mvc5
     multisite-convert       Convert WordPress to a multisite network
-    phpinfo         PHP info page
-    symfony         Symfony
-    wordpress       WordPress
+    phpinfo                 PHP info page
+    symfony                 Symfony
+    wordpress               WordPress
 Options:
-    --host          Project host name.
+    --host                  Project host name.
 "
 }
 
