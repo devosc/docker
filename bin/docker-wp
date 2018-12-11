@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
+args=("$@")
+multisite=""
+directory="${PWD}"
+
 function multisite_convert()
 {
-    directory="$1"
-    document_root="${directory}/html"
+    local directory="$1"
+    local document_root="${directory}/html"
 
-    docker-wp core multisite-convert --subdomains
+    docker-app --project-directory ${directory} wp core multisite-convert --subdomains
 
     if [[ $? = 0 ]]; then
         cookie_domain="\\
@@ -55,8 +59,22 @@ An error occurred. Check the following:
     fi
 }
 
-if [[ "$1" = "multisite-convert" ]]; then
-    multisite_convert ${PWD}
-else
-    docker-app wp "$@"
+# Set or match options.
+for ((i=0; i < "$#"; ++i)); do
+    case "${args[i]}" in
+        --project-directory )   directory="${args[i+1]}"
+                                unset "args[i]" "args[i+1]"
+                                i=$(expr ${i} + 1)
+                                ;;
+        multisite-convert )     multisite="true"
+                                unset "args[i]"
+                                ;;
+    esac
+done
+
+if ${multisite} ; then
+    multisite_convert ${directory}
+    exit
 fi
+
+docker-app --project-directory ${directory} wp "${args[@]}"
