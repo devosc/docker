@@ -229,8 +229,13 @@ function start_project()
 
 function wordpress()
 {
+    local create_database=""
+    local database_name=""
     local directory="$1"
+    local host=""
+    local password=""
     local wp_dir="${directory}/html"
+    local user=""
 
     echo "Downloading: https://wordpress.org/latest.tar.gz"
     curl -O https://wordpress.org/latest.tar.gz
@@ -250,14 +255,44 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);${proxy}#g" "${wp_dir}/wp-config-sample.php"
     rm "${wp_dir}/wp-config-sample.php.bak"
 
-    echo "Default database settings:"
-    echo "  host: mariadb database: wordpress user: root"
-    read -p "Create default database? [yes|no*] " create_database
+    echo "Default database settings:
+    host: mariadb
+    database: wordpress
+    user: root"
+    read -p "Do you want to create a mariadb or mysql database now? [yes|no*] " create_database
 
     if [[ "${create_database}" = "yes" ]] ||  [[ "${create_database}" = "y" ]]; then
+        echo "Starting services."
         docker-services up
-        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} drop wordpress --force"
-        docker exec mariadb sh -c "mysqladmin -uroot -p${DATABASE_ROOT_PASSWORD} create wordpress"
+
+        read -p "Enter database host name: [mysql|mariadb*] " host
+
+        [[ -z "${host}" ]] && host="mariadb"
+
+        local container=$(docker ps -q --filter "name=${host}")
+
+        if [[ -z "${container}" ]]; then
+            echo "Error. Service does not exist."
+            return
+        fi
+
+        read -p "Enter database name: [wordpress*] " database_name
+
+        [[ -z "${database_name}" ]] && database_name="wordpress"
+
+        read -p "Enter database user name: [root*] " user
+
+        [[ -z "${user}" ]] && user="root"
+
+        read -sp "Enter database password or leave blank to use the default password: " password
+
+        [[ -z "${password}" ]] && password="${DATABASE_ROOT_PASSWORD}"
+
+        echo ""
+        echo "Dropping database ${database_name} if it exists."
+        docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} drop ${database_name} --force"
+        echo "Creating database ${database_name}."
+        docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} create ${database_name}"
     fi
 }
 
