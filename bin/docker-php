@@ -5,6 +5,7 @@ source docker-build-env
 args=("$@")
 build=""
 cmd="php"
+composer_dir="-v ${COMPOSER_DIR}:/home/app/.composer"
 directory="$(pwd)"
 name="php-docker-project-cli"
 no_cache=""
@@ -99,4 +100,4 @@ fi
 
 volume="${directory}:${work_dir}"
 
-docker run -it --rm --name "${name}" -v "${volume}" ${ssh_dir} -w "${work_dir}" -u "${user}" "${image}" ${cmd} "${args[@]}"
+docker run -it --rm --name "${name}" -v "${volume}" ${ssh_dir} ${composer_dir} -w "${work_dir}" -u "${user}" "${image}" ${cmd} "${args[@]}"

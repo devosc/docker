@@ -61,9 +61,19 @@ if [[ ! -f .build.env ]]; then
     fi
 
     read -sp 'Enter the database root user password: (secret) ' password
+    echo ""
 
     if [[ "$password" = "" ]]; then
         password="secret"
+    fi
+
+    composer_dir="${HOME}/.composer"
+
+    [[ -n "${COMPOSER_HOME}" ]] && composer_dir="${COMPOSER_HOME}"
+
+    if [[ ! -d "${composer_dir}" ]]; then
+        echo "Creating Composer directory: ${composer_dir}"
+        mkdir -p "${composer_dir}"
     fi
 
     {
@@ -72,13 +82,14 @@ if [[ ! -f .build.env ]]; then
         echo "export TIME_ZONE=${TZ}";
         echo "export LOCALE=${LANG}";
         echo -e "export DATABASE_ROOT_PASSWORD=${password}";
+        echo "export COMPOSER_DIR=${composer_dir}";
         echo "export BUILD_DEPS=";
         echo "export PHP_EXT_CONFIGURE=";
         echo "export PHP_EXT_INSTALL=";
         echo "export XDEBUG=false";
     } > .build.env
 
-    printf "\nCreated .build.env file.\n"
+    echo "Created .build.env file."
 else
     echo "Build environment file (.build.env) already exists."
 fi
