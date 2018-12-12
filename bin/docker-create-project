@@ -392,7 +392,6 @@ if [[ -d "${directory}" ]]; then
         echo "Path: ${directory}"
         exit 1
     fi
-    echo "Directory exists."
 else
     echo "Creating directory: ${directory}"
     mkdir -p "${directory}"
