@@ -34,7 +34,7 @@ done
 
 file="${directory}/docker-compose.yml"
 
-if [[ -f $file ]]; then
+if [[ -f "${file}" ]]; then
     # remove images
     rmi=""
     if ${remove_images} ; then
@@ -47,7 +47,7 @@ if [[ -f $file ]]; then
     fi
 
     # stop project
-    docker-compose --file ${file} down --remove-orphans ${rmi};
+    docker-compose --file "${file}" down --remove-orphans ${rmi};
 
 else
     echo "Project not found"

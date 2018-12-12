@@ -30,7 +30,7 @@ else
         # remove images
         rmi=""
         if [[ "--remove-images" = "$3" ]]; then
-            images=$(docker-compose --file $(pwd)/docker-compose.yml images -q)
+            images=$(docker-compose --file "$(pwd)/docker-compose.yml" images -q)
             if [[ "$images" != "" ]]; then
                 rmi="--rmi local"
             else
@@ -39,7 +39,7 @@ else
             shift
         fi
 
-        docker-compose --project-name ${name} --file ${file} down --remove-orphans ${rmi}
+        docker-compose --project-name ${name} --file "${file}" down --remove-orphans ${rmi}
     else
         # build images before starting containers
         build=""
@@ -53,6 +53,6 @@ else
             detach="";
         fi
 
-        docker-compose --project-name ${name} --file ${file} up ${detach} ${build}
+        docker-compose --project-name ${name} --file "${file}" up ${detach} ${build}
     fi
 fi

@@ -3,9 +3,9 @@
 install_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
 build_env_file="$install_dir/.build.env"
 
-if [[ ! -f  ${build_env_file} ]]; then
+if [[ ! -f  "${build_env_file}" ]]; then
     echo -e "Error: $build_env_file file not found. Run the installation script to generate it."
     exit 1
 fi
 
-source ${build_env_file}
+source "${build_env_file}"

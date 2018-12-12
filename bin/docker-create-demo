@@ -61,9 +61,9 @@ if [[ "multisite-convert" = "${package}" ]]; then
     exit
 fi
 
-docker-down --project-directory ${docker_project_dir}
+docker-down --project-directory "${docker_project_dir}"
 
-cd ${directory}
+cd "${directory}"
 
 if [[ $? != 0 ]]; then
     echo "An error occurred.";

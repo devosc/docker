@@ -9,7 +9,7 @@ function multisite_convert()
     local directory="$1"
     local document_root="${directory}/html"
 
-    docker-app --project-directory ${directory} wp core multisite-convert --subdomains
+    docker-app --project-directory "${directory}" wp core multisite-convert --subdomains
 
     if [[ $? = 0 ]]; then
         cookie_domain="\\
@@ -73,8 +73,8 @@ for ((i=0; i < "$#"; ++i)); do
 done
 
 if ${multisite} ; then
-    multisite_convert ${directory}
+    multisite_convert "${directory}"
     exit
 fi
 
-docker-app --project-directory ${directory} wp "${args[@]}"
+docker-app --project-directory "${directory}" wp "${args[@]}"

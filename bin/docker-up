@@ -21,7 +21,7 @@ while [[ "$1" != "" ]]; do
         --build )               build="--build"
                                 ;;
         # attach container
-        --attach )            detach=""
+        --attach )              detach=""
                                 ;;
         # directory containing docker-compose.yml file
         --project-directory )   directory="$2"
@@ -47,7 +47,7 @@ file="${directory}/docker-compose.yml"
 
 if [[ -f ${file} ]]; then
     echo "Starting project"
-    docker-compose --file ${file} up ${detach} ${build}
+    docker-compose --file "${file}" up ${detach} ${build}
 else
     echo "Project not found"
 fi

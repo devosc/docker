@@ -57,7 +57,7 @@ function composer_create_project()
     local options=("${args[@]:3:$#-4}")
     local version="${args[@]: -1}"
 
-    docker-php --project-directory ${directory} composer ${options[@]} create-project ${package} . ${version}
+    docker-php --project-directory "${directory}" composer ${options[@]} create-project ${package} . ${version}
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
@@ -74,7 +74,7 @@ function composer_install()
         return
     fi
 
-    docker-php --project-directory ${directory} composer install
+    docker-php --project-directory "${directory}" composer install
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
@@ -111,38 +111,38 @@ function create_docker_compose_file()
 
     if [[ -n "${context}" ]]; then
         echo "Context: ${context}"
-        sed -i.bak "s#context: .*#context: ${context}#g" ${compose_file}
-        sed -i.bak "s#\./www:/var/www#\.:/var/www#g" ${compose_file}
+        sed -i.bak "s#context: .*#context: ${context}#g" "${compose_file}"
+        sed -i.bak "s#\./www:/var/www#\.:/var/www#g" "${compose_file}"
         rm "${compose_file}.bak"
     fi
 
     echo "Container name: ${name}"
-    sed -i.bak "s#container_name: .*#container_name: ${name}#g" ${compose_file}
+    sed -i.bak "s#container_name: .*#container_name: ${name}#g" "${compose_file}"
     rm "${compose_file}.bak"
 
     echo "Host: ${host}"
-    sed -i.bak "s#Host:.*#Host:${host}#g" ${compose_file}
+    sed -i.bak "s#Host:.*#Host:${host}#g" "${compose_file}"
     rm "${compose_file}.bak"
 
     echo "Document root: ${document_root}"
-    sed -i.bak "s#APACHE_DOCUMENT_ROOT=.*#APACHE_DOCUMENT_ROOT=${document_root}#" ${compose_file}
+    sed -i.bak "s#APACHE_DOCUMENT_ROOT=.*#APACHE_DOCUMENT_ROOT=${document_root}#" "${compose_file}"
     rm "${compose_file}.bak"
 
     if [[ -n "${image}" ]]; then
         echo "Docker image name: ${image}"
-        sed -i.bak "s@#image: .*@image: ${image}@" ${compose_file}
+        sed -i.bak "s@#image: .*@image: ${image}@" "${compose_file}"
         rm "${compose_file}.bak"
     fi
 
     if [[ -n "${work_dir}" ]]; then
         echo "Working directory: /var/www/${work_dir}"
-        sed -i.bak "s#working_dir: /var/www#working_dir: /var/www/${work_dir}#" ${compose_file}
+        sed -i.bak "s#working_dir: /var/www#working_dir: /var/www/${work_dir}#" "${compose_file}"
         rm "${compose_file}.bak"
     fi
 
     if [[ -n "${wp_cli}" ]]; then
         echo "Enabling WP-CLI"
-        sed -i.bak "s@#- WP_CLI=true@- WP_CLI=true@" ${compose_file}
+        sed -i.bak "s@#- WP_CLI=true@- WP_CLI=true@" "${compose_file}"
         rm "${compose_file}.bak"
     fi
 }
@@ -179,7 +179,7 @@ function git_clone()
     local package="${args[1]}"
     local options=("${args[@]:3:$#-4}")
 
-    docker-php --ssh-keys --project-directory ${directory} git clone ${options[@]} ${package} .
+    docker-php --ssh-keys --project-directory "${directory}" git clone ${options[@]} ${package} .
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
@@ -238,9 +238,9 @@ function wordpress()
 
     echo "Downloading: https://wordpress.org/latest.tar.gz"
     curl -O https://wordpress.org/latest.tar.gz
-    tar -xzvf latest.tar.gz --directory ${directory}
+    tar -xzvf latest.tar.gz --directory "${directory}"
     rm -rf "${wp_dir}"
-    mv ${directory}/wordpress "${wp_dir}"
+    mv "${directory}/wordpress" "${wp_dir}"
     rm latest.tar.gz
 
     proxy="\\
@@ -387,14 +387,15 @@ esac
 
 # Create directory if it doesn't exist. Error if directory is not empty.
 if [[ -d "${directory}" ]]; then
-    if [[ -n "$(ls -A ${directory})" ]]; then
+    if [[ -n "$(ls -A "${directory}")" ]]; then
         echo "Error: Directory is not empty."
         echo "Path: ${directory}"
         exit 1
     fi
+    echo "Directory exists."
 else
     echo "Creating directory: ${directory}"
-    mkdir -p ${directory}
+    mkdir -p "${directory}"
 
     if [[ $? != 0 ]]; then
         echo "An error occurred.";
@@ -418,10 +419,10 @@ fi
 # Create project.
 echo "Creating Project: ${name}"
 echo "Directory: ${directory}"
-${factory} ${directory} ${package} "${options[@]}" "${version}"
-composer_install ${directory} ${factory}
-set_public_dir ${directory}
-create_docker_compose_file ${directory} "${context}" ${name} ${host} "${public_dir}" "${image}" "${work_dir}" "${wp_cli}"
+${factory} "${directory}" ${package} "${options[@]}" "${version}"
+composer_install "${directory}" ${factory}
+set_public_dir "${directory}"
+create_docker_compose_file "${directory}" "${context}" ${name} ${host} "${public_dir}" "${image}" "${work_dir}" "${wp_cli}"
 create_host ${host} ${ip}
-start_project "${build}" ${directory}
+start_project "${build}" "${directory}"
 echo "Project URL: https://${host}"
