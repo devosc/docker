@@ -149,9 +149,8 @@ function create_docker_compose_file()
 
 function create_host()
 {
-    local directory="$1"
-    local host="$2"
-    local ip="$3"
+    local host="$1"
+    local ip="$2"
 
     if ! grep -q "${ip} ${host}$" /etc/hosts; then
         echo "Add the host name ${host} to your /etc/hosts file using:"
@@ -290,7 +289,7 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
 
         echo ""
 
-        local db_exists=$(docker exec ${host} sh -c "mysql -u${user} -p${password} -s -N -e \"select schema_name from information_schema.schemata where schema_name = '${database_name}'\"")
+        local db_exists=$(docker exec "${host}" sh -c "mysql -u${user} -p${password} -s -N -e \"select schema_name from information_schema.schemata where schema_name = '${database_name}'\"")
 
         if [[ $? != 0 ]]; then
             echo "Error. Could not connect to database."
@@ -384,7 +383,7 @@ case "${package}" in
 esac
 
 # Set container name to directory name if not provided.
-[[ -z "${name}" ]] && name="$( basename "${directory}" )"
+[[ -z "${name}" ]] && name="$( basename "${directory/ /}" )"
 
 # Create directory if it doesn't exist. Error if directory is not empty.
 if [[ -d "${directory}" ]]; then
@@ -408,9 +407,9 @@ directory="$( cd "${directory}" ; pwd -P )"
 
 # Set host name if not provided.
 if [[ -z "${host}" ]]; then
-    read -p "Enter a host name for the container: [${name}] " host
+    read -p "Enter a host name for the container: [${name/ /}] " host
 
-    [[ -z "${host}" ]] && host="${name}"
+    [[ -z "${host}" ]] && host="${name/ /}"
 fi
 
 # Use Git clone factory if package is a repository.
@@ -423,6 +422,6 @@ ${factory} ${directory} ${package} "${options[@]}" "${version}"
 composer_install ${directory} ${factory}
 set_public_dir ${directory}
 create_docker_compose_file ${directory} "${context}" ${name} ${host} "${public_dir}" "${image}" "${work_dir}" "${wp_cli}"
-create_host ${directory} ${host} ${ip}
+create_host ${host} ${ip}
 start_project "${build}" ${directory}
 echo "Project URL: https://${host}"
