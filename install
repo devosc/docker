@@ -86,6 +86,7 @@ if [[ ! -f .build.env ]]; then
         echo "export BUILD_DEPS=";
         echo "export PHP_EXT_CONFIGURE=";
         echo "export PHP_EXT_INSTALL=";
+        echo "export COMPOSER=true";
         echo "export XDEBUG=false";
     } > .build.env
 

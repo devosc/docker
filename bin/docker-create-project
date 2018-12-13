@@ -4,6 +4,7 @@ source docker-build-env
 
 args=("$@")
 build=""
+composer="${COMPOSER}"
 context=""
 directory="${PWD}"
 docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
@@ -92,6 +93,7 @@ function create_docker_compose_file()
     local image="$6"
     local work_dir="$7"
     local wp_cli="$8"
+    local composer="$9"
     local compose_file="${directory}/docker-compose.yml"
     local document_root="${directory}"
 
@@ -143,6 +145,12 @@ function create_docker_compose_file()
     if [[ -n "${wp_cli}" ]]; then
         echo "Enabling WP-CLI"
         sed -i.bak "s@#- WP_CLI=true@- WP_CLI=true@" "${compose_file}"
+        rm "${compose_file}.bak"
+    fi
+
+    if [[ "${composer}" = "true" ]]; then
+        echo "Adding Composer directory."
+        sed -i.bak "s@#- ~/\.composer@- ~/\.composer@" "${compose_file}"
         rm "${compose_file}.bak"
     fi
 }
@@ -421,7 +429,7 @@ echo "Directory: ${directory}"
 ${factory} "${directory}" ${package} "${options[@]}" "${version}"
 composer_install "${directory}" ${factory}
 set_public_dir "${directory}"
-create_docker_compose_file "${directory}" "${context}" ${name} ${host} "${public_dir}" "${image}" "${work_dir}" "${wp_cli}"
+create_docker_compose_file "${directory}" "${context}" ${name} ${host} "${public_dir}" "${image}" "${work_dir}" "${wp_cli}" "${composer}"
 create_host ${host} ${ip}
 start_project "${build}" "${directory}"
 echo "Project URL: https://${host}"

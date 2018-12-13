@@ -33,4 +33,5 @@ services:
       - public
     working_dir: /var/www
     volumes:
+      #- ~/.composer:/home/app/.composer
       - ./www:/var/www
