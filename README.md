@@ -86,19 +86,21 @@ The URL is `https://docker-project`.
     - Profiler off `--profiler-off`
     - Profiler output directory `--profiler-output-dir PATH`
 ## PHP Command
-The `docker-php` command provides a command line interface for PHP, Composer and Git. PHP is the default command and it runs an interactive shell when no arguments exist. Use `docker-php PATH` to execute a file relative to the project directory and use `--ssh-keys` to mount your `.ssh` directory when using Composer and Git. Use the `CLI_RELEASE_VERSION` build argument to change the PHP Docker image version. To install Xdebug, set `XDEBUG=true` in the `.build.env` file, or create a separate `.build-cli.env` file.
+The `docker-php` command provides a command line interface to PHP, Composer and Git. PHP is the default command and runs an interactive shell when no arguments exist. Use `docker-php PATH` to execute a file relative to the project directory and use `--ssh-keys` to mount your `.ssh` directory when using Composer and Git. Use the build argument `CLI_RELEASE_VERSION` to change the version of the [PHP Docker image](https://hub.docker.com/_/php/). To install Xdebug, set `XDEBUG=true` in the `.build.env` file, or create a separate `.build-cli.env` file. The Composer directory `~/.composer` is shared with the container so that packages can be cached and reused.
 ## Projects
 A project can be created for a Composer `package` or Git `repository` using the `docker-create-project` command.
 ```
 docker-create-project [options] package|repository [version]
 ```
-A project Compose file is created if it doesn't exist and the project directory name is used as the `host` and `container` name unless the options `--host HOST` and `--name NAME` are provided. The web server document root defaults to the project directory unless a `public` or `html` directory exists. The following packages are available for convenience.
+A project Compose file is created if it doesn't exist and the directory name is used as the `host` and `container` name unless the options `--host HOST` and `--name NAME` are provided. The document root defaults to the project directory unless a `public` or `html` directory exists. The following packages are available for convenience.
 - `cakephp` CakePHP (cakephp/app)
 - `laravel`        Laravel (laravel/laravel)
 - `mvc5`           Mvc5 (mvc5/mvc5-application)
 - `phpinfo`        PHP info page
 - `symfony`        Symfony (symfony/website-skeleton)
 - `wordpress`      Wordpress (download from https://wordpress.org)
+
+Composer install is called after cloning a Git repository if it contains a `composer.json` file.
 ## Demo Applications
 CakePHP, Laravel, Mvc5, Symfony, and WordPress demo applications can be installed into the `~/docker/www` directory.
 ```
