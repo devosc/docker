@@ -32,8 +32,8 @@ Commands:
     phpize
     php-config
 Options:
+    --add-host                  Add custom host-to-IP mapping, e.g example.com:192.168.10.10.
     --build                     Build image from Dockerfile.
-    --extra-hosts               Add hostname mappings using a comma separated list.
     --no-cache                  Do not use cache when building the image.
     --project-directory PATH    Alternative working directory, default is current directory.
     --ssh-keys                  Mount user ssh directory."
@@ -42,12 +42,12 @@ fi
 
 for ((i=0; i < "$#"; ++i)); do
     case "${args[i]}" in
-        --build )               build="--build"
-                                unset "args[i]"
-                                ;;
-        --extra-hosts )         extra_hosts="${args[i+1]}"
+        --add-host )            hosts="${hosts} --add-host ${args[i+1]}"
                                 unset "args[i]" "args[i+1]"
                                 i=$(expr ${i} + 1)
+                                ;;
+        --build )               build="--build"
+                                unset "args[i]"
                                 ;;
         --project-directory )   directory="${args[i+1]}"
                                 unset "args[i]" "args[i+1]"
@@ -107,9 +107,11 @@ fi
 
 volume="${directory}:${work_dir}"
 
-add=($(echo ${extra_hosts} | tr ',' "\n"))
-for ((i=0; i < "${#add[@]}"; ++i)); do
-    hosts="${hosts} --add-host ${add[i]}"
-done
+if [[ -z "${hosts}" ]] && [[ -n "${extra_hosts}" ]]; then
+    add=($(echo ${extra_hosts} | tr ',' "\n"))
+    for ((i=0; i < "${#add[@]}"; ++i)); do
+        hosts="${hosts} --add-host ${add[i]}"
+    done
+fi
 
 docker run -it --rm --name "${name}" ${hosts} -v "${volume}" ${ssh_dir} ${composer_dir} -w "${work_dir}" -u "${user}" "${image}" ${cmd} "${args[@]}"
