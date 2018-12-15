@@ -83,6 +83,7 @@ if [[ ! -f .build.env ]]; then
         echo "export LOCALE=${LANG}";
         echo -e "export DATABASE_ROOT_PASSWORD=${password}";
         echo "export COMPOSER_DIR=${composer_dir}";
+        echo "export EXTRA_HOSTS=";
         echo "export BUILD_DEPS=";
         echo "export PHP_EXT_CONFIGURE=";
         echo "export PHP_EXT_INSTALL=";
