@@ -79,7 +79,7 @@ if [[ ! -f .build.env ]]; then
     cp ".build-sample.env" ".build.env"
 
     sed -i.bak "s@export USER_ID=1000@export USER_ID=$(id -u)@" ".build.env"
-    sed -i.bak "s@export GROUP_ID=1000@export USER_ID=$(id -g)@" ".build.env"
+    sed -i.bak "s@export GROUP_ID=1000@export GROUP_ID=$(id -g)@" ".build.env"
     sed -i.bak "s@export TIME_ZONE=UTC@export TIME_ZONE=${TZ}@" ".build.env"
     sed -i.bak "s@export DATABASE_ROOT_PASSWORD=secret@export DATABASE_ROOT_PASSWORD=${password}@" ".build.env"
     sed -i.bak "s@export COMPOSER_DIR=.*@export COMPOSER_DIR=${composer_dir}@" ".build.env"
