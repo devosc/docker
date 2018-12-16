@@ -8,6 +8,7 @@ composer="${COMPOSER}"
 context=""
 directory="${PWD}"
 docker_project_dir="$( cd "$(dirname "$0")/.." ; pwd -P )"
+extra_hosts="${EXTRA_HOSTS}"
 factory="composer_create_project"
 host=""
 image=""
@@ -92,8 +93,6 @@ function create_docker_compose_file()
     local public_dir="$5"
     local image="$6"
     local work_dir="$7"
-    local wp_cli="$8"
-    local composer="$9"
     local compose_file="${directory}/docker-compose.yml"
     local document_root="${directory}"
 
@@ -151,6 +150,18 @@ function create_docker_compose_file()
     if [[ "${composer}" = "true" ]]; then
         echo "Adding Composer directory."
         sed -i.bak "s@#- ~/\.composer@- ~/\.composer@" "${compose_file}"
+        rm "${compose_file}.bak"
+    fi
+
+    if [[ -n "${extra_hosts}" ]] && grep -q "#extra_hosts:" "${compose_file}"; then
+        echo "Adding extra hosts."
+        local add=($(echo ${extra_hosts} | tr ',' "\n"))
+        local hosts="extra_hosts:"
+        for ((i=0; i < "${#add[@]}"; ++i)); do
+            hosts="${hosts} \\
+        - ${add[i]}"
+        done
+        sed -i.bak "s@#extra_hosts:@${hosts}@" "${compose_file}"
         rm "${compose_file}.bak"
     fi
 }
@@ -429,7 +440,7 @@ echo "Directory: ${directory}"
 ${factory} "${directory}" ${package} "${options[@]}" "${version}"
 composer_install "${directory}" ${factory}
 set_public_dir "${directory}"
-create_docker_compose_file "${directory}" "${context}" ${name} ${host} "${public_dir}" "${image}" "${work_dir}" "${wp_cli}" "${composer}"
+create_docker_compose_file "${directory}" "${context}" ${name} ${host} "${public_dir}" "${image}" "${work_dir}"
 create_host ${host} ${ip}
 start_project "${build}" "${directory}"
 echo "Project URL: https://${host}"

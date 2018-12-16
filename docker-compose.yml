@@ -22,6 +22,7 @@ services:
         - PHP_EXT_INSTALL=${PHP_EXT_INSTALL}
       context: .
     container_name: docker-project
+    #extra_hosts:
     #image: docker-project
     environment:
       - APACHE_DOCUMENT_ROOT=/var/www/public
