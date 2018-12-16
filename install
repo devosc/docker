@@ -58,6 +58,8 @@ if [[ ! -f .build.env ]]; then
 
     if [[ -z "$LANG" ]]; then
         echo "Warning: the environment variable LANG is not set!";
+        read -p "Enter a locale: [en_US.UTF-8*] " LANG
+        [[ -z "${LANG}" ]] && LANG="en_US.UTF-8"
     fi
 
     read -sp 'Enter the database root user password: (secret) ' password
@@ -81,6 +83,7 @@ if [[ ! -f .build.env ]]; then
     sed -i.bak "s@export USER_ID=1000@export USER_ID=$(id -u)@" ".build.env"
     sed -i.bak "s@export GROUP_ID=1000@export GROUP_ID=$(id -g)@" ".build.env"
     sed -i.bak "s@export TIME_ZONE=UTC@export TIME_ZONE=${TZ}@" ".build.env"
+    sed -i.bak "s@export LOCALE=en_US\.UTF-8@export LOCALE=${LANG}@" ".build.env"
     sed -i.bak "s@export DATABASE_ROOT_PASSWORD=secret@export DATABASE_ROOT_PASSWORD=${password}@" ".build.env"
     sed -i.bak "s@export COMPOSER_DIR=.*@export COMPOSER_DIR=${composer_dir}@" ".build.env"
     rm ".build.env.bak"
