@@ -76,20 +76,14 @@ if [[ ! -f .build.env ]]; then
         mkdir -p "${composer_dir}"
     fi
 
-    {
-        echo "export USER_ID=$(id -u)";
-        echo "export GROUP_ID=$(id -g)";
-        echo "export TIME_ZONE=${TZ}";
-        echo "export LOCALE=${LANG}";
-        echo -e "export DATABASE_ROOT_PASSWORD=${password}";
-        echo "export COMPOSER_DIR=${composer_dir}";
-        echo "export EXTRA_HOSTS=";
-        echo "export BUILD_DEPS=";
-        echo "export PHP_EXT_CONFIGURE=";
-        echo "export PHP_EXT_INSTALL=";
-        echo "export COMPOSER=true";
-        echo "export XDEBUG=false";
-    } > .build.env
+    cp ".build-sample.env" ".build.env"
+
+    sed -i.bak "s@export USER_ID=1000@export USER_ID=$(id -u)@" ".build.env"
+    sed -i.bak "s@export GROUP_ID=1000@export USER_ID=$(id -g)@" ".build.env"
+    sed -i.bak "s@export TIME_ZONE=UTC@export TIME_ZONE=${TZ}@" ".build.env"
+    sed -i.bak "s@export DATABASE_ROOT_PASSWORD=secret@export DATABASE_ROOT_PASSWORD=${password}@" ".build.env"
+    sed -i.bak "s@export COMPOSER_DIR=.*@export COMPOSER_DIR=${composer_dir}@" ".build.env"
+    rm ".build.env.bak"
 
     echo "Created .build.env file."
 else
