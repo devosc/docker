@@ -59,7 +59,7 @@ function composer_create_project()
     local options=("${args[@]:3:$#-4}")
     local version="${args[@]: -1}"
 
-    docker-php --project-directory "${directory}" composer ${options[@]} create-project ${package} . ${version}
+    docker-php --ssh-keys --project-directory "${directory}" composer ${options[@]} create-project ${package} . ${version}
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
@@ -76,7 +76,7 @@ function composer_install()
         return
     fi
 
-    docker-php --project-directory "${directory}" composer install
+    docker-php --ssh-keys --project-directory "${directory}" composer install
 
     if [[ $? != 0 ]]; then
         echo "An error occurred."
