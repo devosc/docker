@@ -108,6 +108,11 @@ docker-create-demo [cakephp|laravel|multisite-convert|mvc5|phpinfo|symfony|wordp
 ```
 ## Trusted Proxy Server Configuration
 If necessary, use `docker-traefik ip-address` to return the i.p. address for trusted proxy server configurations.
+## Extra Hosts
+The `EXTRA_HOSTS` build argument can be used to add additional hostname mappings to a Compose file created by the `docker-create-project` command, and to the `docker-php` command. A comma separated list can be used.
+```
+EXTRA_HOSTS=example.com:192.16.10.10,example2.com:192.16.10.11
+```
 ## Build Args
 To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
 ```
