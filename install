@@ -48,7 +48,7 @@ if [[ ! -f .build.env ]]; then
         dir="$(pwd)"
         cd /usr/share/zoneinfo
         #https://superuser.com/a/639096
-        TIME_ZONE=("$(find * -type f -exec sh -c "diff -q /etc/localtime '{}' > /dev/null && echo {}" \;)")
+        TIME_ZONE=($(find * -type f -exec sh -c "diff -q /etc/localtime '{}' > /dev/null && echo {}" \;))
         TZ="${TIME_ZONE[0]}"
         echo "Time zone is: ${TZ}"
         cd "${dir}"
@@ -56,11 +56,11 @@ if [[ ! -f .build.env ]]; then
 
     if [[ -z "${LANG}" ]]; then
         echo "Warning: the environment variable LANG is not set!";
-        read -p "Enter a locale: [en_US.UTF-8*] " LANG
+        read -p "Enter a locale: [en_US.UTF-8] " LANG
         [[ -z "${LANG}" ]] && LANG="en_US.UTF-8"
     fi
 
-    read -sp "Enter the database root user password: [secret*] " password
+    read -sp "Enter the database root user password: [secret] " password
     echo ""
 
     [[ -z "${password}" ]] && password="secret"
