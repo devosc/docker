@@ -175,7 +175,7 @@ function create_host()
     local ip="$2"
 
     if ! grep -q "${ip} ${host}$" /etc/hosts; then
-        echo "Add the host name ${host} to your /etc/hosts file using:"
+        echo "Add the hostname ${host} to your /etc/hosts file using:"
         echo "  echo \"${ip} ${host}\" | sudo tee -a /etc/hosts"
         read -p "Do you want to add it now? (sudo access required) [no|yes*] " create
 
@@ -424,7 +424,7 @@ else
     fi;
 fi
 
-# Resolve directory path
+# Resolve directory path.
 directory="$( cd "${directory}" ; pwd -P )"
 
 # Set host name if not provided.

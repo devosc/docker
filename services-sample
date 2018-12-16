@@ -4,7 +4,7 @@
 
 # Paths for docker commands are relative to this file
 
-if [ "down" = "$1" ]; then
+if [[ "down" = "$1" ]]; then
     docker-services adminer down
     docker-services mailhog down
     docker-services postgres down

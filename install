@@ -43,31 +43,27 @@ else
 fi
 
 if [[ ! -f .build.env ]]; then
-    if [[ -z "$TZ" ]]; then
+    if [[ -z "${TZ}" ]]; then
         echo "Finding time zone."
-        dir=$(pwd)
+        dir="$(pwd)"
         cd /usr/share/zoneinfo
         #https://superuser.com/a/639096
-        TIME_ZONE="$(find * -type f -exec sh -c "diff -q /etc/localtime '{}' > /dev/null && echo {}" \;)"
-        TIME_ZONE=($TIME_ZONE)
-        TIME_ZONE="${TIME_ZONE[0]}"
-        TZ=$TIME_ZONE
+        TIME_ZONE=("$(find * -type f -exec sh -c "diff -q /etc/localtime '{}' > /dev/null && echo {}" \;)")
+        TZ="${TIME_ZONE[0]}"
         echo "Time zone is: ${TZ}"
-        cd $dir
+        cd "${dir}"
     fi
 
-    if [[ -z "$LANG" ]]; then
+    if [[ -z "${LANG}" ]]; then
         echo "Warning: the environment variable LANG is not set!";
         read -p "Enter a locale: [en_US.UTF-8*] " LANG
         [[ -z "${LANG}" ]] && LANG="en_US.UTF-8"
     fi
 
-    read -sp 'Enter the database root user password: (secret) ' password
+    read -sp "Enter the database root user password: [secret*] " password
     echo ""
 
-    if [[ "$password" = "" ]]; then
-        password="secret"
-    fi
+    [[ -z "${password}" ]] && password="secret"
 
     composer_dir="${HOME}/.composer"
 
@@ -79,7 +75,6 @@ if [[ ! -f .build.env ]]; then
     fi
 
     cp ".build-sample.env" ".build.env"
-
     sed -i.bak "s@export USER_ID=1000@export USER_ID=$(id -u)@" ".build.env"
     sed -i.bak "s@export GROUP_ID=1000@export GROUP_ID=$(id -g)@" ".build.env"
     sed -i.bak "s@export TIME_ZONE=UTC@export TIME_ZONE=${TZ}@" ".build.env"
