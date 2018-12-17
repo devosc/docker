@@ -146,7 +146,7 @@ function create_docker_compose_file()
 
     if [[ -n "${wp_cli}" ]]; then
         echo "Enabling WP-CLI"
-        sed -i.bak "s@#- WP_CLI=true@- WP_CLI=true@" "${compose_file}"
+        sed -i.bak "s#\${WP_CLI}#true#" "${compose_file}"
         rm "${compose_file}.bak"
     fi
 
@@ -393,6 +393,7 @@ case "${package}" in
     mvc5 )      package="mvc5/mvc5-application"
                 ;;
     phpinfo )   factory="phpinfo"
+                composer=""
                 ;;
     symfony )   package="symfony/website-skeleton"
                 options=("--prefer-dist")

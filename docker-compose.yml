@@ -11,7 +11,7 @@ services:
       args:
         - XDEBUG=${XDEBUG}
         - NODE_JS=${NODE_JS}
-        #- WP_CLI=true
+        - WP_CLI=${WP_CLI}
         - RELEASE_VERSION=${RELEASE_VERSION}
         - USER_ID=${USER_ID}
         - GROUP_ID=${GROUP_ID}
