@@ -9,10 +9,10 @@ services:
   app:
     build:
       args:
-        - XDEBUG={XEDBUG}
-        - NODE_JS=true
+        - XDEBUG=${XDEBUG}
+        - NODE_JS=${NODE_JS}
         #- WP_CLI=true
-        - RELEASE_VERSION=apache
+        - RELEASE_VERSION=${RELEASE_VERSION}
         - USER_ID=${USER_ID}
         - GROUP_ID=${GROUP_ID}
         - LOCALE=${LOCALE}
