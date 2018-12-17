@@ -402,6 +402,7 @@ case "${package}" in
                 public_dir="html"
                 work_dir="html"
                 wp_cli="true"
+                composer=""
                 ;;
 esac
 
