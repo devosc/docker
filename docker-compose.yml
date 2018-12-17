@@ -9,7 +9,7 @@ services:
   app:
     build:
       args:
-        - XDEBUG=true
+        - XDEBUG={XEDBUG}
         - NODE_JS=true
         #- WP_CLI=true
         - RELEASE_VERSION=apache
