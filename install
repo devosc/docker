@@ -74,6 +74,8 @@ if [[ ! -f .build.env ]]; then
         mkdir -p "${composer_dir}"
     fi
 
+    [[ "${composer_dir}" = "${HOME}/.composer" ]] && composer_dir="~/.composer"
+
     cp ".build-sample.env" ".build.env"
     sed -i.bak "s@export USER_ID=1000@export USER_ID=$(id -u)@" ".build.env"
     sed -i.bak "s@export GROUP_ID=1000@export GROUP_ID=$(id -g)@" ".build.env"

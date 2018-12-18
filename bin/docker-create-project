@@ -152,7 +152,7 @@ function create_docker_compose_file()
 
     if [[ "${composer}" = "true" ]]; then
         echo "Adding Composer directory."
-        sed -i.bak "s@#- ~/\.composer@- ~/\.composer@" "${compose_file}"
+        sed -i.bak "s@#- \${COMPOSER_DIR}@- \${COMPOSER_DIR}@" "${compose_file}"
         rm "${compose_file}.bak"
     fi
 
