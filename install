@@ -76,6 +76,17 @@ if [[ ! -f .build.env ]]; then
 
     [[ "${composer_dir}" = "${HOME}/.composer" ]] && composer_dir="~/.composer"
 
+    ssh_dir="${HOME}/.ssh"
+    if [[ ! -d "${ssh_dir}" ]]; then
+        echo "Error. SSH directory not found: ${ssh_dir}"
+        read -p "Do you want to create the SSH directory now? [no|yes*] " create
+        if [[ -z "${create}" ]] || [[ "${create}" = "yes" ]] || [[ "${create}" = "y" ]]; then
+            echo "Creating SSH directory: ${ssh_dir}"
+            mkdir -p "${ssh_dir}"
+            chmod 700 "${ssh_dir}"
+        fi
+    fi
+
     cp ".build-sample.env" ".build.env"
     sed -i.bak "s@export USER_ID=1000@export USER_ID=$(id -u)@" ".build.env"
     sed -i.bak "s@export GROUP_ID=1000@export GROUP_ID=$(id -g)@" ".build.env"
