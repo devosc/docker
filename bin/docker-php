@@ -30,6 +30,7 @@ Commands:
   * php
     phpdbg
     phpize
+    phpunit
     php-config
 Options:
     --add-host list             Add custom host-to-IP mapping, e.g example.com:192.168.10.10.
@@ -68,9 +69,9 @@ if [[ -z "${args[0]}" ]]; then
     args=("-a")
 else
     case "${args[0]}" in
-        composer|git|phar|php|phpdbg|phpize|php-config )    cmd="${args[0]}"
-                                                            unset "args[0]"
-                                                            ;;
+        composer|git|phar|php|phpdbg|phpize|phpunit|php-config )    cmd="${args[0]}"
+                                                                    unset "args[0]"
+                                                                    ;;
     esac
 fi
 

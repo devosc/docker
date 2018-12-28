@@ -82,3 +82,11 @@ RUN if [ $MAIL = "true" ]; then \
     echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee $PHP_INI_DIR/conf.d/mail.ini \
     && sed -i "s/mailhub=mail/mailhub=$MAIL_HOST/g" /etc/ssmtp/ssmtp.conf \
     && sed -i "s/#FromLineOverride=YES/FromLineOverride=YES/g" /etc/ssmtp/ssmtp.conf; fi
+
+# PHPUnit
+ARG PHPUNIT=true
+ARG PHPUNIT_VERSION="7.5.1"
+RUN if [ $PHPUNIT = "true" ]; then \
+    curl -O https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar \
+    && chmod +x phpunit-${PHPUNIT_VERSION}.phar \
+    && mv phpunit-${PHPUNIT_VERSION}.phar /usr/local/bin/phpunit; fi
