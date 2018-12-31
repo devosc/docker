@@ -97,6 +97,14 @@ RUN if [ $WP_CLI = "true" ]; then \
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp; fi
 
+# PHPUnit
+ARG PHPUNIT=true
+ARG PHPUNIT_VERSION="7.5.1"
+RUN if [ $PHPUNIT = "true" ]; then \
+    curl -O https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar \
+    && chmod +x phpunit-${PHPUNIT_VERSION}.phar \
+    && mv phpunit-${PHPUNIT_VERSION}.phar /usr/local/bin/phpunit; fi
+
 # Apache
 ARG WWW_USER=app
 ARG WWW_GROUP=app
