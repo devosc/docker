@@ -8,13 +8,13 @@ if [[ "down" = "$1" ]]; then
     docker-services adminer down
     docker-services mailhog down
     docker-services postgres down
-    docker-services mariadb down
-#    docker-services mysql down
+#    docker-services mariadb down
+    docker-services mysql down
     docker-traefik down
 else
     docker-traefik up
-    docker-services mariadb up
-#    docker-services mysql up
+#    docker-services mariadb up
+    docker-services mysql up
     docker-services postgres up
     docker-services mailhog up
     docker-services adminer up
