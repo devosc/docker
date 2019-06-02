@@ -253,7 +253,7 @@ function wordpress()
     local create_database=""
     local database_name=""
     local directory="$1"
-    local host=""
+    local host="mysql"
     local password=""
     local wp_dir="${directory}/html"
     local user=""
@@ -273,29 +273,37 @@ define('FORCE_SSL_ADMIN', true); \\
 if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
     \$_SERVER['HTTPS']='on';"
 
-    sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);${proxy}#g" "${wp_dir}/wp-config-sample.php"
+    sed -i.bak "s#define( 'WP_DEBUG', false );#define( 'WP_DEBUG', false );${proxy}#g" "${wp_dir}/wp-config-sample.php"
     rm "${wp_dir}/wp-config-sample.php.bak"
 
     echo "Default database settings:
-    host: mariadb
+    host: ${host}
     database: wordpress
     user: root"
-    read -p "Do you want to create a mariadb or mysql database now? [yes|no*] " create_database
+    read -p "Do you want to create a mysql or mariadb database now? [yes|no*] " create_database
 
     if [[ "${create_database}" = "yes" ]] ||  [[ "${create_database}" = "y" ]]; then
         echo "Starting services."
         docker-services up
 
-        read -p "Enter database host name: [mysql|mariadb*] " host
-
-        [[ -z "${host}" ]] && host="mariadb"
+        echo "Checking for service for ${host}."
 
         local container=$(docker ps -q --filter "name=${host}")
+
+        if [[ -z "${container}" ]]; then
+            host="mariadb"
+
+            echo "Checking for service for ${host}."
+
+            container=$(docker ps -q --filter "name=${host}")
+        fi
 
         if [[ -z "${container}" ]]; then
             echo "Error. Service does not exist."
             return
         fi
+
+        echo "Using service ${host}."
 
         read -p "Enter database name: [wordpress*] " database_name
 
@@ -311,7 +319,7 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
 
         echo ""
 
-        local db_exists=$(docker exec "${host}" sh -c "mysql -u${user} -p${password} -s -N -e \"select schema_name from information_schema.schemata where schema_name = '${database_name}'\"")
+        local db_exists=$(docker exec "${host}" sh -c "mysql -u${user} -p${password} --default-auth=mysql_native_password -s -N -e \"select schema_name from information_schema.schemata where schema_name = '${database_name}'\"")
 
         if [[ $? != 0 ]]; then
             echo "Error. Could not connect to database."
@@ -323,13 +331,13 @@ if ((\$_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) == 'https')\\
         if [[ -n "${db_exists}" ]]; then
             read -p "Database already exists. Do you want to drop it now and create a new one? [yes|no*] " drop_db
             if [[ "${drop_db}" = "yes" ]] || [[ "${drop_db}" = "y" ]]; then
-                docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} drop ${database_name} --force"
+                docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} --default-auth=mysql_native_password drop ${database_name} --force"
             fi
         fi
 
         if [[ -z "${db_exists}" ]] || [[ -n "${drop_db}" ]]; then
             echo "Creating database ${database_name}."
-            docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} create ${database_name}"
+            docker exec "${host}" sh -c "mysqladmin -u${user} -p${password} --default-auth=mysql_native_password create ${database_name}"
         else
             echo "Skipping database."
         fi
