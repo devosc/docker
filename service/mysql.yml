@@ -12,6 +12,7 @@ services:
   # Use localhost as the hostname in client applications, e.g. MySQL Workbench, and mysql in web apps.
   mysql:
     container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
       TZ: ${TIME_ZONE}
