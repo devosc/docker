@@ -16,7 +16,7 @@ function multisite_convert()
 \\
 define('COOKIE_DOMAIN', false);"
 
-        sed -i.bak "s#define('WP_DEBUG', false);#define('WP_DEBUG', false);$cookie_domain#g" "${document_root}/wp-config.php"
+        sed -i.bak "s#define( 'WP_DEBUG', false );#define( 'WP_DEBUG', false );$cookie_domain#g" "${document_root}/wp-config.php"
         rm "${document_root}/wp-config.php.bak"
 
         cat << 'EOF' > "${document_root}/.htaccess"
