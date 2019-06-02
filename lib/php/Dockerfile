@@ -85,7 +85,7 @@ RUN if [ $MAIL = "true" ]; then \
 
 # PHPUnit
 ARG PHPUNIT=true
-ARG PHPUNIT_VERSION="7.5.1"
+ARG PHPUNIT_VERSION="8.1.6"
 RUN if [ $PHPUNIT = "true" ]; then \
     curl -O https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar \
     && chmod +x phpunit-${PHPUNIT_VERSION}.phar \
