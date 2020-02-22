@@ -1,5 +1,5 @@
 .idea
 .vscode
-./.build.env
-./services
-./traefik/traefik.toml
+.build.env
+services
+traefik/traefik.toml

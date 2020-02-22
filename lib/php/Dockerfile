@@ -36,12 +36,10 @@ RUN set -ex && apt-get update \
         locales-all \
         nano \
         openssh-client \
-        ssmtp \
         unzip \
         zip \
         ${BUILD_DEPS} \
-    && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
-    && docker-php-ext-configure zip --with-libzip \
+    && docker-php-ext-configure gd --with-jpeg \
     && echo "$PHP_EXT_CONFIGURE" | tr ";" "\n" | while read ext ; do \
             if [ -n "${ext}" ]; then \
                 docker-php-ext-configure ${ext}; \
@@ -78,14 +76,16 @@ RUN if [ $COMPOSER = "true" ]; then \
 # Mail
 ARG MAIL=true
 ARG MAIL_HOST="mailhog:1025"
+ARG MAILHOG_VERSION="v0.2.0"
 RUN if [ $MAIL = "true" ]; then \
-    echo 'sendmail_path = "/usr/sbin/ssmtp -t"' | tee $PHP_INI_DIR/conf.d/mail.ini \
-    && sed -i "s/mailhub=mail/mailhub=$MAIL_HOST/g" /etc/ssmtp/ssmtp.conf \
-    && sed -i "s/#FromLineOverride=YES/FromLineOverride=YES/g" /etc/ssmtp/ssmtp.conf; fi
+    curl -sL https://github.com/mailhog/mhsendmail/releases/download/$MAILHOG_VERSION/mhsendmail_linux_amd64 \
+    -o /usr/local/bin/mhsendmail  \
+    && chmod +x /usr/local/bin/mhsendmail \
+    && echo "sendmail_path = \"/usr/local/bin/mhsendmail --smtp-addr=$MAIL_HOST\"" | tee $PHP_INI_DIR/conf.d/mail.ini; fi
 
 # PHPUnit
 ARG PHPUNIT=true
-ARG PHPUNIT_VERSION="8.1.6"
+ARG PHPUNIT_VERSION="9"
 RUN if [ $PHPUNIT = "true" ]; then \
     curl -O https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar \
     && chmod +x phpunit-${PHPUNIT_VERSION}.phar \
