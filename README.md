@@ -50,11 +50,13 @@ Mount the project directory path to `/var/www`. The document root is `/var/www/p
 volumes:
   - .:/var/www
 ```
-[ Optional ] To use your `ssh` keys to connect to a git repository, mount your `.ssh` directory to the `app` user's home directory.
+[ Optional ] To use your `ssh` keys to connect to a git repository, mount your `.ssh` directory to the `app` user's home directory. For yarn, mount your local `.cache` directory.
 ```
 volumes:
   - ~/.ssh:/home/app/.ssh
+  - ~/.cache:/home/app/.cache
 ```
+
 ## Start Project Container
 Inside the project directory, start the project container and the shared services.
 ```
@@ -74,6 +76,7 @@ The URL is `https://docker-project`.
 - Git: `docker-git`
 - Logs: `docker-logs`
 - npm: `docker-npm`
+- yarn: `docker-yarn`
 - PHPUnit: `docker-phpunit`
 - Symfony: `docker-symfony [phpunit]`
 - WP-CLI: `docker-wp [multisite-convert]`
@@ -114,11 +117,12 @@ The `EXTRA_HOSTS` build argument can be used to add additional hostname mappings
 EXTRA_HOSTS=example.com:192.16.10.10,example2.com:192.16.10.11
 ```
 ## Build Args
-To use a specific `stretch/apache` [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug and npm, set their attributes to true.
+To use a specific [PHP Docker image](https://hub.docker.com/_/php/), set the `RELEASE_VERSION` build argument in the `docker-compose.yml` file. To install Xdebug, npm and yarn, set their attributes to true.
 ```
 args:
   - XDEBUG=true
   - NODE_JS=true
+  - YARN=true
   - RELEASE_VERSION=apache
 ```
 There are other build arguments available for Composer, WP-CLI, the document root, user and group. Trailing URL slashes can be removed and the Apache log level can be set to debug.

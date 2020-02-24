@@ -81,6 +81,15 @@ RUN if [ $NODE_JS = "true" ]; then \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*; fi
 
+# yarn
+ARG YARN=true
+RUN if [ $YARN = "true" ]; then \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && \
+    apt-get install -qq -y yarn && \
+    rm -rf /var/lib/apt/lists/*; fi
+
 # Mail
 ARG MAIL=true
 ARG MAIL_HOST="mailhog:1025"
