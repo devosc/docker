@@ -87,6 +87,6 @@ RUN if [ $MAIL = "true" ]; then \
 ARG PHPUNIT=true
 ARG PHPUNIT_VERSION="9"
 RUN if [ $PHPUNIT = "true" ]; then \
-    curl -O https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar \
+    curl -LO https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar \
     && chmod +x phpunit-${PHPUNIT_VERSION}.phar \
     && mv phpunit-${PHPUNIT_VERSION}.phar /usr/local/bin/phpunit; fi

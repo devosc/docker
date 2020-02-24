@@ -94,7 +94,7 @@ RUN if [ $MAIL = "true" ]; then \
 # WP-CLI
 ARG WP_CLI=false
 RUN if [ $WP_CLI = "true" ]; then \
-    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    curl -LO https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp; fi
 
@@ -102,7 +102,7 @@ RUN if [ $WP_CLI = "true" ]; then \
 ARG PHPUNIT=true
 ARG PHPUNIT_VERSION="9"
 RUN if [ $PHPUNIT = "true" ]; then \
-    curl -O https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar \
+    curl -LO https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar \
     && chmod +x phpunit-${PHPUNIT_VERSION}.phar \
     && mv phpunit-${PHPUNIT_VERSION}.phar /usr/local/bin/phpunit; fi
 
