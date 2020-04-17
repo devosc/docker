@@ -29,4 +29,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./cert:/etc/traefik/cert
       - ./traefik.toml:/etc/traefik/traefik.toml
-      - ./dynamic.toml:/etc/traefik/dynamic.toml
