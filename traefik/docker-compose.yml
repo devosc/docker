@@ -16,10 +16,12 @@ services:
       - --api
     container_name: traefik
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.proxy.rule=Host(`traefik`)"
       - "traefik.http.routers.proxy.entrypoints=websecure"
       - "traefik.http.routers.proxy.service=api@internal"
       - "traefik.http.routers.proxy.tls=true"
+      - "traefik.http.routers.proxy.middlewares=auth@file"
     networks:
       - webgateway
     ports:
@@ -29,3 +31,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./cert:/etc/traefik/cert
       - ./traefik.toml:/etc/traefik/traefik.toml
+      - ./dynamic.toml:/etc/traefik/dynamic.toml

@@ -1,0 +1,12 @@
+[tls.stores]
+  [tls.stores.default]
+    [tls.stores.default.defaultCertificate]
+      certFile = "/etc/traefik/cert/traefik.crt"
+      keyFile = "/etc/traefik/cert/traefik.key"
+
+[http.middlewares]
+  [http.middlewares.auth.basicAuth]
+  users = [
+    #passwd: secret
+    "traefik:$apr1$1atJiaMf$mAy36wRVW7ZqnrvBF5/9X.",
+  ]
