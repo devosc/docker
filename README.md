@@ -43,7 +43,7 @@ Set the `container_name` and frontend `Host` variables to the name of the projec
 ```
 container_name: docker-project
 labels:
-  - traefik.frontend.rule=Host:docker-project
+  - "traefik.http.routers.app.rule=Host(`docker-project`)"
 ```
 Mount the project directory path to `/var/www`. The document root is `/var/www/public`.
 ```
