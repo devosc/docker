@@ -1,23 +1,21 @@
-debug = false
-
-logLevel = "ERROR"
-defaultEntryPoints = ["https","http"]
-
-[entryPoints]
-  [entryPoints.http]
+[entryPoints.web]
   address = ":80"
-    [entryPoints.http.redirect]
-    entryPoint = "https"
-  [entryPoints.https]
+  [entryPoints.web.http.redirections.entryPoint]
+    to = "websecure"
+    scheme = "https"
+
+[entryPoints.websecure]
   address = ":443"
-    [entryPoints.https.tls]
-      [[entryPoints.https.tls.certificates]]
-      certFile = "/etc/traefik/cert/traefik.crt"
-      keyFile = "/etc/traefik/cert/traefik.key"
 
-[retry]
+[[tls.certificates]]
+  certFile = "/etc/traefik/cert/traefik.crt"
+  keyFile = "/etc/traefik/cert/traefik.key"
 
-[docker]
-endpoint = "unix:///var/run/docker.sock"
-watch = true
-exposedByDefault = false
+[api]
+
+[providers.docker]
+    endpoint = "unix:///var/run/docker.sock"
+
+[log]
+  level = "ERROR"
+

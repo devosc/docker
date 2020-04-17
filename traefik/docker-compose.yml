@@ -8,12 +8,18 @@ networks:
 
 services:
   proxy:
-    image: traefik:v1.7.24
-    command: --api --docker
+    image: traefik
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker
+      - --api
     container_name: traefik
     labels:
-      - traefik.frontend.rule=Host:traefik
-      - traefik.port=8080
+      - "traefik.http.routers.proxy.rule=Host(`traefik`)"
+      - "traefik.http.routers.proxy.entrypoints=websecure"
+      - "traefik.http.routers.proxy.service=api@internal"
+      - "traefik.http.routers.proxy.tls=true"
     networks:
       - webgateway
     ports:
