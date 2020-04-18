@@ -129,7 +129,7 @@ function create_docker_compose_file()
     rm "${compose_file}.bak"
 
     echo "Host: ${host}"
-    sed -i.bak "s#rule=Host(.*#rule=Host(\\\`${host}\\\`)#g" "${compose_file}"
+    sed -i.bak "s#rule=Host(.*#rule=Host(\\\`${host}\\\`)\\\"#g" "${compose_file}"
     rm "${compose_file}.bak"
 
     echo "Document root: ${document_root}"
