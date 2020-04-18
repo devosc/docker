@@ -39,11 +39,11 @@ Copy the `docker-compose.yml` file into the PHP project directory and set the bu
 build:
   context: ~/docker
 ```
-Set the `container_name` and frontend `Host` variables to the name of the project.
+Set the `container_name`, router `name` and `Host` variables to the name of the project. The router `name` must be unique for Traefik to work correctly.
 ```
 container_name: docker-project
 labels:
-  - "traefik.http.routers.app.rule=Host(`docker-project`)"
+  - "traefik.http.routers.docker-project.rule=Host(`docker-project`)"
 ```
 Mount the project directory path to `/var/www`. The document root is `/var/www/public`.
 ```

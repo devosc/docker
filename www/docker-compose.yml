@@ -27,9 +27,10 @@ services:
     environment:
       - APACHE_DOCUMENT_ROOT=/var/www/public
     labels:
-      - traefik.docker.network=traefik_webgateway
-      - traefik.frontend.rule=Host:docker-project
-      - traefik.port=80
+      - "traefik.enable=true"
+      - "traefik.http.routers.docker-project.entrypoints=websecure"
+      - "traefik.http.routers.docker-project.rule=Host(`docker-project`)"
+      - "traefik.http.routers.docker-project.tls=true"
     networks:
       - public
     working_dir: /var/www
