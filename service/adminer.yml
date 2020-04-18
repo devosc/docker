@@ -12,9 +12,10 @@ services:
     container_name: adminer
     image: adminer
     labels:
-      - traefik.docker.network=traefik_webgateway
-      - traefik.frontend.rule=Host:adminer
-      - traefik.port=8080
+      - "traefik.enable=true"
+      - "traefik.http.routers.adminer.entrypoints=websecure"
+      - "traefik.http.routers.adminer.rule=Host(`adminer`)"
+      - "traefik.http.routers.adminer.tls=true"
     networks:
       - public
     restart: always

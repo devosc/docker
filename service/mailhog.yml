@@ -12,9 +12,11 @@ services:
     container_name: mailhog
     image: mailhog/mailhog
     labels:
-      - traefik.docker.network=traefik_webgateway
-      - traefik.frontend.rule=Host:mailhog
-      - traefik.port=8025
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailhog.entrypoints=websecure"
+      - "traefik.http.routers.mailhog.rule=Host(`mailhog`)"
+      - "traefik.http.routers.mailhog.tls=true"
+      - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
     networks:
       - public
     restart: always
