@@ -9,6 +9,7 @@ composer_dir="-v ${COMPOSER_DIR}:/home/app/.composer"
 directory="$(pwd)"
 extra_hosts="${EXTRA_HOSTS}"
 hosts=""
+tty="-t"
 name="php-docker-project-cli"
 network=""
 no_cache=""
@@ -38,6 +39,7 @@ Options:
     --build                     Build image from Dockerfile.
     --network NAME              Name of network to connect the container to, e.g. traefik_webgateway.
     --no-cache                  Do not use cache when building the image.
+    --no-tty                    Do not allocate a pseudo-TTY.
     --project-directory PATH    Alternative working directory, default is current directory.
     --ssh-keys                  Mount user ssh directory."
     exit
@@ -63,6 +65,9 @@ for ((i=0; i < "$#"; ++i)); do
                                 unset "args[i]"
                                 ;;
         --ssh-keys )            ssh_dir="-v ${HOME}/.ssh:/home/app/.ssh"
+                                unset "args[i]"
+                                ;;
+        --no-tty )              tty=""
                                 unset "args[i]"
                                 ;;
     esac
@@ -120,4 +125,4 @@ if [[ -z "${hosts}" ]] && [[ -n "${extra_hosts}" ]]; then
     done
 fi
 
-docker run -it --rm --name "${name}" ${hosts} -v "${volume}" ${network} ${ssh_dir} ${composer_dir} -w "${work_dir}" -u "${user}" "${image}" ${cmd} "${args[@]}"
+docker run -i ${tty} --rm --name "${name}" ${hosts} -v "${volume}" ${network} ${ssh_dir} ${composer_dir} -w "${work_dir}" -u "${user}" "${image}" ${cmd} "${args[@]}"
