@@ -66,7 +66,9 @@ RUN set -ex && if [ $OPCACHE_DEFAULTS = "true" ]; then \
 
 # Xdebug
 ARG XDEBUG=false
-RUN if [ $XDEBUG = "true" ]; then pecl install xdebug && docker-php-ext-enable xdebug; fi
+RUN if [ $XDEBUG = "true" ]; then \
+    pecl install xdebug && docker-php-ext-enable xdebug \
+    && echo "xdebug.mode=develop,coverage" | tee $PHP_INI_DIR/conf.d/xdebug-mode.ini; fi
 
 # Composer
 ARG COMPOSER=true
@@ -75,7 +77,7 @@ RUN if [ $COMPOSER = "true" ]; then \
 
 # npm
 ARG NODE_JS=false
-ARG NODE_VERSION="setup_13.x"
+ARG NODE_VERSION="setup_16.x"
 RUN if [ $NODE_JS = "true" ]; then \
     curl -sL https://deb.nodesource.com/$NODE_VERSION | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
@@ -109,7 +111,7 @@ RUN if [ $WP_CLI = "true" ]; then \
 
 # PHPUnit
 ARG PHPUNIT=true
-ARG PHPUNIT_VERSION="9"
+ARG PHPUNIT_VERSION="9.5.4"
 RUN if [ $PHPUNIT = "true" ]; then \
     curl -LO https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar \
     && chmod +x phpunit-${PHPUNIT_VERSION}.phar \
